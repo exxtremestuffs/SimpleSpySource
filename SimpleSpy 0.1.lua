@@ -15,10 +15,10 @@ local minimize = Instance.new("TextButton")
 local titleLabel = Instance.new("TextLabel")
 local remotes = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
-local eTemplate = Instance.new("Frame")
+local eTemplate = Instance.new("TextButton")
 local icon = Instance.new("ImageLabel")
 local name = Instance.new("TextLabel")
-local fTemplate = Instance.new("Frame")
+local fTemplate = Instance.new("TextButton")
 local icon_2 = Instance.new("ImageLabel")
 local name_2 = Instance.new("TextLabel")
 local properties = Instance.new("Frame")
@@ -304,11 +304,13 @@ function blacklisted(remote)
     return false
 end
 
---- Runs on input while mouse is in an Event fram on the leftmost frame; Responsible for handling clicking
-function eventSelect(frame, input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and (not selected or selected.Log ~= frame) then
+--- Runs on MouseButton1Click of an event frame
+function eventSelect(frame)
+    if --[[input.UserInputType == Enum.UserInputType.MouseButton1 and]] (not selected or selected.Log ~= frame) then
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play()
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play(
+
+            )
             selected = nil
         end
         for _, v in pairs(logs) do
@@ -317,7 +319,9 @@ function eventSelect(frame, input)
             end
         end
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play()
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play(
+
+            )
             codebox.Text = selected.GenScript
         end
     end
@@ -351,7 +355,7 @@ function newEvent(name, gen_script, remote, source_script)
         Remote = remote,
         Log = remoteFrame
     }
-    remoteFrame.InputBegan:Connect(
+    remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
         end
@@ -379,7 +383,7 @@ function newFunction(name, gen_script, remote, source_script)
         Remote = remote,
         Log = remoteFrame
     }
-    remoteFrame.InputBegan:Connect(
+    remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
         end
@@ -441,10 +445,22 @@ function typeToString(var, level)
         out = out .. tableToString(var, level)
     elseif typeof(var) == "TweenInfo" then
         -- TweenInfo
-        out = out .. "TweenInfo.new(" .. tostring(var.Time) .. ", Enum.EasingStyle." .. tostring(var.EasingStyle) .. ", Enum.EasingDirection." .. tostring(var.EasingDirection) .. ", " .. tostring(var.RepeatCount) .. ", " .. tostring(var.Reverses) .. ", " .. tostring(var.DelayTime) .. ")"
+        out =
+            out ..
+            "TweenInfo.new(" ..
+                tostring(var.Time) ..
+                    ", Enum.EasingStyle." ..
+                        tostring(var.EasingStyle) ..
+                            ", Enum.EasingDirection." ..
+                                tostring(var.EasingDirection) ..
+                                    ", " ..
+                                        tostring(var.RepeatCount) ..
+                                            ", " .. tostring(var.Reverses) .. ", " .. tostring(var.DelayTime) .. ")"
     elseif typeof(var) == "Ray" then
         -- Ray
-        out = out .. "Ray.new(Vector3.new(" .. tostring(var.Origin) .. "), Vector3.new(" .. tostring(var.Direction) .. "))"
+        out =
+            out ..
+            "Ray.new(Vector3.new(" .. tostring(var.Origin) .. "), Vector3.new(" .. tostring(var.Direction) .. "))"
     elseif typeof(var) == "NumberSequence" then
         -- NumberSequence
         out = out .. "NumberSequence.new("
