@@ -1,0 +1,18 @@
+{
+    "Lua.diagnostics.globals": [
+        "spawn",
+        "getnamecallmethod",
+        "setreadonly",
+        "getrawmetatable",
+        "game",
+        "typeof",
+        "wait",
+        "syn",
+        "warn",
+        "Instance",
+        "TweenInfo",
+        "Enum",
+        "UDim2",
+        "Color3"
+    ]
+}

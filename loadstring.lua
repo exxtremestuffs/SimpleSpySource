@@ -1,1 +1,1 @@
-loadstring(game:HTTPGet())()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpy/master/SimpleSpy_0.1-obfuscated.lua"))()
