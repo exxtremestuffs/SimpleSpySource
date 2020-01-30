@@ -1,0 +1,1 @@
+loadstring(game:HTTPGet())()
