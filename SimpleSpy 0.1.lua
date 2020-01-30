@@ -424,6 +424,82 @@ function space(level)
     return out
 end
 
+--- Converts a var to a string (including userdata)
+function typeToString(var, level)
+    local out = ""
+    if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" then
+        -- Number, booleans
+        out = out .. tostring(var)
+    elseif type(var) == "string" then
+        -- Strings
+        out = out .. '"' .. tostring(var) .. '"'
+    elseif type(var) == "table" then
+        -- Tables
+        out = out .. tableToString(var, level)
+    elseif typeof(var) == "TweenInfo" then
+        -- TweenInfo
+        out = out .. "TweenInfo.new(" .. tostring(var.Time) .. ", Enum.EasingStyle." .. tostring(var.EasingStyle) .. ", Enum.EasingDirection." .. tostring(var.EasingDirection) .. ", " .. tostring(var.RepeatCount) .. ", " .. tostring(var.Reverses) .. ", " .. tostring(var.DelayTime) .. ")"
+    elseif typeof(var) == "Ray" then
+        -- Ray
+        out = out .. "Ray.new(Vector3.new(" .. tostring(var.Origin) .. "), Vector3.new(" .. tostring(var.Direction) .. "))"
+    elseif typeof(var) == "NumberSequence" then
+        -- NumberSequence
+        out = out .. "NumberSequence.new("
+        for i, v in pairs(var.KeyPoints) do
+            out = out .. tostring(v)
+            if i < #var.Keypoints then
+                out = out .. ", "
+            end
+        end
+        out = out .. ")"
+    elseif typeof(var) == "DockWidgetPluginGuiInfo" then
+        -- DockWidgetPluginGuiInfo
+        out = out .. "DockWidgetPluginGuiInfo.new(Enum.InitialDockState" .. tostring(var) .. ")"
+    elseif typeof(var) == "ColorSequence" then
+        -- ColorSequence
+        out = out .. "ColorSequence.new("
+        for i, v in pairs(var.KeyPoints) do
+            out = out .. "Color3.new(" .. tostring(v) .. ")"
+            if i < #var.Keypoints then
+                out = out .. ", "
+            end
+        end
+        out = out .. ")"
+    elseif typeof(var) == "BrickColor" then
+        -- BrickColor
+        out = out .. "BrickColor.new(" .. tostring(var.Number) .. ")"
+    elseif typeof(var) == "NumberRange" then
+        -- NumberRange
+        out = out .. "NumberRange.new(" .. tostring(var.Min) .. ", " .. tostring(var.Max) .. ")"
+    elseif typeof(var) == "Region3" then
+        -- Region3
+        local center = var.CFrame.Position
+        local size = var.CFrame.Size
+        local vector1 = Vector3.new(center.X - (size.X / 2), center.Y - (size.Y / 2), center.X - (size.Z / 2))
+        local vector2 = Vector3.new(center.X + (size.X / 2), center.Y + (size.Y / 2), center.X + (size.Z / 2))
+        out = out .. "Region3.new(Vector3.new(" .. tostring(vector1) .. "), Vector3.new(" .. tostring(vector2) .. ")"
+    elseif type(var) == "userdata" and typeof(var) ~= "Instance" then
+        -- Default userdata (no instances)
+        local dataName = typeof(var)
+        local args = tostring(var)
+        for i = 1, args:len() do
+            if args:sub(i, i) == "}" or args:sub(i, i) == "{" then
+                if i > 1 and i < args:len() then
+                    args = args:sub(1, i - 1) .. " " .. args:sub(i + 1, args:len())
+                elseif i == 1 then
+                    args = " " .. args:sub(i + 1, args:len())
+                elseif i == args:len() then
+                    args = args:sub(1, i - 1) .. " "
+                end
+            end
+        end
+        out = out .. dataName .. ".new(" .. args .. ")"
+    elseif type(var) == "userdata" and typeof(var) == "Instance" then
+        -- Instances
+        out = out .. "game." .. var:GetFullName() .. ","
+    end
+end
+
 --- Converts a table to a string (includes nested tables)
 function tableToString(t, level)
     if type(level) ~= "number" then
@@ -433,43 +509,7 @@ function tableToString(t, level)
     end
     local out = ""
     for i, v in pairs(t) do
-        local index = tostring(i)
-        if type(i) == "string" then
-            index = '"' .. i .. '"'
-        elseif type(i) == "userdata" and typeof(i) == "Instance" then
-            index = "game." .. i:GetFullName()
-        elseif type(i) == "userdata" and typeof(i) ~= "Instance" then
-            local dataName = typeof(i)
-            -- TODO: build in table to string here
-            index = dataName .. ".new(" .. tostring(i) .. ")" .. ","
-        elseif type(i) == "table" then
-            index = tableToString(i, level)
-        end
-        if type(v) ~= "userdata" and type(v) ~= "table" and type(v) ~= "string" then
-            out = out .. "\n" .. space(level) .. "[" .. index .. "] = " .. tostring(v) .. ","
-        elseif type(v) == "string" then
-            out = out .. "\n" .. space(level) .. "[" .. index .. '] = "' .. tostring(v) .. '",'
-        elseif type(v) == "table" then
-            out = out .. "\n" .. space(level) .. "[" .. index .. "] = " .. tableToString(v, level) .. ","
-        elseif type(v) == "userdata" and typeof(v) ~= "Instance" then
-            local dataName = typeof(v)
-            -- TODO: build in table to string here
-            local args = tostring(v)
-            for i = 1, args:len() do
-                if args:sub(i, i) == "}" or args:sub(i, i) == "{" then
-                    if i > 1 and i < args:len() then
-                        args = args:sub(1, i - 1) .. " " .. args:sub(i + 1, args:len())
-                    elseif i == 1 then
-                        args = " " .. args:sub(i + 1, args:len())
-                    elseif i == args:len() then
-                        args = args:sub(1, i - 1) .. " "
-                    end
-                end
-            end
-            out = out .. "\n" .. space(level) .. "[" .. index .. "] = " .. dataName .. ".new(" .. args .. ")" .. ","
-        elseif type(v) == "userdata" and typeof(v) == "Instance" then
-            out = out .. "\n" .. space(level) .. "[" .. index .. "] = " .. "game." .. v:GetFullName() .. ","
-        end
+        out = out .. "\n" .. space(level) .. "[" .. typeToString(i, level) .. "] = " .. typeToString(v, level) .. ","
     end
     out = space(level - 4) .. "{" .. out .. "\n" .. space(level - 4) .. "}"
     return out
@@ -492,7 +532,6 @@ function namecall()
                     newEvent(remote.Name, genScript(remote, unpack(args)), remote, script)
                 end
             )
-            print("fineeto")
         elseif methodName == "InvokeServer" and not blacklisted(remote) then
             spawn(
                 function()

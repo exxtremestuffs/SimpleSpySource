@@ -13,6 +13,7 @@
         "TweenInfo",
         "Enum",
         "UDim2",
-        "Color3"
+        "Color3",
+        "Vector3"
     ]
 }
