@@ -426,6 +426,9 @@ end
 
 --- Converts a var to a string (including userdata)
 function typeToString(var, level)
+    if not level then
+        level = 4
+    end
     local out = ""
     if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" then
         -- Number, booleans
