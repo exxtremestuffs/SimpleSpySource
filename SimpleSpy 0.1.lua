@@ -306,7 +306,7 @@ end
 --- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
 function blacklisted(remote)
     for _, v in pairs(blacklist) do
-        if type(v) == string and v == remote.Name then
+        if type(v) == "string" and v == remote.Name then
             return true
         elseif typeof(v) == "Instance" and v == remote then
             return true
