@@ -308,9 +308,7 @@ end
 function eventSelect(frame)
     if --[[input.UserInputType == Enum.UserInputType.MouseButton1 and]] (not selected or selected.Log ~= frame) then
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play(
-
-            )
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play()
             selected = nil
         end
         for _, v in pairs(logs) do
@@ -319,9 +317,7 @@ function eventSelect(frame)
             end
         end
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play(
-
-            )
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play()
             codebox.Text = selected.GenScript
         end
     end
@@ -515,7 +511,34 @@ function typeToString(var, level)
         out = out .. dataName .. ".new(" .. args .. ")"
     elseif type(var) == "userdata" and typeof(var) == "Instance" then
         -- Instances
-        out = out .. "game." .. var:GetFullName() .. ","
+        local parent = var
+        if parent ~= game then
+            if var.Name:match(" ") then
+                out = "[\"" .. var.Name .. "\"]"
+            else
+                out = "." .. var.Name
+            end
+            repeat
+                parent = out.Parent
+                if parent == game then
+                    if pcall(loadstring("game:GetService(\"" .. parent.ClassName .. "\")")) then
+                        out = "game:GetService(\"" .. parent.ClassName .. "\")" .. out
+                    else
+                        out = "game[\"" .. parent.Name .. "\"]"
+                    end
+                else
+                    if parent.Name:match(" ") then
+                        out = "[\"" .. parent.Name .. "\"]" .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                end
+            until parent == game
+        else
+            out = "game"
+        end
+        -- legacy method
+        -- out = out .. "game." .. var:GetFullName() .. ","
     end
 end
 
