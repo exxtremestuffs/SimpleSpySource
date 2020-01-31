@@ -76,7 +76,7 @@ remotes.Parent = main
 remotes.BackgroundColor3 = Color3.new(1, 1, 1)
 remotes.BackgroundTransparency = 1
 remotes.BorderSizePixel = 0
-remotes.Position = UDim2.new(0, 0, 0.0775862038, 0)
+remotes.Position = UDim2.new(0, 0, 0, 18)
 remotes.Size = UDim2.new(0.5, 0, 1, -18)
 remotes.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 remotes.ScrollBarThickness = 10
@@ -151,7 +151,7 @@ properties.Name = "properties"
 properties.Parent = main
 properties.BackgroundColor3 = Color3.new(1, 1, 1)
 properties.BackgroundTransparency = 1
-properties.Position = UDim2.new(0.5, 0, 0.0780000016, 0)
+properties.Position = UDim2.new(0.5, 0, 0, 18)
 properties.Size = UDim2.new(0.5, 0, 1, -18)
 
 codeframe.Name = "codeframe"
@@ -181,7 +181,7 @@ propertyframe.Parent = properties
 propertyframe.BackgroundColor3 = Color3.new(0.141176, 0.141176, 0.141176)
 propertyframe.BorderSizePixel = 0
 propertyframe.Position = UDim2.new(0, 0, 0.5, 0)
-propertyframe.Size = UDim2.new(1, 0, 0.5, -18)
+propertyframe.Size = UDim2.new(1, 0, 0.5, 0)
 propertyframe.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 propertyframe.ScrollBarThickness = 10
 propertyframe.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -526,13 +526,7 @@ function typeToString(var, level)
         if parent == nil then
             out = "nil"
         elseif parent ~= game then
-            -- if var.Name:match(" ") then
-            --     out = '["' .. var.Name .. '"]'
-            -- else
-            --     out = "." .. var.Name
-            -- end
-            repeat
-                -- parent = parent.Parent
+            while true do
                 if parent and parent.Parent == game then
                     if game:GetService(parent.ClassName) then
                         out = 'game:GetService("' .. parent.ClassName .. '")' .. out
@@ -553,7 +547,7 @@ function typeToString(var, level)
                     end
                 end
                 parent = parent.Parent
-            until true
+            end
         else
             out = "game"
         end
