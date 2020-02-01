@@ -269,9 +269,9 @@ setreadonly(gm, false)
 --- Toggles the remote spy method (when button clicked)
 function onToggleButtonClick()
     if toggle then
-        methodToggle.Text = "Hookfunction"
+        methodToggle.Text = "Disabled"
     else
-        methodToggle.Text = "Namecall"
+        methodToggle.Text = "Enabled"
     end
     toggleSpyMethod()
 end
