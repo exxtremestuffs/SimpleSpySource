@@ -660,73 +660,73 @@ end
 
 function toggleHook()
     if toggle then
-        local function connect(remote)
-            spawn(
-                function()
-                    if remote:IsA("RemoteEvent") then
-                        local old
-                        old =
-                            hookfunction(
-                            remote.FireServer,
-                            function(...)
-                                newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-                                return old(...)
-                            end
-                        )
-                        table.insert(connectedRemotes, {remote, old})
-                    elseif remote:IsA("RemoteFunction") then
-                        local old
-                        old =
-                            hookfunction(
-                            remote.InvokeServer,
-                            function(...)
-                                newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-                                return old(...)
-                            end
-                        )
-                        table.insert(connectedRemotes, {remote, old})
-                    end
-                end
-            )
-        end
-        game.ChildAdded:Connect(
-            function(c)
-                pcall(
-                    function()
-                        if c:IsA("RemoteEvent") and c:IsA("RemoteFunction") then
-                            connect(c)
-                        end
-                    end
-                )
-            end
-        )
-        spawn(
-            function()
-                for _, v in pairs(game:GetDescendants()) do
-                    if toggle then
-                        pcall(
-                            function()
-                                if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-                                    connect(v)
-                                end
-                            end
-                        )
-                        wait()
-                    end
-                end
-            end
-        )
+        -- local function connect(remote)
+        --     spawn(
+        --         function()
+        --             if remote:IsA("RemoteEvent") then
+        --                 local old
+        --                 old =
+        --                     hookfunction(
+        --                     remote.FireServer,
+        --                     function(...)
+        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+        --                         return old(...)
+        --                     end
+        --                 )
+        --                 table.insert(connectedRemotes, {remote, old})
+        --             elseif remote:IsA("RemoteFunction") then
+        --                 local old
+        --                 old =
+        --                     hookfunction(
+        --                     remote.InvokeServer,
+        --                     function(...)
+        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+        --                         return old(...)
+        --                     end
+        --                 )
+        --                 table.insert(connectedRemotes, {remote, old})
+        --             end
+        --         end
+        --     )
+        -- end
+        -- game.ChildAdded:Connect(
+        --     function(c)
+        --         pcall(
+        --             function()
+        --                 if c:IsA("RemoteEvent") and c:IsA("RemoteFunction") then
+        --                     connect(c)
+        --                 end
+        --             end
+        --         )
+        --     end
+        -- )
+        -- spawn(
+        --     function()
+        --         for _, v in pairs(game:GetDescendants()) do
+        --             if toggle then
+        --                 pcall(
+        --                     function()
+        --                         if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+        --                             connect(v)
+        --                         end
+        --                     end
+        --                 )
+        --                 wait()
+        --             end
+        --         end
+        --     end
+        -- )
     else
-        for _, v in pairs(connectedRemotes) do
-            if v[1] and v[2] then
-                if v[1]:IsA("RemoteEvent") then
-                    hookfunction(v[1].FireServer, v[2])
-                elseif v[1]:IsA("RemoteFunction") then
-                    hookfunction(v[1].InvokeServer, v[2])
-                end
-            end
-        end
-        connectedRemotes = {}
+        -- for _, v in pairs(connectedRemotes) do
+        --     if v[1] and v[2] then
+        --         if v[1]:IsA("RemoteEvent") then
+        --             hookfunction(v[1].FireServer, v[2])
+        --         elseif v[1]:IsA("RemoteFunction") then
+        --             hookfunction(v[1].InvokeServer, v[2])
+        --         end
+        --     end
+        -- end
+        -- connectedRemotes = {}
     end
 end
 
