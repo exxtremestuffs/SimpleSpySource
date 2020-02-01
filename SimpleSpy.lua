@@ -69,7 +69,7 @@ titleLabel.BorderSizePixel = 0
 titleLabel.Position = UDim2.new(0.25, 0, 0, 0)
 titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
 titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Text = "SimpleSpy v0.5 |  exxtremewa#9394"
+titleLabel.Text = "SimpleSpy v0.6 |  exxtremewa#9394"
 titleLabel.TextColor3 = Color3.new(0.905882, 0.905882, 0.905882)
 titleLabel.TextSize = 14
 
