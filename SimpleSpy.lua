@@ -507,6 +507,20 @@ function space(level)
     return out
 end
 
+function getSpecials(s)
+    if s:match("\n") then
+        local pos, pos2 = s:find("\n")
+        s = s:sub(0, pos - 1) .. "\\n" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s)
+    elseif s:match("\t") then
+        local pos, pos2 = s:find("\t")
+        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s)
+    else
+        return s
+    end
+end
+
 --- Converts a var to a string (including userdata)
 function typeToString(var, level)
     if not level then
@@ -518,7 +532,7 @@ function typeToString(var, level)
         out = out .. tostring(var)
     elseif type(var) == "string" then
         -- Strings
-        out = out .. '"' .. tostring(var) .. '"'
+        out = out .. '"' .. getSpecials(var) .. '"'
     elseif type(var) == "table" then
         -- Tables
         out = out .. tableToString(var, level)
@@ -686,15 +700,22 @@ function toggleHook()
                 )
             end
         )
-        for _, v in pairs(game:GetDescendants()) do
-            pcall(
-                function()
-                    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-                        connect(v)
+        spawn(
+            function()
+                for _, v in pairs(game:GetDescendants()) do
+                    if toggle then
+                        pcall(
+                            function()
+                                if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                                    connect(v)
+                                end
+                            end
+                        )
+                        wait()
                     end
                 end
-            )
-        end
+            end
+        )
     else
         for _, v in pairs(connectedRemotes) do
             if v[1] and v[2] then
@@ -738,8 +759,8 @@ function toggleNamecall()
 end
 
 function toggleSpyMethod()
-    toggleNamecall()
     toggleHook()
+    toggleNamecall()
     toggle = not toggle
 end
 
