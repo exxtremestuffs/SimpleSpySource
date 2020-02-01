@@ -69,7 +69,7 @@ titleLabel.BorderSizePixel = 0
 titleLabel.Position = UDim2.new(0.25, 0, 0, 0)
 titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
 titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Text = "SimpleSpy v0.4 |  exxtremewa#9394"
+titleLabel.Text = "SimpleSpy v0.5 |  exxtremewa#9394"
 titleLabel.TextColor3 = Color3.new(0.905882, 0.905882, 0.905882)
 titleLabel.TextSize = 14
 
@@ -226,8 +226,8 @@ methodToggle.Name = "MethodToggle"
 methodToggle.Parent = topbar
 methodToggle.BackgroundColor3 = Color3.new(0.7450980392156863, 0.7450980392156863, 0.7450980392156863)
 methodToggle.BorderSizePixel = 0
-methodToggle.Position = UDim2.new(1, -100, 0, 0)
-methodToggle.Size = UDim2.new(0, 100, 1, 0)
+methodToggle.Position = UDim2.new(1, -80, 0, 0)
+methodToggle.Size = UDim2.new(0, 80, 1, 0)
 methodToggle.TextScaled = true
 methodToggle.Font = Enum.Font.SourceSans
 
@@ -314,11 +314,13 @@ function toggleMinimize()
         remotes.Visible = false
         properties.Visible = false
         titleLabel.Visible = false
+        methodToggle.Visible = false
         TweenService:Create(main, TweenInfo.new(0.5), {Size = minSize}):Play()
     else
         closed = not closed
         TweenService:Create(main, TweenInfo.new(0.5), {Size = mainSize}):Play()
         wait(0.5)
+        methodToggle.Visible = true
         remotes.Visible = true
         properties.Visible = true
         titleLabel.Visible = true
@@ -610,7 +612,7 @@ function typeToString(var, level)
                     out = 'getNil("' .. parent.Name .. '", "' .. parent.ClassName .. '")'
                     break
                 else
-                    if not parent.Name:match("%a+") == parent.Name then
+                    if parent.Name:match("%a+") ~= parent.Name then
                         out = '["' .. parent.Name .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
@@ -638,34 +640,40 @@ function tableToString(t, level)
     for i, v in pairs(t) do
         out = out .. "\n" .. space(level) .. "[" .. typeToString(i, level) .. "] = " .. typeToString(v, level) .. ","
     end
-    out = space(level - 4) .. "{" .. out .. "\n" .. space(level - 4) .. "}"
+    out = "{" .. out .. "\n" .. space(level - 4) .. "}"
     return out
 end
 
 function toggleHook()
     if toggle then
         local function connect(remote)
-            if remote:IsA("RemoteEvent") then
-                local old
-                old = hookfunction(
-                    remote.FireServer,
-                    function(...)
-                        newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-                        return old(...)
+            spawn(
+                function()
+                    if remote:IsA("RemoteEvent") then
+                        local old
+                        old =
+                            hookfunction(
+                            remote.FireServer,
+                            function(...)
+                                newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+                                return old(...)
+                            end
+                        )
+                        table.insert(connectedRemotes, {remote, old})
+                    elseif remote:IsA("RemoteFunction") then
+                        local old
+                        old =
+                            hookfunction(
+                            remote.InvokeServer,
+                            function(...)
+                                newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+                                return old(...)
+                            end
+                        )
+                        table.insert(connectedRemotes, {remote, old})
                     end
-                )
-                table.insert(connectedRemotes, {remote, old})
-            elseif remote:IsA("RemoteFunction") then
-                local old
-                old = hookfunction(
-                    remote.InvokeServer,
-                    function(...)
-                        newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-                        return old(...)
-                    end
-                )
-                table.insert(connectedRemotes, {remote, old})
-            end
+                end
+            )
         end
         game.ChildAdded:Connect(
             function(c)
