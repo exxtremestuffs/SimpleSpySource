@@ -29,6 +29,7 @@ local UIListLayout_2 = Instance.new("UIListLayout")
 local property = Instance.new("Frame")
 local name_3 = Instance.new("TextLabel")
 local property_2 = Instance.new("TextButton")
+local methodToggle = Instance.new("TextButton")
 
 --Properties:
 
@@ -46,6 +47,7 @@ main.Size = UDim2.new(0.5, 0, 0.5, 0)
 
 topbar.Name = "topbar"
 topbar.Parent = main
+topbar.BorderSizePixel = 0
 topbar.BackgroundColor3 = Color3.new(0.121569, 0.121569, 0.121569)
 topbar.Size = UDim2.new(1, 0, 0, 18)
 
@@ -166,6 +168,7 @@ codeframe.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 codebox.Name = "codebox"
 codebox.Parent = codeframe
 codebox.BackgroundColor3 = Color3.new(0.0784314, 0.0784314, 0.0784314)
+codebox.BorderSizePixel = 0
 codebox.Selectable = true
 codebox.Size = UDim2.new(1, -10, 1, 0)
 codebox.Font = Enum.Font.SourceSansSemibold
@@ -219,6 +222,15 @@ property_2.TextColor3 = Color3.new(0.909804, 0.909804, 0.909804)
 property_2.TextSize = 14
 property_2.TextXAlignment = Enum.TextXAlignment.Left
 
+methodToggle.Name = "MethodToggle"
+methodToggle.Parent = topbar
+methodToggle.BackgroundColor3 = Color3.new(0.7450980392156863, 0.7450980392156863, 0.7450980392156863)
+methodToggle.BorderSizePixel = 0
+methodToggle.Position = UDim2.new(1, -100, 0, 0)
+methodToggle.Size = UDim2.new(0, 100, 1, 0)
+methodToggle.TextScaled = true
+methodToggle.Font = Enum.Font.SourceSans
+
 -------------------------------------------------------------------------------
 -- init
 local RunService = game:GetService("RunService")
@@ -244,8 +256,25 @@ selected = nil
 blacklist = {}
 --- Whether or not to add getNil function
 local getNil = false
+--- Array of remotes (and original functions) connected to
+local connectedRemotes = {}
+--- True = hookfunction, false = namecall
+local toggle = false
+local gm = getrawmetatable(game)
+local original = gm.__namecall
+setreadonly(gm, false)
 
 -- functions
+
+--- Toggles the remote spy method (when button clicked)
+function onToggleButtonClick()
+    if toggle then
+        methodToggle.Text = "Hookfunction"
+    else
+        methodToggle.Text = "Namecall"
+    end
+    toggleSpyMethod()
+end
 
 --- Drags gui (so long as mouse is held down)
 function onBarInput(input)
@@ -405,7 +434,44 @@ function genScript(remote, ...)
     local gen = ""
     local args = {...}
     if #args > 0 then
-        gen = gen .. "local args = " .. tableToString(args) .. "\n\n"
+        if
+            not pcall(
+                function()
+                    gen = gen .. "local args = " .. tableToString(args) .. "\n\n"
+                end
+            )
+         then
+            gen =
+                gen .. "-- TableToString failure! Reverting to legacy functionality (results may vary)\nlocal args = {"
+            if
+                not pcall(
+                    function()
+                        for i, v in pairs(args) do
+                            if type(i) ~= "Instance" and type(i) ~= "userdata" then
+                                gen = gen .. "\n    [" .. tostring(i) .. "] = "
+                            elseif type(i) == "string" then
+                                gen = gen .. '\n    ["' .. tostring(i) .. '"] = '
+                            elseif type(i) == "userdata" and typeof(i) ~= "Instance" then
+                                gen = gen .. "\n    [" .. typeof(i) .. ".new(" .. tostring(i) .. ")] = "
+                            elseif type(i) == "userdata" then
+                                gen = gen .. "\n    [game." .. i:GetFullName() .. ")] = "
+                            end
+                            if type(v) ~= "Instance" and type(v) ~= "userdata" then
+                                gen = gen .. tostring(v)
+                            elseif type(v) == "string" then
+                                gen = gen .. '"' .. tostring(v) .. '"'
+                            elseif type(v) == "userdata" and typeof(v) ~= "Instance" then
+                                gen = gen .. typeof(v) .. ".new(" .. tostring(v) .. ")"
+                            elseif type(v) == "userdata" then
+                                gen = gen .. "game." .. v:GetFullName()
+                            end
+                        end
+                    end
+                )
+             then
+                gen = gen .. "}\n-- Legacy tableToString failure! Unable to decompile."
+            end
+        end
         if remote:IsA("RemoteEvent") then
             gen = gen .. typeToString(remote) .. ":FireServer(unpack(args))"
         elseif remote:IsA("RemoteFunction") then
@@ -419,10 +485,14 @@ function genScript(remote, ...)
         end
     end
     if getNil then
-        gen = "function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end\n\n" .. gen
+        gen =
+            "function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end\n\n" ..
+            gen
+        getNil = false
     end
     gen =
-        "-- Script generated by SimpleSpy - credits to exxtremewa#9394\n-- This generator is IN DEVELOPMENT, not compatible with all types/classes yet\n\n" .. gen 
+        "-- Script generated by SimpleSpy - credits to exxtremewa#9394\n-- This generator is IN DEVELOPMENT, not compatible with all types/classes yet\n\n" ..
+        gen
     return gen
 end
 
@@ -537,10 +607,10 @@ function typeToString(var, level)
                     end
                 elseif parent.Parent == nil then
                     getNil = true
-                    out = "getNil(\"" .. parent.Name .. "\", \"" .. parent.ClassName .. "\")"
+                    out = 'getNil("' .. parent.Name .. '", "' .. parent.ClassName .. '")'
                     break
                 else
-                    if parent.Name:match(" ") then
+                    if not parent.Name:match("%a+") == parent.Name then
                         out = '["' .. parent.Name .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
@@ -572,32 +642,97 @@ function tableToString(t, level)
     return out
 end
 
---- the big boi function that does the remote spying- only run it once
-function namecall()
-    local gm = getrawmetatable(game)
-    local original = gm.__namecall
-    setreadonly(gm, false)
-    gm.__namecall = function(...)
-        local args = {...}
-        local remote = args[1]
-        table.remove(args, 1)
-        local methodName = getnamecallmethod()
-        local script = rawget(getfenv(2), "script")
-        if methodName == "FireServer" and not blacklisted(remote) then
-            spawn(
+function toggleHook()
+    if toggle then
+        local function connect(remote)
+            if remote:IsA("RemoteEvent") then
+                local old
+                old = hookfunction(
+                    remote.FireServer,
+                    function(...)
+                        newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+                        return old(...)
+                    end
+                )
+                table.insert(connectedRemotes, {remote, old})
+            elseif remote:IsA("RemoteFunction") then
+                local old
+                old = hookfunction(
+                    remote.InvokeServer,
+                    function(...)
+                        newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
+                        return old(...)
+                    end
+                )
+                table.insert(connectedRemotes, {remote, old})
+            end
+        end
+        game.ChildAdded:Connect(
+            function(c)
+                pcall(
+                    function()
+                        if c:IsA("RemoteEvent") and c:IsA("RemoteFunction") then
+                            connect(c)
+                        end
+                    end
+                )
+            end
+        )
+        for _, v in pairs(game:GetDescendants()) do
+            pcall(
                 function()
-                    newEvent(remote.Name, genScript(remote, unpack(args)), remote, script)
-                end
-            )
-        elseif methodName == "InvokeServer" and not blacklisted(remote) then
-            spawn(
-                function()
-                    newFunction(remote.Name, genScript(remote, unpack(args)), remote, script)
+                    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                        connect(v)
+                    end
                 end
             )
         end
-        return original(...)
+    else
+        for _, v in pairs(connectedRemotes) do
+            if v[1] and v[2] then
+                if v[1]:IsA("RemoteEvent") then
+                    hookfunction(v[1].FireServer, v[2])
+                elseif v[1]:IsA("RemoteFunction") then
+                    hookfunction(v[1].InvokeServer, v[2])
+                end
+            end
+        end
+        connectedRemotes = {}
     end
+end
+
+function toggleNamecall()
+    if not toggle then
+        gm.__namecall = function(...)
+            local args = {...}
+            local remote = args[1]
+            table.remove(args, 1)
+            local methodName = getnamecallmethod()
+            local script = rawget(getfenv(2), "script")
+            if methodName == "FireServer" and not blacklisted(remote) then
+                spawn(
+                    function()
+                        newEvent(remote.Name, genScript(remote, unpack(args)), remote, script)
+                    end
+                )
+            elseif methodName == "InvokeServer" and not blacklisted(remote) then
+                spawn(
+                    function()
+                        newFunction(remote.Name, genScript(remote, unpack(args)), remote, script)
+                    end
+                )
+            end
+            return original(...)
+        end
+    else
+        gm.__namecall = original
+    end
+end
+
+function toggleSpyMethod()
+    toggleNamecall()
+    toggleHook()
+    toggle = not toggle
 end
 
 -- main
@@ -608,7 +743,8 @@ eTemplate.Parent = nil
 codebox.Text = ""
 topbar.InputBegan:Connect(onBarInput)
 minimize.MouseButton1Click:Connect(toggleMinimize)
-namecall()
+methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
+onToggleButtonClick()
 
 ----- ADD ONS ----- (easily add or remove additonal functionality to the RemoteSpy!)
 --[[

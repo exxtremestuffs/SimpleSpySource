@@ -14,6 +14,8 @@
         "Enum",
         "UDim2",
         "Color3",
-        "Vector3"
+        "Vector3",
+        "getnilinstances",
+        "hookfunction"
     ]
 }
