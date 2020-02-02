@@ -468,6 +468,7 @@ function genScript(remote, ...)
                                 gen = gen .. "game." .. v:GetFullName()
                             end
                         end
+                        gen = gen .. "\n}\n\n"
                     end
                 )
              then
@@ -507,15 +508,31 @@ function space(level)
     return out
 end
 
-function getSpecials(s)
+--- Adds \'s to the text as a replacement to whitespace chars and other things
+function getSpecials(s, nested)
+    if not nested then
+        s = s:gsub("\\", "\\\\")
+    end
     if s:match("\n") then
         local pos, pos2 = s:find("\n")
         s = s:sub(0, pos - 1) .. "\\n" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s)
+        return getSpecials(s, true)
     elseif s:match("\t") then
         local pos, pos2 = s:find("\t")
         s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s)
+        return getSpecials(s, true)
+    elseif s:match("\t") then
+        local pos, pos2 = s:find("\t")
+        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("\"") and (s:sub(s:find("\"") - 1, s:find("\"") - 1) ~= "\\") then
+        local pos, pos2 = s:find("\"")
+        s = s:sub(0, pos - 1) .. "\\\"" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("'") and (s:sub(s:find("'") - 1, s:find("'") - 1) ~= "\\") then
+        local pos, pos2 = s:find("'")
+        s = s:sub(0, pos - 1) .. "\\'" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
     else
         return s
     end
@@ -615,19 +632,23 @@ function typeToString(var, level)
             while true do
                 if parent and parent.Parent == game then
                     if game:GetService(parent.ClassName) then
-                        out = 'game:GetService("' .. parent.ClassName .. '")' .. out
+                        if parent.ClassName == "Workspace" then
+                            out = "workspace" .. out
+                        else
+                            out = 'game:GetService("' .. parent.ClassName .. '")' .. out
+                        end
                         break
                     else
-                        out = 'game["' .. parent.Name .. '"]'
+                        out = 'game["' .. getSpecials(parent.Name) .. '"]'
                         break
                     end
                 elseif parent.Parent == nil then
                     getNil = true
-                    out = 'getNil("' .. parent.Name .. '", "' .. parent.ClassName .. '")'
+                    out = 'getNil("' .. getSpecials(parent.Name) .. '", "' .. parent.ClassName .. '")'
                     break
                 else
                     if parent.Name:match("%a+") ~= parent.Name then
-                        out = '["' .. parent.Name .. '"]' .. out
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
                     end
@@ -765,15 +786,21 @@ function toggleSpyMethod()
 end
 
 -- main
-ContentProvider:PreloadAsync({icon, icon_2})
-property.Parent = nil
-fTemplate.Parent = nil
-eTemplate.Parent = nil
-codebox.Text = ""
-topbar.InputBegan:Connect(onBarInput)
-minimize.MouseButton1Click:Connect(toggleMinimize)
-methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
-onToggleButtonClick()
+if not _G.SimpleSpyExecuted then
+    ContentProvider:PreloadAsync({icon, icon_2})
+    property.Parent = nil
+    fTemplate.Parent = nil
+    eTemplate.Parent = nil
+    codebox.Text = ""
+    topbar.InputBegan:Connect(onBarInput)
+    minimize.MouseButton1Click:Connect(toggleMinimize)
+    methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
+    onToggleButtonClick()
+    _G.SimpleSpyExecuted = true
+else
+    ScreenGui:Destroy()
+    collectgarbage()
+end
 
 ----- ADD ONS ----- (easily add or remove additonal functionality to the RemoteSpy!)
 --[[
