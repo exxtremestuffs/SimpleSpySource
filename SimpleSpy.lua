@@ -263,6 +263,8 @@ local toggle = false
 local gm = getrawmetatable(game)
 local original = gm.__namecall
 setreadonly(gm, false)
+--- This event is the main handler for remotes
+local remoteHandlerEvent = Instance.new("BindableEvent")
 
 -- functions
 
@@ -679,6 +681,7 @@ function tableToString(t, level)
     return out
 end
 
+--- Toggles on and off the Hookfunction remote spy method (DISABLED- will not run)
 function toggleHook()
     if toggle then
         -- local function connect(remote)
@@ -751,6 +754,7 @@ function toggleHook()
     end
 end
 
+--- Toggles on and off the namecall remote spy method
 function toggleNamecall()
     if not toggle then
         gm.__namecall = function(...)
@@ -762,13 +766,13 @@ function toggleNamecall()
             if methodName == "FireServer" and not blacklisted(remote) then
                 spawn(
                     function()
-                        newEvent(remote.Name, genScript(remote, unpack(args)), remote, script)
+                        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script)
                     end
                 )
             elseif methodName == "InvokeServer" and not blacklisted(remote) then
                 spawn(
                     function()
-                        newFunction(remote.Name, genScript(remote, unpack(args)), remote, script)
+                        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script)
                     end
                 )
             end
@@ -779,10 +783,20 @@ function toggleNamecall()
     end
 end
 
+--- Toggles between the two remotespy methods (hookfunction currently = disabled)
 function toggleSpyMethod()
     toggleHook()
     toggleNamecall()
     toggle = not toggle
+end
+
+--- Handles the button creation things... Connected to `remoteHandlerEvent`
+function bindableHandler(type, ...)
+    if type == "RemoteEvent" then
+        newEvent(...)
+    elseif type == "RemoteFunction" then
+        newFunction(...)
+    end
 end
 
 -- main
@@ -795,6 +809,7 @@ if not _G.SimpleSpyExecuted then
     topbar.InputBegan:Connect(onBarInput)
     minimize.MouseButton1Click:Connect(toggleMinimize)
     methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
+    remoteHandlerEvent.Event:Connect(bindableHandler)
     onToggleButtonClick()
     _G.SimpleSpyExecuted = true
 else
