@@ -254,6 +254,8 @@ logs = {}
 selected = nil
 --- The blacklist (can be a string name or the Remote Instance)
 blacklist = {}
+--- The block list (can be a string name or the Remote Instance)
+blocklist = {}
 --- Whether or not to add getNil function
 local getNil = false
 --- Array of remotes (and original functions) connected to
@@ -331,11 +333,27 @@ end
 
 --- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
 function blacklisted(remote)
-    for _, v in pairs(blacklist) do
-        if type(v) == "string" and v == remote.Name then
-            return true
-        elseif typeof(v) == "Instance" and v == remote then
-            return true
+    if #blacklist > 0 then
+        for _, v in pairs(blacklist) do
+            if type(v) == "string" and v == remote.Name then
+                return true
+            elseif typeof(v) == "Instance" and v == remote then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--- Checks if the given Remote is blocked; returns true if blacklisted, false if not
+function blocked(remote)
+    if #blocklist > 0 then
+        for _, v in pairs(blocklist) do
+            if type(v) == "string" and v == remote.Name then
+                return true
+            elseif typeof(v) == "Instance" and v == remote then
+                return true
+            end
         end
     end
     return false
@@ -371,14 +389,16 @@ function newButton(name, defaultName, onClick)
     button.property.Text = defaultName
     button.property.MouseButton1Click:Connect(
         function(...)
-            onClick(button.property, ...)
+            if selected then
+                onClick(button.property, ...)
+            end
         end
     )
     button.Parent = propertyframe
 end
 
 --- Adds new RemoteEvent to logs
-function newEvent(name, gen_script, remote, source_script)
+function newEvent(name, gen_script, remote, source_script, func, blocked)
     local remoteFrame = eTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -390,8 +410,13 @@ function newEvent(name, gen_script, remote, source_script)
         GenScript = gen_script,
         Source = source_script,
         Remote = remote,
-        Log = remoteFrame
+        Log = remoteFrame,
+        Function = func,
+        Blocked = blocked
     }
+    if blocked then
+        logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
+    end
     remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
@@ -406,7 +431,7 @@ function newEvent(name, gen_script, remote, source_script)
 end
 
 --- Adds new RemoteFunction to logs
-function newFunction(name, gen_script, remote, source_script)
+function newFunction(name, gen_script, remote, source_script, func, blocked)
     local remoteFrame = fTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -418,8 +443,13 @@ function newFunction(name, gen_script, remote, source_script)
         GenScript = gen_script,
         Source = source_script,
         Remote = remote,
-        Log = remoteFrame
+        Log = remoteFrame,
+        Function = func,
+        Blocked = blocked
     }
+    if blocked then
+        logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
+    end
     remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
@@ -760,23 +790,29 @@ function toggleNamecall()
         gm.__namecall = function(...)
             local args = {...}
             local remote = args[1]
-            table.remove(args, 1)
             local methodName = getnamecallmethod()
-            local script = rawget(getfenv(2), "script")
             if methodName == "FireServer" and not blacklisted(remote) then
+                table.remove(args, 1)
+                local script = rawget(getfenv(2), "script")
+                local func = debug.getlocals()
                 spawn(
                     function()
-                        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script)
+                        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, func, blocked(remote))
                     end
                 )
             elseif methodName == "InvokeServer" and not blacklisted(remote) then
+                table.remove(args, 1)
+                local script = rawget(getfenv(2), "script")
+                local func = debug.getlocals
                 spawn(
                     function()
-                        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script)
+                        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, func, blocked(remote))
                     end
                 )
             end
-            return original(...)
+            if not blocked(remote) then
+                return original(...)
+            end
         end
     else
         gm.__namecall = original
@@ -830,7 +866,7 @@ end
                 GenScript: (string) The generated script that appears in the codebox (generated when namecall fired)
                 Source: (Instance (LocalScript)) The script that fired/invoked the remote
                 Remote: (Instance (RemoteEvent) | Instance (RemoteFunction)) The remote that was fired/invoked
-                Log: Instance (TextButton) The button being used for the remote (same as 'selected.Log')
+                Log: (Instance (TextButton)) The button being used for the remote (same as 'selected.Log')
             }
         - globals list: (contact @exxtremewa#9394 for more information or if you have suggestions for more to be added)
             - closed: (boolean) whether or not the GUI is currently minimized
@@ -845,18 +881,69 @@ newButton(
     "Click to copy code",
     function(button)
         local orText = "Click to copy code"
-        if syn and syn.write_clipboard then
-            syn.write_clipboard(codebox.Text)
-            button.Text = "Copied successfully!"
-            wait(2)
-            button.Text = orText
-        else
-            codebox:CaptureFocus()
-            -- TODO: add select text
-            button.Text = "Press CTRL + C to copy text..."
-            wait(5)
-            button.Text = orText
+        syn.write_clipboard(codebox.Text)
+        button.Text = "Copied successfully!"
+        wait(2)
+        button.Text = orText
+    end
+)
+
+--- Copies the source script (that fired the remote)
+newButton(
+    "Copy Remote",
+    "Click to copy the path of the remote",
+    function(button)
+        local orText = "Click to copy the path of the remote"
+        syn.write_clipboard(typeToString(selected.Remote))
+        button.Text = "Copied!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- Copies the source script (that fired the remote)
+newButton(
+    "Copy Source",
+    "Click to copy the path of the source script",
+    function(button)
+        local orText = "Click to copy the path of the source script"
+        syn.write_clipboard(typeToString(selected.Source))
+        button.Text = "Copied!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- Puts the upvalues from the remote into the console for your viewing pleasure... (also puts function #)
+newButton(
+    "Get Upvalues",
+    "Click to get the upvalues from the source",
+    function(button)
+        local orText = "Click to get upvalues from the source script"
+        local funNum
+        for i, v in pairs(getgc()) do
+            if v == selected.Function then
+                funNum = i
+                return
+            end
         end
+        codebox.Text = "-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(funNum) .. "\n\n" .. tableToString(debug.getupvalues(selected.Function))
+        button.Text = "Put in Code Box!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- Decompiles the script that fired the remote and puts it in the code box
+newButton(
+    "Decompile Source",
+    "Click to decompile the source script",
+    function(button)
+        local orText = "Click to decompile the source script"
+        codebox.Text = "-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source)
+        button.Text = "Decompiled!"
+        wait(3)
+        button.Text = orText
     end
 )
 
@@ -887,7 +974,7 @@ newButton(
 
 --- Clears the Remote logs
 newButton(
-    "Clear logs",
+    "Clear Logs",
     "Click to clear logs",
     function(button)
         local orText = "Click to clear logs"
@@ -906,7 +993,7 @@ newButton(
     end
 )
 
---- (toggles) Excludes the selected.Log Remote from the RemoteSpy
+--- Excludes the selected.Log Remote from the RemoteSpy
 newButton(
     "Exclude (single)",
     "Click to exclude this Remote",
@@ -919,7 +1006,7 @@ newButton(
     end
 )
 
---- (toggles) Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
+--- Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
 newButton(
     "Exclude (by name)",
     "Click to exclude all remotes with this name",
@@ -940,6 +1027,45 @@ newButton(
         local orText = "Click to clear the blacklist"
         blacklist = {}
         button.Text = "Blacklist cleared!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- Prevents the selected.Log Remote from firing the server (still logged)
+newButton(
+    "Block (single)",
+    "Click to stop this remote from firing",
+    function(button)
+        local orText = "Click to stop this remote from firing"
+        table.insert(blocklist, #blocklist + 1, selected.Remote)
+        button.Text = "Excluded!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- Prevents all remotes from firing that share the same name as the selected.Log remote from the RemoteSpy (still logged)
+newButton(
+    "Block (by name)",
+    "Click to stop remotes with this name from firing",
+    function(button)
+        local orText = "Click to stop remotes with this name from firing"
+        table.insert(blocklist, #blocklist + 1, selected.Name)
+        button.Text = "Excluded!"
+        wait(3)
+        button.Text = orText
+    end
+)
+
+--- clears blacklist
+newButton(
+    "Clear Blocklist",
+    "Click to stop blocking remotes",
+    function(button)
+        local orText = "Click to stop blocking remotes"
+        blocklist = {}
+        button.Text = "Blocklist cleared!"
         wait(3)
         button.Text = orText
     end

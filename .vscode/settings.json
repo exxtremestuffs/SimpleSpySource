@@ -16,6 +16,11 @@
         "Color3",
         "Vector3",
         "getnilinstances",
-        "hookfunction"
+        "hookfunction",
+        "decompile",
+        "Region3",
+        "rconsoleprint",
+        "is_synapse_function",
+        "getgc"
     ]
 }
