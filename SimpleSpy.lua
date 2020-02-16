@@ -545,6 +545,22 @@ function space(level)
     return out
 end
 
+--- Checks if a table is recursive
+-- function filterRecursive(t)
+--     local function iterate(t)
+--         local descendants = descendants
+--         if not descendants then
+
+--     end
+--     for _, v in pairs(t) do
+--         if type(v) == "table" then
+--             tables = {}
+--             if 
+--             table.insert(tables, v)
+--         end
+--     end
+-- end
+
 --- Adds \'s to the text as a replacement to whitespace chars and other things
 function getSpecials(s, nested)
     if not nested then
