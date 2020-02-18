@@ -11,6 +11,16 @@ local HighlightMeta = {}
 --- @class Highlight
 local Highlight = {}
 
+-- PRIVATE METHODS/PROPERTIES --
+
+local renderTable = {}
+
+function render()
+    
+end
+
+-- PUBLIC METHODS --
+
 --- Runs when a new object is instantiated
 --- @param frame Frame
 function Highlight:init(frame)
