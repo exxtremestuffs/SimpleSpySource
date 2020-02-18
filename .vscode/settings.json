@@ -22,5 +22,6 @@
         "rconsoleprint",
         "is_synapse_function",
         "getgc"
-    ]
+    ],
+    "Lua.runtime.version": "Lua 5.1"
 }
