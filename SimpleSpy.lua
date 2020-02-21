@@ -265,6 +265,7 @@ local connectedRemotes = {}
 local toggle = false
 local gm = getrawmetatable(game)
 local original = gm.__namecall
+local originalIndex = gm.__index
 setreadonly(gm, false)
 --- This event is the main handler for remotes
 local remoteHandlerEvent = Instance.new("BindableEvent")
@@ -273,10 +274,12 @@ local remoteHandlerEvent = Instance.new("BindableEvent")
 
 --- Toggles the remote spy method (when button clicked)
 function onToggleButtonClick()
-    if toggle then
+    if toggle == 1 then
+        methodToggle.Text = "Namecall"
+    elseif toggle == 2 then
+        methodToggle.Text = "Index"
+    elseif toggle == 3 then
         methodToggle.Text = "Disabled"
-    else
-        methodToggle.Text = "Enabled"
     end
     toggleSpyMethod()
 end
@@ -734,80 +737,57 @@ end
 
 --- Toggles on and off the Hookfunction remote spy method (DISABLED- will not run)
 function toggleHook()
-    if toggle then
-        -- local function connect(remote)
-        --     spawn(
-        --         function()
-        --             if remote:IsA("RemoteEvent") then
-        --                 local old
-        --                 old =
-        --                     hookfunction(
-        --                     remote.FireServer,
-        --                     function(...)
-        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-        --                         return old(...)
-        --                     end
-        --                 )
-        --                 table.insert(connectedRemotes, {remote, old})
-        --             elseif remote:IsA("RemoteFunction") then
-        --                 local old
-        --                 old =
-        --                     hookfunction(
-        --                     remote.InvokeServer,
-        --                     function(...)
-        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-        --                         return old(...)
-        --                     end
-        --                 )
-        --                 table.insert(connectedRemotes, {remote, old})
-        --             end
-        --         end
-        --     )
-        -- end
-        -- game.ChildAdded:Connect(
-        --     function(c)
-        --         pcall(
-        --             function()
-        --                 if c:IsA("RemoteEvent") and c:IsA("RemoteFunction") then
-        --                     connect(c)
-        --                 end
-        --             end
-        --         )
-        --     end
-        -- )
-        -- spawn(
-        --     function()
-        --         for _, v in pairs(game:GetDescendants()) do
-        --             if toggle then
-        --                 pcall(
-        --                     function()
-        --                         if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-        --                             connect(v)
-        --                         end
-        --                     end
-        --                 )
-        --                 wait()
-        --             end
-        --         end
-        --     end
-        -- )
+end
+
+--- Toggles on and off the index remote spy method [BETA]
+function toggleIndex()
+    if toggle == 2 then
+        gm.__index = function(t, k)
+            if t:IsA("RemoteEvent") and not blacklisted(t) then
+                local script = rawget(getfenv(2), "script")
+                local func = debug.getinfo(2).func
+                spawn(
+                    function()
+                        local funNum
+                        for i, v in pairs(getgc()) do
+                            if v == func then
+                                funNum = i
+                                break
+                            end
+                        end
+                        remoteHandlerEvent:Fire("RemoteEvent", t.Name, genScript(t, unpack(k)), t, script, blocked(t), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+                    end
+                )
+            elseif t:IsA("RemoteFunction") and not blacklisted(t) then
+                local script = rawget(getfenv(2), "script")
+                local func = debug.getinfo(2).func
+                spawn(
+                    function()
+                        local funNum
+                        for i, v in pairs(getgc()) do
+                            if v == func then
+                                funNum = i
+                                break
+                            end
+                        end
+                        remoteHandlerEvent:Fire("RemoteFunction",  t.Name, genScript(t, unpack(k)), t, script, blocked(t), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+                    end
+                )
+            end
+            if (t:IsA("RemoteEvent") or t:IsA("RemoteFunction")) and blocked(t) then
+                return nil
+            else
+                return original(t, k)
+            end
+        end
     else
-        -- for _, v in pairs(connectedRemotes) do
-        --     if v[1] and v[2] then
-        --         if v[1]:IsA("RemoteEvent") then
-        --             hookfunction(v[1].FireServer, v[2])
-        --         elseif v[1]:IsA("RemoteFunction") then
-        --             hookfunction(v[1].InvokeServer, v[2])
-        --         end
-        --     end
-        -- end
-        -- connectedRemotes = {}
+        gm.__index = original
     end
 end
 
 --- Toggles on and off the namecall remote spy method
 function toggleNamecall()
-    if not toggle then
+    if toggle == 1 then
         gm.__namecall = function(...)
             local args = {...}
             local remote = args[1]
@@ -860,7 +840,12 @@ end
 function toggleSpyMethod()
     toggleHook()
     toggleNamecall()
-    toggle = not toggle
+    toggleIndex()
+    if toggle > 3 then
+        toggle = 1
+    else
+        toggle = toggle + 1
+    end
 end
 
 --- Handles the button creation things... Connected to `remoteHandlerEvent`

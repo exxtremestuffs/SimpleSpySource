@@ -13,10 +13,50 @@ local Highlight = {}
 
 -- PRIVATE METHODS/PROPERTIES --
 
-local renderTable = {}
+--[[
+    Line Interface:
+    {
+        Line: number - Line number
+        Text: Instance (TextBox) - TextBox for the line
+        Gradient: Instance (UIGradient) - UIGradient responsible for syntax highlighting
+    }
+]]
+local tableContents = {}
 
-function render()
-    
+--- Creates new Line (see interface above)
+--- @param line number
+---@param textContent string
+--- @return Line
+function newLine(line, textContent)
+    local textBox = Instance.new("TextBox")
+    textBox.Name = line
+    textBox.Text = textContent
+
+end
+
+--- Creates and syntax highlights lines from provided data (array of Line objects)
+--- @param data Line[]
+function render(data)
+    if typeof(data) == "table" then
+        for i, v in pairs(data) do
+            
+        end
+    else
+        error("Incorrect data sent: of type " .. typeof(data))
+    end
+end
+
+--- Syntax highlights single line (not for individual use)
+--- @param line number
+function highlightLine(line)
+
+end
+
+--- Syntax highlights code
+function highlightEditor()
+    for i, _ in pairs(tableContents) do
+        highlightLine(i)
+    end
 end
 
 -- PUBLIC METHODS --
@@ -111,3 +151,4 @@ end
 return constructor
 
 --- @class Frame
+--- @class Line
