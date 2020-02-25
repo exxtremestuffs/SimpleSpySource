@@ -619,7 +619,7 @@ function typeToString(var, level)
         if not recursive then
             out = out .. tableToString(var, level)
         else
-            out = "args"
+            out = "{} --[[RECURSIVE DETECTED]]"
         end
     elseif typeof(var) == "TweenInfo" then
         -- TweenInfo
