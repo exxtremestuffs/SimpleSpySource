@@ -23,5 +23,8 @@
         "is_synapse_function",
         "getgc"
     ],
-    "Lua.runtime.version": "Lua 5.1"
+    "Lua.runtime.version": "Lua 5.1",
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ]
 }
