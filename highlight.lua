@@ -5,6 +5,7 @@
      - is cool
 ]]
 
+local TextService = game:GetService("TextService")
 --- The metatable of the Highlight class
 local HighlightMeta = {}
 --- The Highlight class
@@ -19,9 +20,42 @@ local Highlight = {}
         Line: number - Line number
         Text: Instance (TextBox) - TextBox for the line
         Gradient: Instance (UIGradient) - UIGradient responsible for syntax highlighting
+        Colors: {
+            [LetterNumber: number] = Color: Color3
+        }[]
     }
 ]]
 local tableContents = {}
+
+--- Whether or not the previous line had an unfinished string
+local continuingString = false
+
+local backgroundColor = Color3.fromRGB(40, 44, 52)
+local operatorColor = Color3.fromRGB(198, 120, 221)
+local functionColor = Color3.fromRGB(97, 175, 239)
+local stringColor = Color3.fromRGB(152, 195, 121)
+local numberColor = Color3.fromRGB(209, 154, 102)
+local objectColor = Color3.fromRGB(229, 192, 123)
+local defaultColor = Color3.fromRGB(224, 108, 117)
+
+--- Table of string patterns and colors (prioritizes whichever is first)
+local colorStrings = {
+    ["function"] =  {"function", operatorColor},
+    ["local"] = {"local", operatorColor},
+    ["end"] = {"end", operatorColor},
+    ["if"] = {"if", operatorColor},
+    ["for"] = {"for", operatorColor},
+    ["in"] = {"in", operatorColor},
+    ["do"] = {"do", operatorColor},
+    ["then"] = {"then", operatorColor},
+    ["else"] = {"else", operatorColor},
+    ["elseif"] = {"elseif", operatorColor},
+    ["%a+("] = {"%a+", functionColor},
+    ["%a+.+("] = {"%a+", functionColor},
+    -- ["%b\"\""] = {"%b\"\"", stringColor}, Strings have to be handled directly in the function
+    ["%d+"] = {"%d+", numberColor},
+    ["%w+"] = {"%w+", numberColor},
+}
 
 --- Creates new Line (see interface above)
 --- @param line number
@@ -31,7 +65,15 @@ function newLine(line, textContent)
     local textBox = Instance.new("TextBox")
     textBox.Name = line
     textBox.Text = textContent
-
+    textBox.BackgroundTransparency = 1
+    textBox.TextSize = 14
+    local gradient = Instance.new("UIGradient")
+    gradient.Parent = textBox
+    return {
+        Line = line,
+        Text = textBox,
+        Gradient = gradient
+    }
 end
 
 --- Creates and syntax highlights lines from provided data (array of Line objects)
@@ -49,11 +91,21 @@ end
 --- Syntax highlights single line (not for individual use)
 --- @param line number
 function highlightLine(line)
-
+    
 end
 
 --- Syntax highlights code
 function highlightEditor()
+    local full = ""
+    local matchLocations = {}
+    for _, v in pairs(tableContents) do
+        local text = " " .. v.Text.Text .. " "
+        for i, v2 in pairs(colorStrings) do
+            for _, v3 in v:match("") do
+                
+            end
+        end
+    end
     for i, _ in pairs(tableContents) do
         highlightLine(i)
     end
