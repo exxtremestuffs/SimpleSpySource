@@ -11,6 +11,7 @@ local HighlightMeta = {}
 --- @class Highlight
 local Highlight = {}
 
+<<<<<<< HEAD
 -- PRIVATE METHODS/PROPERTIES --
 
 --[[
@@ -61,6 +62,8 @@ end
 
 -- PUBLIC METHODS --
 
+=======
+>>>>>>> parent of 5c8d9b4... added public/private
 --- Runs when a new object is instantiated
 --- @param frame Frame
 function Highlight:init(frame)
