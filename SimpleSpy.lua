@@ -472,6 +472,7 @@ end
 
 --- Generates a script from the provided arguments (first has to be remote path)
 function genScript(remote, ...)
+    prevTables = {}
     local gen = ""
     local args = {...}
     if #args > 0 then
