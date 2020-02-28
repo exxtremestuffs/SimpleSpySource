@@ -270,8 +270,30 @@ setreadonly(gm, false)
 local remoteHandlerEvent = Instance.new("BindableEvent")
 --- used to prevent recursives
 local prevTables = {}
+--- holds logs (for deletion)
+local remoteLogs = {}
 
 -- functions
+
+--- Prevents remote spam from causing lag (clears logs after 100 remotes)
+function clean()
+    if #remoteLogs > 100 then
+        for i = 100, #remoteLogs do
+            local v = remoteLogs[i]
+            if typeof(v[1]) == "RBXScriptConnection" then
+                v[1]:Disconnect()
+            end
+            if typeof(v[2]) == "Instance" then
+                v[2]:Destroy()
+            end
+        end
+        local newLogs = {}
+        for i = 1, 100 do
+            table.insert(newLogs, remoteLogs[i])
+        end
+        remoteLogs = newLogs
+    end
+end
 
 --- Toggles the remote spy method (when button clicked)
 function onToggleButtonClick()
@@ -422,7 +444,7 @@ function newEvent(name, gen_script, remote, source_script, blocked, upvalues, co
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
     end
-    remoteFrame.MouseButton1Click:Connect(
+    local connect = remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
         end
@@ -433,6 +455,8 @@ function newEvent(name, gen_script, remote, source_script, blocked, upvalues, co
     remoteFrame.LayoutOrder = layoutOrderNum
     layoutOrderNum = layoutOrderNum - 1
     remoteFrame.Parent = remotes
+    table.insert(remoteLogs, 1, {connect, remoteFrame})
+    clean()
 end
 
 --- Adds new RemoteFunction to logs
@@ -457,7 +481,7 @@ function newFunction(name, gen_script, remote, source_script, blocked, upvalues,
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
     end
-    remoteFrame.MouseButton1Click:Connect(
+    local connect = remoteFrame.MouseButton1Click:Connect(
         function(...)
             eventSelect(remoteFrame, ...)
         end
@@ -468,6 +492,8 @@ function newFunction(name, gen_script, remote, source_script, blocked, upvalues,
     remoteFrame.LayoutOrder = layoutOrderNum
     layoutOrderNum = layoutOrderNum - 1
     remoteFrame.Parent = remotes
+    table.insert(remoteLogs, 1, {connect, remoteFrame})
+    clean()
 end
 
 --- Generates a script from the provided arguments (first has to be remote path)
