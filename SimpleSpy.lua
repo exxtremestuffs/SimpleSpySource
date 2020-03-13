@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.8.2 SOURCE 
+    SimpleSpy v0.8.4 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -70,7 +70,7 @@ titleLabel.BorderSizePixel = 0
 titleLabel.Position = UDim2.new(0.25, 0, 0, 0)
 titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
 titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Text = "SimpleSpy 0.8.2 |  exxtremewa#9394"
+titleLabel.Text = "SimpleSpy 0.8.4 |  exxtremewa#9394"
 titleLabel.TextColor3 = Color3.new(0.905882, 0.905882, 0.905882)
 titleLabel.TextSize = 14
 
