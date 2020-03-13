@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.8 SOURCE 
+    SimpleSpy v0.8.2 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -70,7 +70,7 @@ titleLabel.BorderSizePixel = 0
 titleLabel.Position = UDim2.new(0.25, 0, 0, 0)
 titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
 titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Text = "SimpleSpy 8.2 |  exxtremewa#9394"
+titleLabel.Text = "SimpleSpy 0.8.2 |  exxtremewa#9394"
 titleLabel.TextColor3 = Color3.new(0.905882, 0.905882, 0.905882)
 titleLabel.TextSize = 14
 
@@ -272,6 +272,13 @@ local remoteHandlerEvent = Instance.new("BindableEvent")
 local prevTables = {}
 --- holds logs (for deletion)
 local remoteLogs = {}
+--- used for hookfunction
+local remoteEvent = Instance.new("RemoteEvent")
+--- used for hookfunction
+local remoteFunction = Instance.new("RemoteFunction")
+local originalEvent = remoteEvent.FireServer
+local originalFunction = remoteFunction.InvokeServer
+local prevArgs = {}
 
 -- functions
 
@@ -774,119 +781,81 @@ function tableToString(t, level)
     return out
 end
 
---- Toggles on and off the Hookfunction remote spy method (DISABLED- will not run)
-function toggleHook()
-    if toggle then
-        -- local function connect(remote)
-        --     spawn(
-        --         function()
-        --             if remote:IsA("RemoteEvent") then
-        --                 local old
-        --                 old =
-        --                     hookfunction(
-        --                     remote.FireServer,
-        --                     function(...)
-        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-        --                         return old(...)
-        --                     end
-        --                 )
-        --                 table.insert(connectedRemotes, {remote, old})
-        --             elseif remote:IsA("RemoteFunction") then
-        --                 local old
-        --                 old =
-        --                     hookfunction(
-        --                     remote.InvokeServer,
-        --                     function(...)
-        --                         newEvent(remote.Name, genScript(remote, ...), remote, rawget(getfenv(2), "script"))
-        --                         return old(...)
-        --                     end
-        --                 )
-        --                 table.insert(connectedRemotes, {remote, old})
-        --             end
-        --         end
-        --     )
-        -- end
-        -- game.ChildAdded:Connect(
-        --     function(c)
-        --         pcall(
-        --             function()
-        --                 if c:IsA("RemoteEvent") and c:IsA("RemoteFunction") then
-        --                     connect(c)
-        --                 end
-        --             end
-        --         )
-        --     end
-        -- )
-        -- spawn(
-        --     function()
-        --         for _, v in pairs(game:GetDescendants()) do
-        --             if toggle then
-        --                 pcall(
-        --                     function()
-        --                         if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-        --                             connect(v)
-        --                         end
-        --                     end
-        --                 )
-        --                 wait()
-        --             end
-        --         end
-        --     end
-        -- )
-    else
-        -- for _, v in pairs(connectedRemotes) do
-        --     if v[1] and v[2] then
-        --         if v[1]:IsA("RemoteEvent") then
-        --             hookfunction(v[1].FireServer, v[2])
-        --         elseif v[1]:IsA("RemoteFunction") then
-        --             hookfunction(v[1].InvokeServer, v[2])
-        --         end
-        --     end
-        -- end
-        -- connectedRemotes = {}
+--- Handles remote logs
+function remoteHandler(hookfunction, methodName, remote, args)
+    if methodName == "FireServer" and not blacklisted(remote) then
+        table.remove(args, 1)
+        local script = rawget(getfenv(2), "script")
+        local func = debug.getinfo(2).func
+        if hookfunction then
+            script = rawget(getfenv(0), "script")
+        end
+        spawn(
+            function()
+                local funNum
+                for i, v in pairs(getgc()) do
+                    if v == func then
+                        funNum = i
+                        break
+                    end
+                end
+                remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            end
+        )
+    elseif methodName == "InvokeServer" and not blacklisted(remote) then
+        table.remove(args, 1)
+        local script = rawget(getfenv(2), "script")
+        local func = debug.getinfo(2).func
+        if hookfunction then
+            script = rawget(getfenv(0), "script")
+        end
+        spawn(
+            function()
+                local funNum
+                for i, v in pairs(getgc()) do
+                    if v == func then
+                        funNum = i
+                        break
+                    end
+                end
+                remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            end
+        )
     end
 end
 
---- Toggles on and off the namecall remote spy method
-function toggleNamecall()
+--- Used for hookfuncton to check if arguments are equal
+function isEqual(table1, table2)
+    for i, v in pairs(table1) do
+        if table2[i] ~= v then
+            print(table2[i], v)
+            return false
+        end
+    end
+    return true
+end
+
+--- Used for hookfunction
+function hookRemote(methodName, remote, ...)
+    local args = {...}
+    if isEqual(args, prevArgs) then
+        prevArgs = {unpack(args)}
+        return
+    end
+    prevArgs = {unpack(args)}
+    remoteHandler(true, methodName, remote, args)
+end
+
+--- Toggles on and off the remote spy
+function toggleSpy()
     if not toggle then
+        hookfunction(remoteEvent.FireServer, function(...) hookRemote("FireServer", ...) return originalEvent(...) end)
+        hookfunction(remoteFunction.InvokeServer, function(...) hookRemote("InvokeServer", ...) return originalFunction(...) end)
         gm.__namecall = function(...)
             local args = {...}
             local remote = args[1]
             local methodName = getnamecallmethod()
-            if methodName == "FireServer" and not blacklisted(remote) then
-                table.remove(args, 1)
-                local script = rawget(getfenv(2), "script")
-                local func = debug.getinfo(2).func
-                spawn(
-                    function()
-                        local funNum
-                        for i, v in pairs(getgc()) do
-                            if v == func then
-                                funNum = i
-                                break
-                            end
-                        end
-                        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
-                    end
-                )
-            elseif methodName == "InvokeServer" and not blacklisted(remote) then
-                table.remove(args, 1)
-                local script = rawget(getfenv(2), "script")
-                local func = debug.getinfo(2).func
-                spawn(
-                    function()
-                        local funNum
-                        for i, v in pairs(getgc()) do
-                            if v == func then
-                                funNum = i
-                                break
-                            end
-                        end
-                        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
-                    end
-                )
-            end
+            remoteHandler(false, methodName, remote, args)
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil
             else
@@ -894,14 +863,15 @@ function toggleNamecall()
             end
         end
     else
+        hookfunction(remoteEvent.FireServer, originalEvent)
+        hookfunction(remoteFunction.InvokeServer, originalFunction)
         gm.__namecall = original
     end
 end
 
 --- Toggles between the two remotespy methods (hookfunction currently = disabled)
 function toggleSpyMethod()
-    toggleHook()
-    toggleNamecall()
+    toggleSpy()
     toggle = not toggle
 end
 
