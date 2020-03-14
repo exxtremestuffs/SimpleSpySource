@@ -782,43 +782,41 @@ function tableToString(t, level)
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args)
+function remoteHandler(hookfunction, methodName, remote, args, script, func)
     if methodName == "FireServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        local script = rawget(getfenv(2), "script")
-        local func = debug.getinfo(2).func
-        if hookfunction then
-            script = rawget(getfenv(0), "script")
-        end
         spawn(
             function()
                 local funNum
-                for i, v in pairs(getgc()) do
-                    if v == func then
-                        funNum = i
-                        break
+                if typeof(func) == "function" then
+                    for i, v in pairs(getgc()) do
+                        if v == func then
+                            funNum = i
+                            break
+                        end
                     end
+                    remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+                else
+                    remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
                 end
-                remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
             end
         )
     elseif methodName == "InvokeServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        local script = rawget(getfenv(2), "script")
-        local func = debug.getinfo(2).func
-        if hookfunction then
-            script = rawget(getfenv(0), "script")
-        end
         spawn(
             function()
                 local funNum
-                for i, v in pairs(getgc()) do
-                    if v == func then
-                        funNum = i
-                        break
+                if typeof(func) == "function" then
+                    for i, v in pairs(getgc()) do
+                        if v == func then
+                            funNum = i
+                            break
+                        end
                     end
+                    remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+                else
+                    remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
                 end
-                remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
             end
         )
     end
@@ -828,7 +826,6 @@ end
 function isEqual(table1, table2)
     for i, v in pairs(table1) do
         if table2[i] ~= v then
-            print(table2[i], v)
             return false
         end
     end
@@ -843,19 +840,28 @@ function hookRemote(methodName, remote, ...)
         return
     end
     prevArgs = {unpack(args)}
-    remoteHandler(true, methodName, remote, args)
+    local script = rawget(getfenv(0), "script")
+    remoteHandler(true, methodName, remote, args, script, nil)
+    if blocked(remote) then
+        return false
+    end
+    return true
 end
 
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
-        hookfunction(remoteEvent.FireServer, function(...) hookRemote("FireServer", ...) return originalEvent(...) end)
-        hookfunction(remoteFunction.InvokeServer, function(...) hookRemote("InvokeServer", ...) return originalFunction(...) end)
+        originalEvent = hookfunction(remoteEvent.FireServer, function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end)
+        originalFunction = hookfunction(remoteFunction.InvokeServer, function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end)
         gm.__namecall = function(...)
             local args = {...}
             local remote = args[1]
             local methodName = getnamecallmethod()
-            remoteHandler(false, methodName, remote, args)
+            if methodName == "InvokeServer" or methodName == "FireServer" then
+                local script = rawget(getfenv(2), "script")
+                local func = debug.getinfo(2).func
+                remoteHandler(false, methodName, remote, args, script, func)
+            end
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil
             else
