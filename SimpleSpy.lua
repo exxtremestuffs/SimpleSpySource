@@ -635,22 +635,6 @@ function space(level)
     return out
 end
 
---- Checks if a table is recursive
--- function filterRecursive(t)
---     local function iterate(t)
---         local descendants = descendants
---         if not descendants then
-
---     end
---     for _, v in pairs(t) do
---         if type(v) == "table" then
---             tables = {}
---             if 
---             table.insert(tables, v)
---         end
---     end
--- end
-
 --- Adds \'s to the text as a replacement to whitespace chars and other things
 function getSpecials(s, nested)
     if not nested then
@@ -695,7 +679,10 @@ function typeToString(var, level)
         out = out .. '"' .. getSpecials(var) .. '"'
     elseif type(var) == "table" then
         -- Tables
-        local recursive = false
+        local recursive, selfRecursive = false, false
+        if prevTables[1] and prevTables[1] == tostring(var) then
+            selfRecursive = true
+        end
         for _, v in pairs(prevTables) do
             if v == tostring(var) then
                 recursive = true
@@ -704,6 +691,8 @@ function typeToString(var, level)
         end
         if not recursive then
             out = out .. tableToString(var, level)
+        elseif selfRecursive then
+            out = "args --[[RECURSIVE DETECTED]]"
         else
             out = "{} --[[RECURSIVE DETECTED]]"
         end
