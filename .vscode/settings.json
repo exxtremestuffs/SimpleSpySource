@@ -21,7 +21,9 @@
         "Region3",
         "rconsoleprint",
         "is_synapse_function",
-        "getgc"
+        "getgc",
+        "UDim",
+        "workspace"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [

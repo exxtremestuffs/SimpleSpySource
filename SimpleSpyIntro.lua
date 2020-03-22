@@ -1,6 +1,13 @@
+--[[
+	SimpleSpyIntro.lua
+
+	ooh fancy, but this is just a fancy intro graphic, not really much else...
+]]
+
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 local CoreGui = game:GetService("CoreGui")
+local ContentProvider = game:GetService("ContentProvider")
 
 local intro = Instance.new("ScreenGui")
 local background = Instance.new("ImageLabel")
@@ -55,7 +62,7 @@ function retract()
 	newbackground.Visible = false
 end
 
-wait(2)
+ContentProvider:PreloadAsync({background})
 
 backgroundExpandTween:Play()
 wait(0.3)
