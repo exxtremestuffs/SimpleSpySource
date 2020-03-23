@@ -665,8 +665,42 @@ function getSpecials(s, nested)
     end
 end
 
+--- Converts the path of a value of a table into a string
+function valueToString(pt, x, level)
+    local prev = {}
+    local string = "args"
+    function iterate(t,  s)
+        for i, v in pairs(t) do
+            if x == v then
+                return {true, s .. "[" .. typeToString(i, pt, level) .. "]"}
+            elseif type(v) == "table" then
+                for _, v in pairs(prev) do
+                    if v == tostring(t) then
+                        return {false, ""}
+                    end
+                end
+                table.insert(prev, tostring(t))
+                s = s .. "[" .. typeToString(i, pt, level) .. "]"
+                local results = iterate(v, s)
+                if results[1] then
+                    return results
+                else
+                    prev = {}
+                end
+            end
+        end
+        return {false, ""}
+    end
+    local results = iterate(pt, string)
+    if results[1] then
+        return "function() return " .. results[2] .. "end"
+    else
+        return "{} --[[RECURSIVE DETECTED]]"
+    end
+end
+
 --- Converts a var to a string (including userdata)
-function typeToString(var, level)
+function typeToString(var, parentTable, level)
     if not level then
         level = 4
     end
@@ -689,12 +723,13 @@ function typeToString(var, level)
                 break
             end
         end
+        if not parentTable then
+            parentTable = var
+        end
         if not recursive then
-            out = out .. tableToString(var, level)
-        elseif selfRecursive then
-            out = "args --[[RECURSIVE DETECTED]]"
+            out = out .. tableToString(var, level, parentTable)
         else
-            out = "{} --[[RECURSIVE DETECTED]]"
+            out = out .. valueToString(parentTable, var, level)
         end
     elseif typeof(var) == "TweenInfo" then
         -- TweenInfo
@@ -807,8 +842,45 @@ function typeToString(var, level)
     return out
 end
 
+--- Determines if a provided table is an array, also returns size
+function isArray(t)
+    local size = 0
+    for i, v in pairs(t) do
+        size = size + 1
+        if type(i) ~= "number" or i ~= math.floor(i) then
+            return false
+        end
+    end
+    return true, size
+end
+
+--- Iterates through a full array (thx frosty)
+local function iterate(t)
+    local i, n, continue_table, f = 0, #t, {}, #t
+    for i, v in pairs(t) do
+        if type(i) ~= "number" then
+            n = n + 1;
+            table.insert(continue_table, {i, v})
+        end
+    end
+    return function ()
+        i = i + 1
+        if i <= n then 
+            if i > f then
+                return unpack(continue_table[i - f])
+            end
+            return i, t[i] 
+        end
+    end
+end
+
 --- Converts a table to a string (includes nested tables)
-function tableToString(t, level)
+function tableToString(t, level, parentTable)
+    local first = false
+    if not parentTable then
+        parentTable = t
+        first = true
+    end
     table.insert(prevTables, tostring(t))
     if type(level) ~= "number" then
         level = 4
@@ -816,8 +888,18 @@ function tableToString(t, level)
         level = level + 4
     end
     local out = ""
-    for i, v in pairs(t) do
-        out = out .. "\n" .. space(level) .. "[" .. typeToString(i, level) .. "] = " .. typeToString(v, level) .. ","
+    local array, size
+    if first then
+        array, size = isArray(t)
+    end
+    if first and array then
+        for i, v in iterate(t) do
+            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level) .. "] = " .. typeToString(v, parentTable, level) .. ","
+        end
+    else
+        for i, v in pairs(t) do
+            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level) .. "] = " .. typeToString(v, parentTable, level) .. ","
+        end
     end
     out = "{" .. out .. "\n" .. space(level - 4) .. "}"
     return out
