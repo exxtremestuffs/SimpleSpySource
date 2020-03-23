@@ -670,6 +670,9 @@ function valueToString(pt, x, level)
     local prev = {}
     local string = "args"
     function iterate(t,  s)
+        if x == t then
+            return {true, s}
+        end
         for i, v in pairs(t) do
             if x == v then
                 return {true, s .. "[" .. typeToString(i, pt, level) .. "]"}
@@ -693,7 +696,7 @@ function valueToString(pt, x, level)
     end
     local results = iterate(pt, string)
     if results[1] then
-        return "function() return " .. results[2] .. "end"
+        return "function() return " .. results[2] .. " end"
     else
         return "{} --[[RECURSIVE DETECTED]]"
     end
