@@ -204,6 +204,7 @@ functionTemplate.BackgroundTransparency = 1
 functionTemplate.Size = UDim2.new(0, 288, 0, 20)
 functionTemplate.ZIndex = 0
 functionTemplate.Image = "http://www.roblox.com/asset/?id=4806096140"
+functionTemplate.ZIndex = 0
 
 name_3.Name = "name"
 name_3.Parent = functionTemplate
@@ -215,6 +216,7 @@ name_3.Font = Enum.Font.SourceSansSemibold
 name_3.Text = "FunctionName"
 name_3.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 name_3.TextSize = 14
+name_3.ZIndex = 0
 
 description.Name = "description"
 description.Parent = functionTemplate
@@ -226,6 +228,7 @@ description.Font = Enum.Font.SourceSansSemibold
 description.Text = "Function description..."
 description.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 description.TextSize = 14
+description.ZIndex = 0
 
 code.Name = "code"
 code.Parent = side
@@ -249,6 +252,7 @@ codebox.TextColor3 = Color3.new(0.87451, 0.87451, 0.87451)
 codebox.TextSize = 14
 codebox.TextXAlignment = Enum.TextXAlignment.Left
 codebox.TextYAlignment = Enum.TextYAlignment.Top
+codebox.ZIndex = 0
 
 lines.Name = "lines"
 lines.Parent = code
@@ -260,6 +264,7 @@ lines.Text = "1"
 lines.TextColor3 = Color3.new(0.466667, 0.494118, 1)
 lines.TextSize = 14
 lines.TextYAlignment = Enum.TextYAlignment.Top
+lines.ZIndex = 0
 
 -------------------------------------------------------------------------------
 -- init
@@ -310,6 +315,8 @@ local remoteFunction = Instance.new("RemoteFunction")
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
 local prevArgs = {}
+--- used for tweening the side menu
+local normalSize, normalPos, minSize, minPos = side.Size, side.Position, UDim2.new(1, 0, 1, 0), UDim2.new()
 
 -- functions
 
@@ -409,10 +416,18 @@ end
 --- Expands and minimizes the sidebar (sideClosed is the toggle boolean)
 function toggleSideTray()
     sideClosed = not sideClosed
-    if not sideClosed then
+    if not sideClosed and side.Visible then
+        TweenService:Create(side, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
+        wait(0.5)
         side.Visible = false
+        side.Size, side.Position = normalSize, normalPos
+        suck.Text = ">"
     else
+        side.Size, side.Position = minSize, minPos
         side.Visible = true
+        TweenService:Create(side, TweenInfo.new(0.5), {Size = normalSize, Position = normalPos}):Play()
+        wait(0.5)
+        suck.Text = "<"
     end
 end
 
@@ -448,9 +463,7 @@ end
 function eventSelect(frame)
     if --[[input.UserInputType == Enum.UserInputType.MouseButton1 and]] (not selected or selected.Log ~= frame) then
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play(
-
-            )
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play()
             selected = nil
         end
         for _, v in pairs(logs) do
@@ -459,11 +472,12 @@ function eventSelect(frame)
             end
         end
         if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play(
-
-            )
+            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play()
             codebox.Text = selected.GenScript
         end
+    end
+    if sideClosed then
+        toggleSideTray()
     end
 end
 
@@ -1021,6 +1035,7 @@ if not _G.SimpleSpyExecuted then
         codebox.Text = ""
         topbar.InputBegan:Connect(onBarInput)
         minimize.MouseButton1Click:Connect(toggleMinimize)
+        suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         remoteHandlerEvent.Event:Connect(bindableHandler)
         connectResize()
