@@ -9,6 +9,7 @@ local TextService = game:GetService("TextService")
 local CoreGui = game:GetService("CoreGui")
 local ContentProvider = game:GetService("ContentProvider")
 
+local endTweenSize, endTweenPos = _G.EndTweenSize, _G.EndTweenPos
 local intro = Instance.new("ScreenGui")
 local background = Instance.new("ImageLabel")
 local newbackground = Instance.new("ImageLabel")
@@ -112,6 +113,14 @@ TweenService:Create(s2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 TweenService:Create(simpleWhite, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 TweenService:Create(spyWhite, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 
-TweenService:Create(background, TweenInfo.new(1), {Size = minSize, Position = minPos}):Play()
+if typeof(endTweenSize) == "UDim2" and typeof(endTweenPos) == "UDim2" then
+	TweenService:Create(background, TweenInfo.new(1), {Size = endTweenSize, Position = endTweenPos}):Play()
+else
+	TweenService:Create(background, TweenInfo.new(1), {Size = minSize, Position = minPos}):Play()
+end
 
-intro:Destroy()
+wait(0.3)
+
+TweenService:Create(background, TweenInfo.new(1), {Size = endTweenSize, Position = endTweenPos}):Play()
+
+coroutine.wrap(function()wait(1);intro:Destroy();end)()

