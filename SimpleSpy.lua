@@ -19,6 +19,7 @@ local topbar = Instance.new("ImageLabel")
 local methodToggle = Instance.new("ImageButton")
 local suck = Instance.new("TextButton")
 local minimize = Instance.new("TextButton")
+local minimize_vis = Instance.new("TextLabel")
 local bottombar = Instance.new("ImageLabel")
 local remotes = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
@@ -51,14 +52,16 @@ main.BackgroundColor3 = Color3.new(0.254902, 0.25098, 0.258824)
 main.BorderSizePixel = 0
 main.Size = UDim2.new(0, 200, 0, 320)
 main.Position = UDim2.new(0.5, -main.Size.X.Offset / 2, 0.5, -main.Size.Y.Offset / 2)
+main.ZIndex = 2
 
 topbar.Name = "topbar"
 topbar.Parent = main
 topbar.BackgroundColor3 = Color3.new(1, 1, 1)
 topbar.BackgroundTransparency = 1
-topbar.Position = UDim2.new(0, 0, -0.0343750119, 0)
+topbar.Position = UDim2.new(0, 0, 0, -11)
 topbar.Size = UDim2.new(1, 0, 0, 11)
 topbar.Image = "rbxassetid://4652116060"
+topbar.ZIndex = 2
 
 methodToggle.Name = "methodToggle"
 methodToggle.Parent = topbar
@@ -69,39 +72,55 @@ methodToggle.Position = UDim2.new(0, 14, 0, 0)
 methodToggle.Size = UDim2.new(0, 11, 1, 0)
 methodToggle.Image = "rbxassetid://4807227064"
 methodToggle.ImageColor3 = Color3.fromRGB(51, 233, 81)
+methodToggle.ZIndex = 2
 
 suck.Name = "suck"
 suck.Parent = topbar
 suck.BackgroundColor3 = Color3.new(1, 1, 1)
-suck.BackgroundTransparency = 1
-suck.BorderSizePixel = 0
-suck.Position = UDim2.new(1, -14, 0, 0)
+suck.BackgroundTransparency = 0.9
+suck.BorderColor3 = Color3.fromRGB(255, 255, 255)
+suck.BorderSizePixel = 1
+suck.Position = UDim2.new(1, -20, 0, 0)
 suck.Size = UDim2.new(0, 11, 1, 0)
 suck.Font = Enum.Font.ArialBold
 suck.Text = "<"
 suck.TextColor3 = Color3.new(0.933333, 0.933333, 0.933333)
 suck.TextSize = 14
+suck.ZIndex = 2
 
 minimize.Name = "minimize"
 minimize.Parent = topbar
 minimize.BackgroundColor3 = Color3.new(1, 1, 1)
-minimize.BackgroundTransparency = 1
-minimize.BorderSizePixel = 0
-minimize.Position = UDim2.new(1, -27, 0, -6)
+minimize.BackgroundTransparency = 0.9
+minimize.BorderColor3 = Color3.fromRGB(255, 255, 255)
+minimize.BorderSizePixel = 1
+minimize.Position = UDim2.new(1, -33, 0, 0)
 minimize.Size = UDim2.new(0, 11, 1, 0)
-minimize.Font = Enum.Font.ArialBold
-minimize.Text = "_"
-minimize.TextColor3 = Color3.new(0.933333, 0.933333, 0.933333)
-minimize.TextSize = 14
+minimize.Text = ""
+minimize.ZIndex = 2
+
+minimize_vis.Name = "minimize_vis"
+minimize_vis.Parent = minimize
+minimize_vis.BackgroundColor3 = Color3.new(1, 1, 1)
+minimize_vis.BackgroundTransparency = 1
+minimize_vis.BorderSizePixel = 0
+minimize_vis.Position = UDim2.new(0, 0, 0, -6)
+minimize_vis.Size = UDim2.new(0, 11, 1, 0)
+minimize_vis.Font = Enum.Font.SourceSansBold
+minimize_vis.Text = "_"
+minimize_vis.TextColor3 = Color3.new(0.933333, 0.933333, 0.933333)
+minimize_vis.TextSize = 14
+minimize_vis.ZIndex = 2
 
 bottombar.Name = "bottombar"
 bottombar.Parent = main
 bottombar.BackgroundColor3 = Color3.new(1, 1, 1)
 bottombar.BackgroundTransparency = 1
-bottombar.Position = UDim2.new(0, 0, 0.99999994, 0)
+bottombar.Position = UDim2.new(0, 0, 1, 0)
 bottombar.Rotation = 180
 bottombar.Size = UDim2.new(1, 0, 0, 11)
 bottombar.Image = "rbxassetid://4652116060"
+bottombar.ZIndex = 2
 
 remotes.Name = "remotes"
 remotes.Parent = main
@@ -113,6 +132,7 @@ remotes.Size = UDim2.new(0, 198, 0.949999988, 0)
 remotes.CanvasSize = UDim2.new(0, 0, 0, 0)
 remotes.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
 remotes.ScrollBarThickness = 10
+remotes.ZIndex = 2
 
 UIListLayout.Parent = remotes
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -124,6 +144,7 @@ eTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
 eTemplate.BackgroundTransparency = 1
 eTemplate.Size = UDim2.new(0, 187, 0, 20)
 eTemplate.Image = "rbxassetid://4652152767"
+eTemplate.ZIndex = 2
 
 name.Name = "name"
 name.Parent = eTemplate
@@ -135,6 +156,7 @@ name.Font = Enum.Font.SourceSansSemibold
 name.Text = "RemoteEvent"
 name.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 name.TextSize = 14
+name.ZIndex = 2
 
 fTemplate.Name = "fTemplate"
 fTemplate.Parent = remotes
@@ -142,6 +164,7 @@ fTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
 fTemplate.BackgroundTransparency = 1
 fTemplate.Size = UDim2.new(0, 187, 0, 20)
 fTemplate.Image = "rbxassetid://4652182447"
+fTemplate.ZIndex = 2
 
 name_2.Name = "name"
 name_2.Parent = fTemplate
@@ -153,6 +176,7 @@ name_2.Font = Enum.Font.SourceSansSemibold
 name_2.Text = "RemoteFunction"
 name_2.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 name_2.TextSize = 14
+name_2.ZIndex = 2
 
 side.Name = "side"
 side.Parent = main
@@ -166,7 +190,7 @@ topbar_2.Name = "topbar"
 topbar_2.Parent = side
 topbar_2.BackgroundColor3 = Color3.new(1, 1, 1)
 topbar_2.BackgroundTransparency = 1
-topbar_2.Position = UDim2.new(0, 0, -0.0343750119, 0)
+topbar_2.Position = UDim2.new(0, 0, 0, -11)
 topbar_2.Size = UDim2.new(1, 0, 0, 11)
 topbar_2.ZIndex = 0
 topbar_2.Image = "rbxassetid://4652116060"
@@ -175,7 +199,7 @@ bottombar_2.Name = "bottombar"
 bottombar_2.Parent = side
 bottombar_2.BackgroundColor3 = Color3.new(1, 1, 1)
 bottombar_2.BackgroundTransparency = 1
-bottombar_2.Position = UDim2.new(0, 0, 0.99999994, 0)
+bottombar_2.Position = UDim2.new(0, 0, 1, 0)
 bottombar_2.Rotation = 180
 bottombar_2.Size = UDim2.new(1, 0, 0, 11)
 bottombar_2.ZIndex = 0
@@ -186,8 +210,8 @@ functions.Parent = side
 functions.BackgroundColor3 = Color3.new(1, 1, 1)
 functions.BackgroundTransparency = 1
 functions.BorderSizePixel = 0
-functions.Position = UDim2.new(0, 1, 0.524999976, 0)
-functions.Size = UDim2.new(1, -1, 0.449999988, 0)
+functions.Position = UDim2.new(0, 1, 0.5, 0)
+functions.Size = UDim2.new(1, -1, 0.5, 0)
 functions.ZIndex = 0
 functions.CanvasSize = UDim2.new(0, 0, 0, 0)
 functions.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
@@ -222,10 +246,11 @@ description.Name = "description"
 description.Parent = functionTemplate
 description.BackgroundColor3 = Color3.new(1, 1, 1)
 description.BackgroundTransparency = 1
-description.Position = UDim2.new(0, 110, 0, 0)
-description.Size = UDim2.new(0, 180, 1, 0)
+description.Position = UDim2.new(0, 120, 0, 0)
+description.Size = UDim2.new(0, 160, 1, 0)
 description.Font = Enum.Font.SourceSansSemibold
 description.Text = "Function description..."
+description.TextScaled = true
 description.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 description.TextSize = 14
 description.ZIndex = 0
@@ -253,6 +278,7 @@ codebox.TextSize = 14
 codebox.TextXAlignment = Enum.TextXAlignment.Left
 codebox.TextYAlignment = Enum.TextYAlignment.Top
 codebox.ZIndex = 0
+codebox.ClearTextOnFocus = false
 
 lines.Name = "lines"
 lines.Parent = code
@@ -272,6 +298,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
+local TextService = game:GetService("TextService")
 
 --- UDim2 size of `main` while minimized
 local minSize = UDim2.new(0, 100, 0, 15)
@@ -281,10 +308,14 @@ local selectedColor = Color3.new(0.321569, 0.333333, 1)
 local deselectedColor = Color3.new(0.8, 0.8, 0.8)
 --- So things are descending
 local layoutOrderNum = 999999999
+--- Whether or not the gui is closing
+local mainClosing = false
 --- Whether or not the gui is closed (defaults to false)
 closed = false
+--- Whether or not the sidebar is closing
+local sideClosing = false
 --- Whether or not the sidebar is closed (defaults to true but opens automatically on remote selection)
-local sideClosed = true
+local sideClosed = false
 --- The event logs to be read from
 logs = {}
 --- The event currently selected.Log (defaults to nil)
@@ -315,8 +346,12 @@ local remoteFunction = Instance.new("RemoteFunction")
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
 local prevArgs = {}
---- used for tweening the side menu
+--- used for minimizing the side menu
 local normalSize, normalPos, minSize, minPos = side.Size, side.Position, UDim2.new(1, 0, 1, 0), UDim2.new()
+--- used for minimizing the gui
+local normalSizeM, minSizeM = main.Size, UDim2.new(0, main.Size.X.Offset, 0, 0)
+--- used for determining the last cursor position
+local lastCursorPos, cursorPos = 0, 0
 
 -- functions
 
@@ -404,30 +439,154 @@ function onBarInput(input)
 end
 
 --- Expands and minimizes the gui (closed is the toggle boolean)
-function toggleMinimize()
-    closed = not closed
-    if not closed then
-
-    else
-
+function toggleMinimize(override)
+    if mainClosing and not override then
+        return
     end
+    mainClosing = true
+    if not closed then
+        print"Closing"
+        if not sideClosed then
+            toggleSideTray(true)
+        end
+        TweenService:Create(main, TweenInfo.new(0.5), {Size = minSizeM}):Play()
+        TweenService:Create(minimize, TweenInfo.new(0.5), {Rotation = 90}):Play()
+        wait(0.5)
+        remotes.Visible = false
+    else
+        print"Opening"
+        TweenService:Create(main, TweenInfo.new(0.5), {Size = normalSizeM}):Play()
+        TweenService:Create(minimize, TweenInfo.new(0.5), {Rotation = 0}):Play()
+        remotes.Visible = true
+        wait(0.5)
+    end
+    closed = not closed
+    mainClosing = false
 end
 
 --- Expands and minimizes the sidebar (sideClosed is the toggle boolean)
-function toggleSideTray()
-    sideClosed = not sideClosed
+function toggleSideTray(override)
+    if sideClosing and not override then
+        return
+    end
+    sideClosing = true
     if not sideClosed and side.Visible then
         TweenService:Create(side, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
+        TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 180}):Play()
+        TweenService:Create(side, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        for _, v in pairs(side:GetDescendants()) do
+            if v:IsA("GuiObject") then
+                coroutine.wrap(function()
+                    local prev = v.BackgroundTransparency
+                    TweenService:Create(v, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+                    wait(0.51)
+                    v.BackgroundTransparency = prev
+                end)()
+            end
+            if v:IsA("TextBox") or v:IsA("TextLabel") or v:IsA("TextButton") then
+                coroutine.wrap(function()
+                    local prev = v.TextTransparency
+                    TweenService:Create(v, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+                    wait(0.51)
+                    v.TextTransparency = prev
+                end)()
+            end
+            if v:IsA("ImageLabel") or v:IsA("ImageButton") then
+                coroutine.wrap(function()
+                    local prev = v.ImageTransparency
+                    TweenService:Create(v, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+                    wait(0.51)
+                    v.ImageTransparency = prev
+                end)()
+            end
+        end
         wait(0.5)
         side.Visible = false
+        side.BackgroundTransparency = 0
         side.Size, side.Position = normalSize, normalPos
-        suck.Text = ">"
     else
+        if closed then
+            toggleMinimize(true)
+        end
         side.Size, side.Position = minSize, minPos
         side.Visible = true
+        side.BackgroundTransparency = 1
+        TweenService:Create(side, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+        for _, v in pairs(side:GetDescendants()) do
+            if v:IsA("GuiObject") then
+                coroutine.wrap(function()
+                    local prev = v.BackgroundTransparency
+                    v.BackgroundTransparency = 1
+                    TweenService:Create(v, TweenInfo.new(0.5), {BackgroundTransparency = prev}):Play()
+                end)()
+            end
+            if v:IsA("TextBox") or v:IsA("TextLabel") or v:IsA("TextButton") then
+                coroutine.wrap(function()
+                    local prev = v.TextTransparency
+                    v.TextTransparency = 1
+                    TweenService:Create(v, TweenInfo.new(0.5), {TextTransparency = prev}):Play()
+                end)()
+            end
+            if v:IsA("ImageLabel") or v:IsA("ImageButton") then
+                coroutine.wrap(function()
+                    local prev = v.ImageTransparency
+                    v.ImageTransparency = 1
+                    TweenService:Create(v, TweenInfo.new(0.5), {ImageTransparency = prev}):Play()
+                end)()
+            end
+        end
         TweenService:Create(side, TweenInfo.new(0.5), {Size = normalSize, Position = normalPos}):Play()
+        TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 0}):Play()
         wait(0.5)
-        suck.Text = "<"
+    end
+    sideClosed = not sideClosed
+    sideClosing = false
+end
+
+--- Runs when the cursor position changes, saves the previous value and current value to variables
+function onCursorPosChange()
+    lastCursorPos = cursorPos
+    cursorPos = codebox.CursorPosition
+end
+
+--- Returns a table of {number of lines: number, canvas size:UDim2} from the codebox
+function getLinesAndCanvas()
+    local lineNumber = 0
+    for _ in string.gmatch(codebox.Text, "\n") do
+        lineNumber = lineNumber + 1
+    end
+    local size = TextService:GetTextSize(codebox.Text, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
+    return {lineNumber, UDim2.new(0, size.X + 25, 0, size.Y)}
+end
+
+--- Runs every time the codebox is modified
+function updateCodebox()
+    local lineNumber, canvasSize = unpack(getLinesAndCanvas())
+    code.CanvasSize = canvasSize
+    local lineString = ""
+    for i = 1, lineNumber + 1 do
+        lineString = lineString .. tostring(i) .. "\n"
+    end
+    lines.Text = lineString
+end
+
+--- Used to have enter key create a new line
+function onDeselect(isEnter)
+    if isEnter and cursorPos == -1 then
+        local cPos = lastCursorPos
+        if cPos == #codebox.Text then
+            codebox.Text = codebox.Text .. "\n"
+            codebox.Text = codebox.Text:sub(1, #codebox.Text - 1)
+        elseif cPos == 0 then
+            codebox.Text = "\n" .. codebox.Text
+            codebox.Text = codebox.Text:sub(2, #codebox.Text)
+            codebox.Text = codebox.Text:sub(1, 1) .. codebox.Text:sub(3, #codebox.Text)
+        else
+            codebox.Text = codebox.Text:sub(1, cPos) .. "\n" .. codebox.Text:sub(cPos, #codebox.Text)
+            codebox.Text = codebox.Text:sub(1, cPos) .. codebox.Text:sub(cPos + 2, #codebox.Text)
+        end
+        codebox:CaptureFocus()
+        codebox.CursorPosition = cPos + 1
     end
 end
 
@@ -1044,16 +1203,20 @@ if not _G.SimpleSpyExecuted then
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         remoteHandlerEvent.Event:Connect(bindableHandler)
+        codebox:GetPropertyChangedSignal("Text"):Connect(updateCodebox)
+        codebox.FocusLost:Connect(onDeselect)
+        codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
         connectResize()
         onToggleButtonClick()
         ScreenguiS.Enabled = true
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
+        coroutine.wrap(function() wait(1) toggleSideTray(true) end)
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
     else
-        rconsolename = "SimpleSpy Error"
         rconsoleprint("A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exxtremewa#9394:\n\n" .. tostring(err))
+        rconsolename = "SimpleSpy Error"
         ScreenguiS:Destroy()
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
