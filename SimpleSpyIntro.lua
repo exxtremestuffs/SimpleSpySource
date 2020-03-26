@@ -18,6 +18,7 @@ local s = Instance.new("TextLabel")
 intro.Name = "intro"
 intro.Parent = CoreGui
 intro.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+intro.DisplayOrder = math.huge
 
 background.Name = "background"
 background.Parent = intro

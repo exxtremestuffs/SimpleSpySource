@@ -1209,7 +1209,7 @@ if not _G.SimpleSpyExecuted then
         connectResize()
         onToggleButtonClick()
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
-        loadstring(game:HttpGet("https://paste.sh/wesyzxGm#XlzPckBfsMrznf9CXq9pGWFv"))()
+        loadstring(game:HttpGet("https://pastebin.com/raw/ued7aEsJ"))()
         ScreenguiS.Enabled = true
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
         coroutine.wrap(function() wait(1) toggleSideTray(true) end)
