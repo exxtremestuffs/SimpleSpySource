@@ -133,6 +133,7 @@ remotes.CanvasSize = UDim2.new(0, 0, 0, 0)
 remotes.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
 remotes.ScrollBarThickness = 10
 remotes.ZIndex = 2
+remotes.ScrollingDirection = Enum.ScrollingDirection.Y
 
 UIListLayout.Parent = remotes
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -216,6 +217,7 @@ functions.ZIndex = 0
 functions.CanvasSize = UDim2.new(0, 0, 0, 0)
 functions.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
 functions.ScrollBarThickness = 10
+functions.ScrollingDirection = Enum.ScrollingDirection.Y
 
 UIListLayout_2.Parent = functions
 UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -352,12 +354,18 @@ local normalSize, normalPos, minSize, minPos = side.Size, side.Position, UDim2.n
 local normalSizeM, minSizeM = main.Size, UDim2.new(0, main.Size.X.Offset, 0, 0)
 --- used for determining the last cursor position
 local lastCursorPos, cursorPos = 0, 0
+--- the maximum amount of remotes allowed in logs
+_G.SIMPLESPYCONFIG_MaxRemotes = 500
 
 -- functions
 
---- Prevents remote spam from causing lag (clears logs after 100 remotes)
+--- Prevents remote spam from causing lag (clears logs after `_G.SIMPLESPYCONFIG_MaxRemotes` or 500 remotes)
 function clean()
-    if #remoteLogs > 100 then
+    local max = _G.SIMPLESPYCONFIG_MaxRemotes
+    if not typeof(max) == "number" and math.floor(max) ~= max then
+        max = 500
+    end
+    if #remoteLogs > max then
         for i = 100, #remoteLogs do
             local v = remoteLogs[i]
             if typeof(v[1]) == "RBXScriptConnection" then
@@ -640,6 +648,26 @@ function eventSelect(frame)
     end
 end
 
+--- Updates the canvas size to fit the current amount of function buttons
+function updateFunctionCanvas()
+    local individualHeight = UIListLayout_2.Padding.Offset + functionTemplate.AbsoluteSize.Y
+    local canvasHeight = 0
+    for i = 1, #functions:GetChildren() - 1 do
+        canvasHeight = canvasHeight + individualHeight
+    end
+    functions.CanvasSize = UDim2.new(1, 0, 0, canvasHeight)
+end
+
+--- Updates the canvas size to fit the amount of current remotes
+function updateRemoteCanvas()
+    local individualHeight = UIListLayout.Padding.Offset + eTemplate.AbsoluteSize.Y
+    local canvasHeight = 0
+    for i = 1, #remotes:GetChildren() - 1 do
+        canvasHeight = canvasHeight + individualHeight
+    end
+    remotes.CanvasSize = UDim2.new(1, 0, 0, canvasHeight)
+end
+
 --- Creates new function button (below codebox)
 function newButton(name, defaultName, onClick)
     local button = functionTemplate:Clone()
@@ -653,6 +681,7 @@ function newButton(name, defaultName, onClick)
         end
     )
     button.Parent = functions
+    updateFunctionCanvas()
 end
 
 --- Adds new RemoteEvent to logs
@@ -690,6 +719,7 @@ function newEvent(name, gen_script, remote, source_script, blocked, upvalues, co
     remoteFrame.Parent = remotes
     table.insert(remoteLogs, 1, {connect, remoteFrame})
     clean()
+    updateRemoteCanvas()
 end
 
 --- Adds new RemoteFunction to logs
@@ -727,6 +757,7 @@ function newFunction(name, gen_script, remote, source_script, blocked, upvalues,
     remoteFrame.Parent = remotes
     table.insert(remoteLogs, 1, {connect, remoteFrame})
     clean()
+    updateRemoteCanvas()
 end
 
 --- Generates a script from the provided arguments (first has to be remote path)
