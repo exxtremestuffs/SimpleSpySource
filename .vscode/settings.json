@@ -25,7 +25,9 @@
         "UDim",
         "workspace",
         "Vector2",
-        "newcclosure"
+        "newcclosure",
+        "tick",
+        "script"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [

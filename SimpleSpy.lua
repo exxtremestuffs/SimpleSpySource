@@ -576,7 +576,6 @@ end
 
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
-    rconsoleprint(tostring(frame))
     if selected then
         TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
         selected = nil

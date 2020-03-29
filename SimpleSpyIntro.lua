@@ -49,8 +49,8 @@ s.TextSize = 100
 s.TextWrapped = true
 
 local s2 = s:Clone()
-local backgroundExpandTween = TweenService:Create(background, TweenInfo.new(0.3), {Position = UDim2.new(0.5, -150, 0.5, -150), Size = UDim2.new(0, 300, 0, 300)})
-local expandTween = TweenService:Create(newbackground, TweenInfo.new(0.3), {Position = UDim2.new(), Size = UDim2.new(1, 0, 1, 0)})
+local backgroundExpandTween = TweenService:Create(background, TweenInfo.new(0.2), {Position = UDim2.new(0.5, -150, 0.5, -150), Size = UDim2.new(0, 300, 0, 300)})
+local expandTween = TweenService:Create(newbackground, TweenInfo.new(0.2), {Position = UDim2.new(), Size = UDim2.new(1, 0, 1, 0)})
 local colors = {Color3.fromRGB(153, 153, 153), Color3.fromRGB(128, 128, 128), Color3.fromRGB(102, 102, 102), Color3.fromRGB(77, 77, 77), Color3.fromRGB(51, 51, 51)}
 local yellow = Color3.fromRGB(255, 242, 0)
 local purple = Color3.fromRGB(156, 77, 214)
@@ -67,13 +67,13 @@ end
 ContentProvider:PreloadAsync({background})
 
 backgroundExpandTween:Play()
-wait(0.3)
+wait(0.2)
 
 for _, v in pairs(colors) do
 	newbackground.ImageColor3 = v
 	newbackground.Visible = true
 	expandTween:Play()
-	wait(0.3)
+	wait(0.2)
 	background.ImageColor3 = v
 	retract()
 end
@@ -99,15 +99,15 @@ spyWhite.ZIndex = 0
 spyWhite.TextTransparency = 1
 spyWhite.Parent = background
 
-TweenService:Create(simpleWhite, TweenInfo.new(2), {TextTransparency = 0}):Play()
-TweenService:Create(spyWhite, TweenInfo.new(2), {TextTransparency = 0}):Play()
+TweenService:Create(simpleWhite, TweenInfo.new(1), {TextTransparency = 0}):Play()
+TweenService:Create(spyWhite, TweenInfo.new(1), {TextTransparency = 0}):Play()
 
-wait(2)
+wait(1)
 
-TweenService:Create(s, TweenInfo.new(1), {TextColor3 = white}):Play()
-TweenService:Create(s2, TweenInfo.new(1), {TextColor3 = white}):Play()
+TweenService:Create(s, TweenInfo.new(0.5), {TextColor3 = white}):Play()
+TweenService:Create(s2, TweenInfo.new(0.5), {TextColor3 = white}):Play()
 
-wait(2)
+wait(0.5)
 
 TweenService:Create(s, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 TweenService:Create(s2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
