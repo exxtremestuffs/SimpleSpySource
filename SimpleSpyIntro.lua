@@ -18,7 +18,7 @@ local s = Instance.new("TextLabel")
 intro.Name = "intro"
 intro.Parent = CoreGui
 intro.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-intro.DisplayOrder = math.huge
+intro.DisplayOrder = 999999999
 
 background.Name = "background"
 background.Parent = intro
@@ -124,4 +124,9 @@ wait(0.3)
 
 TweenService:Create(background, TweenInfo.new(1), {Size = endTweenSize, Position = endTweenPos}):Play()
 
-coroutine.wrap(function()wait(1);intro:Destroy();end)()
+coroutine.wrap(function()
+	wait(1)
+	TweenService:Create(background, TweenInfo.new(1), {BackgroundTransparency = 1}):Play()
+	wait(1)
+	intro:Destroy()
+end)()

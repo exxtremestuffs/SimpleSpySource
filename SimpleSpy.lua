@@ -9,7 +9,7 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
----- GENERATED (mostly) BY GUI to LUA ----
+---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
 -- Instances:
 
@@ -43,8 +43,8 @@ local lines = Instance.new("TextLabel")
 
 ScreenguiS.Name = "ScreenguiS"
 ScreenguiS.Parent = CoreGui
-ScreenguiS.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenguiS.Enabled = false
+ScreenguiS.DisplayOrder = 999999998
 
 main.Name = "main"
 main.Parent = ScreenguiS
@@ -157,7 +157,7 @@ name.Font = Enum.Font.SourceSansSemibold
 name.Text = "RemoteEvent"
 name.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 name.TextSize = 14
-name.ZIndex = 2
+name.ZIndex = 3
 
 fTemplate.Name = "fTemplate"
 fTemplate.Parent = remotes
@@ -177,7 +177,7 @@ name_2.Font = Enum.Font.SourceSansSemibold
 name_2.Text = "RemoteFunction"
 name_2.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
 name_2.TextSize = 14
-name_2.ZIndex = 2
+name_2.ZIndex = 3
 
 side.Name = "side"
 side.Parent = main
@@ -481,33 +481,6 @@ function toggleSideTray(override)
     if not sideClosed and side.Visible then
         TweenService:Create(side, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
         TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 180}):Play()
-        TweenService:Create(side, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-        for _, v in pairs(side:GetDescendants()) do
-            if v:IsA("GuiObject") then
-                coroutine.wrap(function()
-                    local prev = v.BackgroundTransparency
-                    TweenService:Create(v, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-                    wait(0.51)
-                    v.BackgroundTransparency = prev
-                end)()
-            end
-            if v:IsA("TextBox") or v:IsA("TextLabel") or v:IsA("TextButton") then
-                coroutine.wrap(function()
-                    local prev = v.TextTransparency
-                    TweenService:Create(v, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-                    wait(0.51)
-                    v.TextTransparency = prev
-                end)()
-            end
-            if v:IsA("ImageLabel") or v:IsA("ImageButton") then
-                coroutine.wrap(function()
-                    local prev = v.ImageTransparency
-                    TweenService:Create(v, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-                    wait(0.51)
-                    v.ImageTransparency = prev
-                end)()
-            end
-        end
         wait(0.5)
         side.Visible = false
         side.BackgroundTransparency = 0
@@ -518,31 +491,6 @@ function toggleSideTray(override)
         end
         side.Size, side.Position = minSize, minPos
         side.Visible = true
-        side.BackgroundTransparency = 1
-        TweenService:Create(side, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-        for _, v in pairs(side:GetDescendants()) do
-            if v:IsA("GuiObject") then
-                coroutine.wrap(function()
-                    local prev = v.BackgroundTransparency
-                    v.BackgroundTransparency = 1
-                    TweenService:Create(v, TweenInfo.new(0.5), {BackgroundTransparency = prev}):Play()
-                end)()
-            end
-            if v:IsA("TextBox") or v:IsA("TextLabel") or v:IsA("TextButton") then
-                coroutine.wrap(function()
-                    local prev = v.TextTransparency
-                    v.TextTransparency = 1
-                    TweenService:Create(v, TweenInfo.new(0.5), {TextTransparency = prev}):Play()
-                end)()
-            end
-            if v:IsA("ImageLabel") or v:IsA("ImageButton") then
-                coroutine.wrap(function()
-                    local prev = v.ImageTransparency
-                    v.ImageTransparency = 1
-                    TweenService:Create(v, TweenInfo.new(0.5), {ImageTransparency = prev}):Play()
-                end)()
-            end
-        end
         TweenService:Create(side, TweenInfo.new(0.5), {Size = normalSize, Position = normalPos}):Play()
         TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 0}):Play()
         wait(0.5)
@@ -628,20 +576,19 @@ end
 
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
-    if --[[input.UserInputType == Enum.UserInputType.MouseButton1 and]] (not selected or selected.Log ~= frame) then
-        if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = deselectedColor, BorderSizePixel = 1}):Play()
-            selected = nil
+    rconsoleprint(tostring(frame))
+    if selected then
+        TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+        selected = nil
+    end
+    for _, v in pairs(logs) do
+        if frame == v.Log then
+            selected = v
         end
-        for _, v in pairs(logs) do
-            if frame == v.Log then
-                selected = v
-            end
-        end
-        if selected then
-            TweenService:Create(selected.Log, TweenInfo.new(0.5), {BorderColor3 = selectedColor, BorderSizePixel = 2}):Play()
-            codebox.Text = selected.GenScript
-        end
+    end
+    if selected then
+        TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(0, 195, 255)}):Play()
+        codebox.Text = selected.GenScript
     end
     if sideClosed then
         toggleSideTray()
@@ -1241,9 +1188,10 @@ if not _G.SimpleSpyExecuted then
         onToggleButtonClick()
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
         loadstring(game:HttpGet("https://pastebin.com/raw/ued7aEsJ"))()
+        wait(1)
         ScreenguiS.Enabled = true
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
-        coroutine.wrap(function() wait(1) toggleSideTray(true) end)
+        coroutine.wrap(function() wait(1) toggleSideTray(true) end)()
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
