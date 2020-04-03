@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.9.0 SOURCE 
+    SimpleSpy v0.9.1 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -576,7 +576,7 @@ end
 
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
-    if selected then
+    if selected and selected.Log and typeof(selected.Log.name) == "Instance" and selected.Log.name:IsA("TextLabel") then
         TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
         selected = nil
     end
@@ -585,7 +585,7 @@ function eventSelect(frame)
             selected = v
         end
     end
-    if selected then
+    if selected and selected.Log and selected.Log.name then
         TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(0, 195, 255)}):Play()
         codebox.Text = selected.GenScript
     end
@@ -846,7 +846,7 @@ function valueToString(pt, x, level)
     end
     local results = iterate(pt, string)
     if results[1] then
-        return "function() return " .. results[2] .. " end"
+        return results[2]
     else
         return "{} --[[RECURSIVE DETECTED]]"
     end
