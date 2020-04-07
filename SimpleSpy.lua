@@ -1164,9 +1164,9 @@ function toggleSpy()
             local remote = args[1]
             local methodName = getnamecallmethod()
             if methodName == "InvokeServer" or methodName == "FireServer" then
-                local script = rawget(getfenv(2), "script")
-                local func = debug.getinfo(2).func
-                remoteHandler(false, methodName, remote, args, script, func)
+                local script = rawget(getfenv(3), "script")
+                local func = debug.getinfo(3).func
+                coroutine.wrap(function() remoteHandler(false, methodName, remote, args, script, func) end)()
             end
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil
