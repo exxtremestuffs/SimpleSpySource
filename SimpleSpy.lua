@@ -1067,8 +1067,8 @@ end
 
 -- --- Adds a function to the task scheduler, must run in coroutine
 function scheduleFunction(f, name)
-    if #tasks > 999 then
-        rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999+).")
+    if #tasks > 999999 then
+        rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999999+).")
         rconsolename = "SimpleSpy Error Console"
         return
     end
@@ -1140,7 +1140,7 @@ function hookRemote(methodName, remote, ...)
     end
     prevArgs = {unpack(args)}
     local script = rawget(getfenv(0), "script")
-    remoteHandler(true, methodName, remote, args, script, nil)
+    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, script, nil) end, remote.Name)
     if blocked(remote) then
         return false
     end
