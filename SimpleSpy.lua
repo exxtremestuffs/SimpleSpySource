@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.9.2 SOURCE 
+    SimpleSpy v0.9.3 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -1075,9 +1075,9 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
         else
-            bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
+            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
         end
     elseif methodName == "InvokeServer" and not blacklisted(remote) then
         table.remove(args, 1)
@@ -1089,9 +1089,9 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
         else
-            bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
+            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
         end
     end
 end
@@ -1115,7 +1115,7 @@ function hookRemote(methodName, remote, ...)
     end
     prevArgs = {unpack(args)}
     local script = rawget(getfenv(0), "script")
-    newcclosure(remoteHandler)(true, methodName, remote, args, script, nil)
+    remoteHandler(true, methodName, remote, args, script, nil)
     if blocked(remote) then
         return false
     end
@@ -1134,7 +1134,7 @@ function toggleSpy()
             if methodName == "InvokeServer" or methodName == "FireServer" then
                 local script = rawget(getfenv(2), "script")
                 local func = debug.getinfo(2).func
-                newcclosure(remoteHandler)(false, methodName, remote, args, script, func)
+                remoteHandler(false, methodName, remote, args, script, func)
             end
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil
