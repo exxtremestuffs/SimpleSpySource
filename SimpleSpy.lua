@@ -458,7 +458,6 @@ function toggleMinimize(override)
     end
     mainClosing = true
     if not closed then
-        print"Closing"
         if not sideClosed then
             toggleSideTray(true)
         end
@@ -467,7 +466,6 @@ function toggleMinimize(override)
         wait(0.5)
         remotes.Visible = false
     else
-        print"Opening"
         TweenService:Create(main, TweenInfo.new(0.5), {Size = normalSizeM}):Play()
         TweenService:Create(minimize, TweenInfo.new(0.5), {Rotation = 0}):Play()
         remotes.Visible = true
