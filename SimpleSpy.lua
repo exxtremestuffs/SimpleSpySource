@@ -361,6 +361,10 @@ local normalSizeM, minSizeM = main.Size, UDim2.new(0, main.Size.X.Offset, 0, 0)
 local lastCursorPos, cursorPos = 0, 0
 --- the maximum amount of remotes allowed in logs
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
+--- the current amount of tasks in the scheduler
+local tasks = 0
+--- this bindable is fired whenever the task queue updates
+local tasksUpdate = Instance.new("BindableEvent")
 
 -- functions
 
@@ -1061,6 +1065,36 @@ function tableToString(t, level, parentTable)
     return out
 end
 
+-- --- Adds a function to the task scheduler, must run in coroutine
+-- function scheduleFunction(f, name)
+--     tasks = tasks + 1
+--     name = name .. "_" .. tostring(tasks)
+--     if tasks > 999 then
+--         rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999+).")
+--         rconsolename = "SimpleSpy Error Console"
+--         return
+--     end
+--     local queue = tasks
+--     local connection
+--     connection = tasksUpdate.Event:Connect(function(reason)
+--         if tasks <= 0 then
+--             tasks = 1
+--         end
+--         if reason == "finished" then
+--             queue = queue - 1
+--         end
+--         if queue <= 1 then
+--             print(name)
+--             pcall(f)
+--             RunService.RenderStepped:Wait()
+--             tasks = tasks - 1
+--             tasksUpdate:Fire("finished")
+--             connection:Disconnect()
+--         end
+--     end)
+--     tasksUpdate:Fire("added")
+-- end
+
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, script, func)
     if methodName == "FireServer" and not blacklisted(remote) then
@@ -1125,7 +1159,7 @@ function toggleSpy()
     if not toggle then
         originalEvent = hookfunction(remoteEvent.FireServer, function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end)
         originalFunction = hookfunction(remoteFunction.InvokeServer, function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end)
-        gm.__namecall = function(...)
+        gm.__namecall = newcclosure(function(...)
             local args = {...}
             local remote = args[1]
             local methodName = getnamecallmethod()
@@ -1139,7 +1173,7 @@ function toggleSpy()
             else
                 return original(...)
             end
-        end
+        end)
     else
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
@@ -1201,7 +1235,7 @@ if not _G.SimpleSpyExecuted then
         _G.SimpleSpyExecuted = true
     else
         rconsoleprint("A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exxtremewa#9394:\n\n" .. tostring(err))
-        rconsolename = "SimpleSpy Error"
+        rconsolename = "SimpleSpy Error Console"
         ScreenguiS:Destroy()
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
@@ -1265,7 +1299,7 @@ newButton(
     "Click to copy the path of the source script",
     function(button)
         local orText = "Click to copy the path of the source script"
-        syn.write_clipboard(typeToString(selected.Source))
+        setclipboard(typeToString(selected.Source))
         button.Text = "Copied!"
         wait(3)
         button.Text = orText

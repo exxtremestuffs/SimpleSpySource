@@ -29,7 +29,9 @@
         "tick",
         "script",
         "BrickColor",
-        "fireclickdetector"
+        "fireclickdetector",
+        "setclipboard",
+        "rconsolewarn"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [
