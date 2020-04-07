@@ -31,7 +31,8 @@
         "BrickColor",
         "fireclickdetector",
         "setclipboard",
-        "rconsolewarn"
+        "rconsolewarn",
+        "CFrame"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [
