@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.9.3 SOURCE 
+    SimpleSpy v0.9.4 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -362,7 +362,7 @@ local lastCursorPos, cursorPos = 0, 0
 --- the maximum amount of remotes allowed in logs
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
 --- the current amount of tasks in the scheduler
-local tasks = 0
+local tasks = {}
 --- this bindable is fired whenever the task queue updates
 local tasksUpdate = Instance.new("BindableEvent")
 
@@ -1066,34 +1066,27 @@ function tableToString(t, level, parentTable)
 end
 
 -- --- Adds a function to the task scheduler, must run in coroutine
--- function scheduleFunction(f, name)
---     tasks = tasks + 1
---     name = name .. "_" .. tostring(tasks)
---     if tasks > 999 then
---         rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999+).")
---         rconsolename = "SimpleSpy Error Console"
---         return
---     end
---     local queue = tasks
---     local connection
---     connection = tasksUpdate.Event:Connect(function(reason)
---         if tasks <= 0 then
---             tasks = 1
---         end
---         if reason == "finished" then
---             queue = queue - 1
---         end
---         if queue <= 1 then
---             print(name)
---             pcall(f)
---             RunService.RenderStepped:Wait()
---             tasks = tasks - 1
---             tasksUpdate:Fire("finished")
---             connection:Disconnect()
---         end
---     end)
---     tasksUpdate:Fire("added")
--- end
+function scheduleFunction(f, name)
+    if #tasks > 999 then
+        rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999+).")
+        rconsolename = "SimpleSpy Error Console"
+        return
+    end
+    local id = tostring(f)
+    table.insert(tasks, id)
+    local connection
+    connection = tasksUpdate.Event:Connect(function(reason)
+        if tasks[1] == id then
+            connection:Disconnect()
+            print(id)
+            pcall(f)
+            RunService.RenderStepped:Wait()
+            table.remove(tasks, 1)
+            tasksUpdate:Fire("finished")
+        end
+    end)
+    tasksUpdate:Fire("added")
+end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, script, func)
@@ -1166,7 +1159,7 @@ function toggleSpy()
             if methodName == "InvokeServer" or methodName == "FireServer" then
                 local script = rawget(getfenv(3), "script")
                 local func = debug.getinfo(3).func
-                coroutine.wrap(function() remoteHandler(false, methodName, remote, args, script, func) end)()
+                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, script, func) end, remote.Name)
             end
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil
