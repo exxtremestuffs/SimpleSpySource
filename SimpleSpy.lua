@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.9.4 SOURCE 
+    SimpleSpy v0.9.5 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
@@ -365,6 +365,8 @@ _G.SIMPLESPYCONFIG_MaxRemotes = 500
 local tasks = {}
 --- this bindable is fired whenever the task queue updates
 local tasksUpdate = Instance.new("BindableEvent")
+--- string that contains things to deal with recursives, to be put after the table
+local recursiveHandlingString = ""
 
 -- functions
 
@@ -722,7 +724,7 @@ function genScript(remote, ...)
         if
             not pcall(
                 function()
-                    gen = gen .. "local args;\nargs = " .. tableToString(args) .. "\n\n"
+                    gen = tableToString(args) .. "\n\n"
                 end
             )
          then
@@ -823,9 +825,10 @@ function getSpecials(s, nested)
 end
 
 --- Converts the path of a value of a table into a string
-function valueToString(pt, x, level)
+function valueToString(pt, x, level, getRecursive, tableName)
     local prev = {}
-    local string = "args"
+    local string = tableName
+    local currentPath = ""
     function iterate(t,  s)
         if x == t then
             return {true, s}
@@ -842,25 +845,48 @@ function valueToString(pt, x, level)
                 table.insert(prev, tostring(t))
                 s = s .. "[" .. typeToString(i, pt, level) .. "]"
                 local results = iterate(v, s)
+                prev = {}
                 if results[1] then
                     return results
-                else
-                    prev = {}
                 end
             end
         end
         return {false, ""}
     end
+    function iterate2(t,  s, ignore)
+        if x == t and s ~= ignore then
+            return s
+        end
+        for i, v in pairs(t) do
+            s = s .. "[" .. typeToString(i, pt, level) .. "]"
+            if v == x and s ~= ignore then
+                return s
+            elseif type(v) == "table" then
+                for _, v in pairs(prev) do
+                    if v == tostring(t) then
+                        return {false, ""}
+                    end
+                end
+                table.insert(prev, tostring(t))
+                local results = iterate2(v, s, ignore)
+                prev = {}
+                if results then
+                    return results
+                end
+            end
+        end
+        return ""
+    end
     local results = iterate(pt, string)
     if results[1] then
-        return results[2]
-    else
+        recursiveHandlingString = recursiveHandlingString .. "\n" .. iterate2(pt, string, results[2]) .. " = " .. results[2]
         return "{} --[[RECURSIVE DETECTED]]"
     end
+    return "{} --[[RECURSIVE DETECTED]]"
 end
 
 --- Converts a var to a string (including userdata)
-function typeToString(var, parentTable, level)
+function typeToString(var, parentTable, level, tableName)
     if not level then
         level = 4
     end
@@ -887,9 +913,9 @@ function typeToString(var, parentTable, level)
             parentTable = var
         end
         if not recursive then
-            out = out .. tableToString(var, level, parentTable)
+            out = out .. tableToString(var, level, parentTable, tableName)
         else
-            out = out .. valueToString(parentTable, var, level)
+            out = out .. valueToString(parentTable, var, level, true, tableName)
         end
     elseif typeof(var) == "TweenInfo" then
         -- TweenInfo
@@ -1035,8 +1061,11 @@ local function iterate(t)
 end
 
 --- Converts a table to a string (includes nested tables)
-function tableToString(t, level, parentTable)
+function tableToString(t, level, parentTable, tableName)
     local first = false
+    if not tableName then
+        tableName = "args"
+    end
     if not parentTable then
         parentTable = t
         first = true
@@ -1054,14 +1083,21 @@ function tableToString(t, level, parentTable)
     end
     if first and array then
         for i, v in iterate(t) do
-            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level) .. "] = " .. typeToString(v, parentTable, level) .. ","
+            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
         end
     else
         for i, v in pairs(t) do
-            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level) .. "] = " .. typeToString(v, parentTable, level) .. ","
+            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
         end
     end
     out = "{" .. out .. "\n" .. space(level - 4) .. "}"
+    if first then
+        out = "local " .. tableName .." = " .. out
+    end
+    if first and recursiveHandlingString then
+        out = out .. "\n" .. recursiveHandlingString
+        recursiveHandlingString = ""
+    end
     return out
 end
 
@@ -1099,7 +1135,7 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func), nil, nil, "upvalues"), tableToString(debug.getconstants(func), nil, nil, "constants"), funNum)
         else
             remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
         end
@@ -1113,7 +1149,7 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func)), tableToString(debug.getconstants(func)), funNum)
+            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func), nil, nil, "upvalues"), tableToString(debug.getconstants(func), nil, nil, "constants"), funNum)
         else
             remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
         end
