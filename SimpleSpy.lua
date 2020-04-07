@@ -1078,7 +1078,6 @@ function scheduleFunction(f, name)
     connection = tasksUpdate.Event:Connect(function(reason)
         if tasks[1] == id then
             connection:Disconnect()
-            print(id)
             pcall(f)
             RunService.RenderStepped:Wait()
             table.remove(tasks, 1)
