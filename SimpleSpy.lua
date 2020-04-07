@@ -1,10 +1,15 @@
 --[[
-    SimpleSpy v0.9.1 SOURCE 
+    SimpleSpy v0.9.2 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
         Frosty - GUI to Lua
 ]]
+
+-- shuts down the previous instance of SimpleSpy
+if _G.SimpleSpyExecuted and type(_G.SimpleSpyShutdown) == "function" then
+    _G.SimpleSpyShutdown()
+end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
@@ -1167,9 +1172,19 @@ function bindableHandler(type, ...)
     end
 end
 
+--- Shuts down the remote spy
+function shutdown()
+    ScreenguiS:Destroy()
+    hookfunction(remoteEvent.FireServer, originalEvent)
+    hookfunction(remoteFunction.InvokeServer, originalFunction)
+    gm.__namecall = original
+    _G.SimpleSpyExecuted = false
+end
+
 -- main
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
+        _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate})
         functionTemplate.Parent = nil
         fTemplate.Parent = nil
