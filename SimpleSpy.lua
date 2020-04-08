@@ -426,23 +426,34 @@ end
 function onBarInput(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         local lastPos = UserInputService:GetMouseLocation()
-        local currentPos = main.Position
+        local mainPos = main.AbsolutePosition
+        local offset = mainPos - lastPos
+        local currentPos = offset + lastPos
         RunService:BindToRenderStep(
             "drag",
             1,
             function()
                 local newPos = UserInputService:GetMouseLocation()
                 if newPos ~= lastPos then
-                    local currentX = currentPos.X.Offset + (newPos - lastPos).X
-                    if (currentX < 0 and currentX < currentPos.X.Offset) or (currentX > (workspace.CurrentCamera.ViewportSize.X - main.Size.X.Offset) and currentX > currentPos.X.Offset) then
-                        currentX = currentPos.X.Offset
+                    local currentX = (offset + newPos).X
+                    local currentY = (offset + newPos).Y
+                    local viewportSize = workspace.CurrentCamera.ViewportSize
+                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - main.Size.X.Offset) and currentX > currentPos.X) then
+                        if currentX < 0 then
+                            currentX = 0
+                        else
+                            currentX = viewportSize.X - main.Size.X.Offset
+                        end
                     end
-                    local currentY = currentPos.Y.Offset + (newPos - lastPos).Y
-                    if (currentY < 11 and currentY < currentPos.Y.Offset) or (currentY > (workspace.CurrentCamera.ViewportSize.Y - (main.Size.Y.Offset + 47)) and currentY > currentPos.Y.Offset) then
-                        currentY = currentPos.Y.Offset
+                    if (currentY < 11 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (main.Size.Y.Offset + 47)) and currentY > currentPos.Y) then
+                        if currentY < 11 then
+                            currentY = 11
+                        else
+                            currentY = viewportSize.Y - (main.Size.Y.Offset + 47)
+                        end
                     end
-                    currentPos = UDim2.new(0, currentX, 0, currentY)
-                    TweenService:Create(main, TweenInfo.new(0.1), {Position = currentPos}):Play()
+                    currentPos = Vector2.new(currentX, currentY)
+                    TweenService:Create(main, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                     lastPos = newPos
                 end
             end
