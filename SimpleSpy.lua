@@ -425,15 +425,16 @@ end
 --- Drags gui (so long as mouse is held down)
 function onBarInput(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        local lastPos = UserInputService:GetMouseLocation()
+        local lastPos = UserInputService.GetMouseLocation(UserInputService)
         local mainPos = main.AbsolutePosition
         local offset = mainPos - lastPos
         local currentPos = offset + lastPos
-        RunService:BindToRenderStep(
+        RunService.BindToRenderStep(
+            RunService,
             "drag",
             1,
             function()
-                local newPos = UserInputService:GetMouseLocation()
+                local newPos = UserInputService.GetMouseLocation(UserInputService)
                 if newPos ~= lastPos then
                     local currentX = (offset + newPos).X
                     local currentY = (offset + newPos).Y
@@ -453,15 +454,16 @@ function onBarInput(input)
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
-                    TweenService:Create(main, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                     lastPos = newPos
+                    TweenService.Create(TweenService, main, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                 end
             end
         )
-        UserInputService.InputEnded:Connect(
+        UserInputService.InputEnded.Connect(
+            UserInputService.InputEnded,
             function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    RunService:UnbindFromRenderStep("drag")
+                    RunService.UnbindFromRenderStep(RunService, "drag")
                 end
             end
         )
