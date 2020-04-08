@@ -851,11 +851,11 @@ function valueToString(pt, x, level, getRecursive, tableName)
                 return {true, s .. "[" .. typeToString(i, pt, level) .. "]"}
             elseif type(v) == "table" then
                 for _, v in pairs(prev) do
-                    if v == tostring(t) then
+                    if v == t then
                         return {false, ""}
                     end
                 end
-                table.insert(prev, tostring(t))
+                table.insert(prev, t)
                 s = s .. "[" .. typeToString(i, pt, level) .. "]"
                 local results = iterate(v, s)
                 prev = {}
@@ -876,11 +876,11 @@ function valueToString(pt, x, level, getRecursive, tableName)
                 return s
             elseif type(v) == "table" then
                 for _, v in pairs(prev) do
-                    if v == tostring(t) then
+                    if v == t then
                         return {false, ""}
                     end
                 end
-                table.insert(prev, tostring(t))
+                table.insert(prev, t)
                 local results = iterate2(v, s, ignore)
                 prev = {}
                 if results then
@@ -913,11 +913,11 @@ function typeToString(var, parentTable, level, tableName)
     elseif type(var) == "table" then
         -- Tables
         local recursive, selfRecursive = false, false
-        if prevTables[1] and prevTables[1] == tostring(var) then
+        if prevTables[1] and prevTables[1] == var then
             selfRecursive = true
         end
         for _, v in pairs(prevTables) do
-            if v == tostring(var) then
+            if v == var then
                 recursive = true
                 break
             end
@@ -1083,7 +1083,7 @@ function tableToString(t, level, parentTable, tableName)
         parentTable = t
         first = true
     end
-    table.insert(prevTables, tostring(t))
+    table.insert(prevTables, t)
     if type(level) ~= "number" then
         level = 4
     else
