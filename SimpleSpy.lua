@@ -1116,24 +1116,24 @@ end
 
 -- --- Adds a function to the task scheduler, must run in coroutine
 function scheduleFunction(f, name)
-    if #tasks > 999999 then
-        rconsolewarn("Unable to schedule task " .. name .. ", too many tasks in queue (999999+).")
-        rconsolename = "SimpleSpy Error Console"
-        return
+    if #tasks > _G.SIMPLESPYCONFIG_MaxRemotes then
+        local c = tasks[1][2]
+        table.remove(tasks, 1)
+        c:Disconnect()
     end
     local id = tostring(f)
-    table.insert(tasks, id)
     local connection
     connection = tasksUpdate.Event:Connect(function(reason)
-        if tasks[1] == id then
-            connection:Disconnect()
+        if tasks[1][1] == id then
+            connection.Disconnect(connection)
             pcall(f)
-            RunService.RenderStepped:Wait()
+            RunService.RenderStepped.Wait(RunService.RenderStepped)
             table.remove(tasks, 1)
-            tasksUpdate:Fire("finished")
+            tasksUpdate.Fire(tasksUpdate, "finished")
         end
     end)
-    tasksUpdate:Fire("added")
+    table.insert(tasks, {id, connection})
+    tasksUpdate.Fire(tasksUpdate, "added")
 end
 
 --- Handles remote logs
@@ -1198,8 +1198,8 @@ end
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
-        originalEvent = hookfunction(remoteEvent.FireServer, function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end)
-        originalFunction = hookfunction(remoteFunction.InvokeServer, function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end)
+        originalEvent = hookfunction(remoteEvent.FireServer, newcclosure(function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end))
+        originalFunction = hookfunction(remoteFunction.InvokeServer, newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end))
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local remote = args[1]
