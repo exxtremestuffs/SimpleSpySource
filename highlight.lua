@@ -137,9 +137,6 @@ end
 --- Main function for syntax highlighting tableContents
 function render()
     offLimits = {}
-    for _, char in pairs(tableContents) do
-        char.Color = defaultColor
-    end
     renderComments()
     renderStrings()
     highlightPattern(functions, functionColor)
@@ -165,7 +162,18 @@ end
 --- Sets the raw text of the code box (\n = new line, \t converted to spaces)
 --- @param raw string
 function Highlight:setRaw(raw)
-    
+    tableContents = {}
+    local line = 1
+    for i in gfind(raw, ".") do
+        table.insert(tableContents, {
+            Char = raw:sub(i),
+            Color = defaultColor,
+            Line = line
+        })
+        if raw:sub(i) == "\n" then
+            line = line + 1
+        end
+    end
 end
 
 --- Returns the (string) raw text of the code box (\n = new line)
@@ -215,14 +223,56 @@ end
 --- @param line number
 ---@param text string
 function Highlight:setLine(line, text)
-
+    if #tableContents and line >= tableContents[#tableContents].Line then
+        for i = tableContents[#tableContents].Line, line do
+            table.insert(tableContents, {
+                Char = "\n",
+                Line = i,
+                Color = defaultColor
+            })
+            local str = Highlight:getRaw()
+            str = str:sub(0, #str) .. text
+            Highlight:setRaw(str)
+            return
+        end
+    elseif not #tableContents then
+        return
+    end
+    local str = Highlight:getRaw()
+    local lastStart = 0
+    local currentLine = 0
+    for i in gfind(str, "\n") do
+        currentLine = currentLine + 1
+        if line == currentLine then
+            str = str:sub(0, lastStart) .. text .. str:sub(i, #str)
+            Highlight:setRaw(str)
+            return
+        end
+    end
+    error("Unable to set line")
 end
 
 --- Inserts a line made from the specified string and moves all existing lines down (\n will insert further lines)
 --- @param line number
 ---@param text string
 function Highlight:insertLine(line, text)
-
+    if #tableContents and line >= tableContents[#tableContents].Line then
+        Highlight:setLine(line, text)
+    elseif not #tableContents then
+        return
+    end
+    local str = Highlight:getRaw()
+    local lastStart = 0
+    local currentLine = 0
+    for i in gfind(str, "\n") do
+        currentLine = currentLine + 1
+        if line == currentLine then
+            str = str:sub(0, lastStart) .. "\n" .. text .. "\n" .. str:sub(i, #str)
+            Highlight:setRaw(str)
+            return
+        end
+    end
+    error("Unable to insert line")
 end
 
 local oldIndex = HighlightMeta.__index
