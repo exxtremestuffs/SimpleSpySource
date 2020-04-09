@@ -33,18 +33,37 @@ local operatorColor = Color3.fromRGB(198, 120, 221)
 local functionColor = Color3.fromRGB(97, 175, 239)
 local stringColor = Color3.fromRGB(152, 195, 121)
 local numberColor = Color3.fromRGB(209, 154, 102)
+local booleanColor = numberColor
 local objectColor = Color3.fromRGB(229, 192, 123)
 local defaultColor = Color3.fromRGB(204, 160, 163)
+local lineNumberColor = Color3.fromRGB(187, 85, 255)
+local commentColor = Color3.fromRGB(148, 148, 148)
 
-local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<"}
-local strings = {{pattern = "", char = "\""}, {pattern = "", char = "\'"}}
+local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+local strings = {'"', "'"}
+local comments = {"(--.)\n", "--[[.]]"}
+local functions = {"[%s%-%+=%*%.:](%a[%a%d_]*)%s*%(", "^(%a[%a%d_]*)%s*%("}
+local numbers = {"[%s%-%+%=%*](%d+)", "[%s%-%+=%*](%.%d+)", "[%s%-%+=%*](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
+
+local offLimits = {}
+
+--- Determines if index is in a string
+function isInString(index)
+    for _, v in pairs(offLimits) do
+        if index > v[1] and index < v[2] then
+            return true
+        end
+    end
+    return false
+end
 
 --- Find iterator
 function gfind(str, pattern)
     local currentSub = str
     return function()
         local findStart, findEnd = currentSub:find(pattern)
-        if findStart and findEnd and findEnd ~= #str then
+        if findStart and findEnd ~= #str and not isInString(findStart) and not isInString(findEnd) then
             currentSub = currentSub:sub(findEnd + 1, #currentSub)
             return findStart, findEnd
         else
@@ -53,13 +72,14 @@ function gfind(str, pattern)
     end
 end
 
--- Finds and highlights operators with `operatorColor`
-function renderOperators()
+--- Finds and highlights comments with `commentColor`
+function renderComments() 
     local str = Highlight:getRaw()
-    for _, operator in pairs(operators) do
-        for findStart, findEnd in gfind(str, operator) do
-            for i = findStart, findEnd do
-                tableContents[i].Color = operatorColor
+    for _, pattern in pairs(comments) do
+        for commentStart, commentEnd in gfind(str, pattern) do
+            for i = commentStart, commentEnd do
+                table.insert(offLimits, {commentStart, commentEnd})
+                tableContents[i].Color = commentColor
             end
         end
     end
@@ -67,17 +87,37 @@ end
 
 -- Finds and highlights strings with `stringColor`
 function renderStrings()
-    local str = Highlight:getRaw()
-    for _, s in pairs(strings) do
-        for findStart, findEnd in gfind(str, s.pattern) do
-            if str:sub(findEnd - 1) == "\\" then
-                _, findEnd = str:sub(findEnd + 1, #str)
-                if not findEnd then
-                    findEnd = #str
-                end
+    local stringType = ""
+    local stringStart
+    local stringEnd
+    for i, char in pairs(tableContents) do
+        if stringType then
+            char.Color = stringColor
+            if char.Char == stringType and tableContents[i - 1].Char ~= "\\" then
+                stringType = ""
+                stringEnd = i
+                table.insert(offLimits, {stringStart, stringEnd})
             end
+        end
+        for _, v in pairs(strings) do
+            if char.Char == v then
+                stringType = v
+                char.Color = stringColor
+                stringStart = i
+            end
+        end
+    end
+end
+
+--- Highlights the specified patterns with the specified color
+--- @param patternArray string[]
+---@param color userdata
+function highlightPattern(patternArray, color)
+    local str = Highlight:getRaw()
+    for _, pattern in pairs(patternArray) do
+        for findStart, findEnd in gfind(str, pattern) do
             for i = findStart, findEnd do
-                tableContents[i].Color = stringColor
+                tableContents[i].Color = color
             end
         end
     end
@@ -85,9 +125,15 @@ end
 
 --- Main function for syntax highlighting tableContents
 function render()
+    offLimits = {}
     for _, char in pairs(tableContents) do
         char.Color = defaultColor
     end
+    renderComments()
+    renderStrings()
+    highlightPattern(functions, functionColor)
+    highlightPattern(numbers, numberColor)
+    highlightPattern(operators, operatorColor)
 end
 
 -- PUBLIC METHODS --
