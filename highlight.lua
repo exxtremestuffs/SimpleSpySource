@@ -22,9 +22,10 @@ local Highlight = {}
     }
 ]]
 
+local parentFrame
 local scrollingFrame
-local lineNumberFrame
-local lineNumbers
+local textFrame
+local lineNumbersFrame
 local lines = {}
 
 --- Contents of the table- array of char objects
@@ -32,6 +33,8 @@ local tableContents = {}
 
 --- Whether or not the previous line had an unfinished string
 local continuingString = false
+
+local lineSpace = 15
 
 local backgroundColor = Color3.fromRGB(40, 44, 52)
 local operatorColor = Color3.fromRGB(198, 120, 221)
@@ -137,6 +140,10 @@ end
 --- Main function for syntax highlighting tableContents
 function render()
     offLimits = {}
+    lines = {}
+    textFrame:ClearAllChildren()
+    lineNumbersFrame:ClearAllChildren()
+
     renderComments()
     renderStrings()
     highlightPattern(functions, functionColor)
@@ -145,6 +152,50 @@ function render()
     highlightPattern(objects, objectColor)
     highlightPattern(booleans, booleanColor)
     highlightPattern(other, genericColor)
+
+    for _, v in pairs(tableContents) do
+        if v.Char ~= "\n" then
+            local textBox = Instance.new("TextLabel")
+            local size = TextService:GetTextSize(v.Char, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
+            local lineSizeX = 0
+            for _, c in pairs(lines[v.Line]) do
+                lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge)).X
+            end
+            textBox.Text = v.Char
+            textBox.TextColor3 = v.Color
+            textBox.Size = UDim2.new(0, size.X, 0, size.Y)
+            textBox.TextXAlignment = Enum.TextXAlignment.Left
+            textBox.TextYAlignment = Enum.TextYAlignment.Top
+            textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace)
+            if not lines[v.Line] then
+                lines[v.Line] = {}
+            end
+            table.insert(lines[v.Line], v)
+            textBox.Parent = textFrame
+        end
+    end
+    for i = 1, #lines do
+        local lineNumber = Instance.new("TextLabel")
+        lineNumber.Text = i
+        lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
+        lineNumber.TextXAlignment = Enum.TextXAlignment.Right
+        lineNumber.TextYAlignment = Enum.TextYAlignment.Top
+        lineNumber.TextColor3 = lineNumberColor
+        lineNumber.Position = UDim2.new(0, 0, 0, i * lineSpace - lineSpace)
+        lineNumber.Parent = lineNumbersFrame
+    end
+
+    updateCanvasSize()
+end
+
+function onFrameSizeChange()
+    local newSize = parentFrame.AbsoluteSize
+    scrollingFrame.Size = UDim2.new(0, newSize.X, 0, newSize.Y)
+end
+
+function updateCanvasSize()
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:GetRaw(), 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge)).X + 30, #lines * lineSpace)
+    scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
 end
 
 -- PUBLIC METHODS --
@@ -153,7 +204,32 @@ end
 --- @param frame Frame
 function Highlight:init(frame)
     if typeof(frame) == "Instance" and frame:IsA("Frame") then
+        parentFrame = frame
+        scrollingFrame = Instance.new("ScrollingFrame")
+        textFrame = Instance.new("Frame")
+        lineNumbersFrame = Instance.new("Frame")
 
+        local parentSize = frame.AbsoluteSize
+        scrollingFrame.Name = "HIGHLIGHT_IDE"
+        scrollingFrame.Size = UDim2.new(0, parentSize.X, 0, parentSize.Y)
+        scrollingFrame.BackgroundColor3 = backgroundColor
+        scrollingFrame.BorderSizePixel = 0
+
+        textFrame.Name = ""
+        textFrame.Size = UDim2.new(1, -30, 1, 0)
+        textFrame.Position = UDim2.new(0, 30, 0, 0)
+        textFrame.BackgroundTransparency = 1
+
+        lineNumbersFrame.Name = ""
+        lineNumbersFrame.Size = UDim2.new(0, 25, 1, 0)
+        lineNumbersFrame.BackgroundTransparency = 1
+
+        textFrame.Parent = scrollingFrame
+        lineNumbersFrame.Parent = scrollingFrame
+        scrollingFrame.Parent = parentFrame
+
+        render()
+        parentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(onFrameSizeChange)
     else
         error("Initialization error: argument " .. tostring(frame) .. " is not a Frame Instance")
     end
@@ -174,6 +250,7 @@ function Highlight:setRaw(raw)
             line = line + 1
         end
     end
+    render()
 end
 
 --- Returns the (string) raw text of the code box (\n = new line)
