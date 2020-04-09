@@ -60,7 +60,7 @@ local offLimits = {}
 --- Determines if index is in a string
 function isOffLimits(index)
     for _, v in pairs(offLimits) do
-        if index > v[1] and index < v[2] then
+        if index >= v[1] and index <= v[2] then
             return true
         end
     end
