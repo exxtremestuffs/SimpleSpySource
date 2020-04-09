@@ -15,16 +15,14 @@ local Highlight = {}
 -- PRIVATE METHODS/PROPERTIES --
 
 --[[
-    Line Interface:
+    Char Object:
     {
-        Line: number - Line number
-        Text: Instance (TextBox) - TextBox for the line
-        Gradient: Instance (UIGradient) - UIGradient responsible for syntax highlighting
-        Colors: {
-            [LetterNumber: number] = Color: Color3
-        }[]
+        Char: string -- A single character
+        Color: Color3 -- The intended color of the char
     }
 ]]
+
+--- Contents of the table- array of char objects
 local tableContents = {}
 
 --- Whether or not the previous line had an unfinished string
@@ -36,78 +34,59 @@ local functionColor = Color3.fromRGB(97, 175, 239)
 local stringColor = Color3.fromRGB(152, 195, 121)
 local numberColor = Color3.fromRGB(209, 154, 102)
 local objectColor = Color3.fromRGB(229, 192, 123)
-local defaultColor = Color3.fromRGB(224, 108, 117)
+local defaultColor = Color3.fromRGB(204, 160, 163)
 
---- Table of string patterns and colors (prioritizes whichever is first)
-local colorStrings = {
-    ["function"] =  {"function", operatorColor},
-    ["local"] = {"local", operatorColor},
-    ["end"] = {"end", operatorColor},
-    ["if"] = {"if", operatorColor},
-    ["for"] = {"for", operatorColor},
-    ["in"] = {"in", operatorColor},
-    ["do"] = {"do", operatorColor},
-    ["then"] = {"then", operatorColor},
-    ["else"] = {"else", operatorColor},
-    ["elseif"] = {"elseif", operatorColor},
-    ["%a+("] = {"%a+", functionColor},
-    ["%a+.+("] = {"%a+", functionColor},
-    -- ["%b\"\""] = {"%b\"\"", stringColor}, Strings have to be handled directly in the function
-    ["%d+"] = {"%d+", numberColor},
-    ["%w+"] = {"%w+", numberColor},
-}
+local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<"}
+local strings = {{pattern = "", char = "\""}, {pattern = "", char = "\'"}}
 
---- Creates new Line (see interface above)
---- @param line number
----@param textContent string
---- @return Line
-function newLine(line, textContent)
-    local textBox = Instance.new("TextBox")
-    textBox.Name = line
-    textBox.Text = textContent
-    textBox.BackgroundTransparency = 1
-    textBox.TextSize = 14
-    local gradient = Instance.new("UIGradient")
-    gradient.Parent = textBox
-    return {
-        Line = line,
-        Text = textBox,
-        Gradient = gradient
-    }
-end
-
---- Creates and syntax highlights lines from provided data (array of Line objects)
---- @param data Line[]
-function render(data)
-    if typeof(data) == "table" then
-        for i, v in pairs(data) do
-            
+--- Find iterator
+function gfind(str, pattern)
+    local currentSub = str
+    return function()
+        local findStart, findEnd = currentSub:find(pattern)
+        if findStart and findEnd and findEnd ~= #str then
+            currentSub = currentSub:sub(findEnd + 1, #currentSub)
+            return findStart, findEnd
+        else
+            return nil
         end
-    else
-        error("Incorrect data sent: of type " .. typeof(data))
     end
 end
 
---- Syntax highlights single line (not for individual use)
---- @param line number
-function highlightLine(line)
-    
-end
-
---- Syntax highlights code
-function highlightEditor()
-    local full = ""
-    local matchLocations = {}
-    for _, v in pairs(tableContents) do
-        local text = " " .. v.Text.Text .. " "
-        for i, v2 in pairs(colorStrings) do
-            for _, v3 in v:match("") do
-                
+-- Finds and highlights operators with `operatorColor`
+function renderOperators()
+    local str = Highlight:getRaw()
+    for _, operator in pairs(operators) do
+        for findStart, findEnd in gfind(str, operator) do
+            for i = findStart, findEnd do
+                tableContents[i].Color = operatorColor
             end
         end
     end
-    for i, _ in pairs(tableContents) do
-        highlightLine(i)
+end
+
+-- Finds and highlights strings with `stringColor`
+function renderStrings()
+    local str = Highlight:getRaw()
+    for _, s in pairs(strings) do
+        for findStart, findEnd in gfind(str, s.pattern) do
+            if str:sub(findEnd - 1) == "\\" then
+                _, findEnd = str:sub(findEnd + 1, #str)
+                if not findEnd then
+                    findEnd = #str
+                end
+            end
+            for i = findStart, findEnd do
+                tableContents[i].Color = stringColor
+            end
+        end
+    end
+end
+
+--- Main function for syntax highlighting tableContents
+function render()
+    for _, char in pairs(tableContents) do
+        char.Color = defaultColor
     end
 end
 
@@ -126,38 +105,50 @@ end
 --- Sets the raw text of the code box (\n = new line, \t converted to spaces)
 --- @param raw string
 function Highlight:setRaw(raw)
-
+    
 end
 
 --- Returns the (string) raw text of the code box (\n = new line)
 --- @return string
 function Highlight:getRaw()
-
+    local result = ""
+    for _, char in pairs(tableContents) do
+        result = result .. char.Char
+    end
+    return result
 end
 
---- Sets the table to the specified array of strings
---- @param lineArray string[]
-function Highlight:setTable(lineArray)
-
-end
-
---- Returns the (string[]) array that holds all the lines in order as strings
+--- Returns the (char[]) array that holds all the lines in order as strings
 --- @return string[]
 function Highlight:getTable()
-
+    return tableContents
 end
 
 --- Returns the (int) number of lines in the code box
 --- @return number
 function Highlight:size()
-
+    return #tableContents
 end
 
 --- Returns the (string) line of the specified line number
 --- @param line number
 --- @return string
 function Highlight:getLine(line)
-
+    local currentline = 0
+    local rightLine = false
+    local result = ""
+    for _, v in pairs(tableContents) do
+        currentline = currentline + 1
+        if v.Char == "\n" and not rightLine then
+            rightLine = true
+        end
+        if rightLine and v.Char ~= "\n" then
+            result = result .. v.Char
+        elseif rightLine then
+            break
+        end
+    end
+    return result
 end
 
 --- Replaces the specified line number with the specified string (\n will overwrite further lines)
