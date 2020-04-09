@@ -476,7 +476,8 @@ function toggleMinimize(override)
         return
     end
     mainClosing = true
-    if not closed then
+    closed = not closed
+    if closed then
         if not sideClosed then
             toggleSideTray(true)
         end
@@ -490,7 +491,6 @@ function toggleMinimize(override)
         remotes.Visible = true
         wait(0.5)
     end
-    closed = not closed
     mainClosing = false
 end
 
@@ -500,7 +500,8 @@ function toggleSideTray(override)
         return
     end
     sideClosing = true
-    if not sideClosed and side.Visible then
+    sideClosed = not sideClosed
+    if sideClosed and side.Visible then
         TweenService:Create(side, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
         TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 180}):Play()
         wait(0.5)
@@ -517,7 +518,6 @@ function toggleSideTray(override)
         TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 0}):Play()
         wait(0.5)
     end
-    sideClosed = not sideClosed
     sideClosing = false
 end
 
