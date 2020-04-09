@@ -49,10 +49,10 @@ local operators = {"function", "local", "if", "for", "while", "then", "do", "els
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"(--.)\n", "--[[.]]"}
-local functions = {"[%s%-%+=%*%.:<>]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%("}
-local numbers = {"[%s%-%+%=%*<>](%d+)", "[%s%-%+=%*<>](%.%d+)", "[%s%-%+=%*<>](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
-local booleans = {"[%s%-%+%=%*<>]true", "^true", "[%s%-%+%=%*<>]false", "^false"}
-local objects = {"[%s%-%+=%*<>]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
+local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%("}
+local numbers = {"[^%w_](%d+)", "[^%w_](%.%d+)", "[^%w_](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local booleans = {"[^%w_]true", "^true", "^%w_]false", "^false"}
+local objects = {"[^%w_.:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
 
 local offLimits = {}
