@@ -46,10 +46,12 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local genericColor = Color3.fromRGB(240, 240, 240)
 
 local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+--- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"(--.)\n", "--[[.]]"}
-local functions = {"[%s%-%+=%*%.:](%a[%a%d_]*)%s*%(", "^(%a[%a%d_]*)%s*%("}
-local numbers = {"[%s%-%+%=%*](%d+)", "[%s%-%+=%*](%.%d+)", "[%s%-%+=%*](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local functions = {"[%s%-%+=%*%.:<>]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%("}
+local numbers = {"[%s%-%+%=%*<>](%d+)", "[%s%-%+=%*<>](%.%d+)", "[%s%-%+=%*<>](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local objects = {"[%s%-%+=%*<>]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
 
 local offLimits = {}
@@ -142,6 +144,7 @@ function render()
     highlightPattern(functions, functionColor)
     highlightPattern(numbers, numberColor)
     highlightPattern(operators, operatorColor)
+    highlightPattern(objects, objectColor)
     highlightPattern(other, genericColor)
 end
 
