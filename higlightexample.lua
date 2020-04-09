@@ -10,9 +10,6 @@ myHighlight:setRaw(string)
 --- Returns the (string) raw text of the code box (\n = new line)
 myHighlight:getRaw()
 
---- Sets the table to the specified array of strings
-myHighlight:setTable(string[])
-
 --- Returns the (string[]) array that holds all the lines in order as strings
 myHighlight:getTable()
 
