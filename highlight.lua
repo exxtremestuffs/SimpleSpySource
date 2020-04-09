@@ -66,11 +66,11 @@ end
 
 --- Find iterator
 function gfind(str, pattern)
-    local currentSub = str
+    local start = 0
     return function()
-        local findStart, findEnd = currentSub:find(pattern)
+        local findStart, findEnd = str:find(pattern, start)
         if findStart and findEnd ~= #str then
-            currentSub = currentSub:sub(findEnd + 1, #currentSub)
+            start = findEnd + 1
             return findStart, findEnd
         else
             return nil
