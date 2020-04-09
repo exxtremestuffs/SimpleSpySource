@@ -14,7 +14,7 @@ myHighlight:getRaw()
 myHighlight:getTable()
 
 --- Returns the (int) number of lines in the code box
-myHighlight:size()
+myHighlight:getSize()
 
 --- Returns the (string) line of the specified line number
 myHighlight:getLine(int)

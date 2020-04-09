@@ -194,7 +194,7 @@ end
 
 --- Returns the (int) number of lines in the code box
 --- @return number
-function Highlight:size()
+function Highlight:getSize()
     return #tableContents
 end
 
