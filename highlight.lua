@@ -51,6 +51,7 @@ local strings = {'"', "'"}
 local comments = {"(--.)\n", "--[[.]]"}
 local functions = {"[%s%-%+=%*%.:<>]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%("}
 local numbers = {"[%s%-%+%=%*<>](%d+)", "[%s%-%+=%*<>](%.%d+)", "[%s%-%+=%*<>](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local booleans = {"[%s%-%+%=%*<>]true", "^true", "[%s%-%+%=%*<>]false", "^false"}
 local objects = {"[%s%-%+=%*<>]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
 
@@ -145,6 +146,7 @@ function render()
     highlightPattern(numbers, numberColor)
     highlightPattern(operators, operatorColor)
     highlightPattern(objects, objectColor)
+    highlightPattern(booleans, booleanColor)
     highlightPattern(other, genericColor)
 end
 
