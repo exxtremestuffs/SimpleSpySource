@@ -10,7 +10,15 @@ myHighlight:setRaw(string)
 --- Returns the (string) raw text of the code box (\n = new line)
 myHighlight:getRaw()
 
---- Returns the (string[]) array that holds all the lines in order as strings
+--[[
+    char = {
+        Char: string -- The single character that the object represents
+        Line: number -- The line that the character is on
+        Color: Color3 -- The color of the character
+    }
+]]
+
+--- Returns the (char[]) array that holds all the lines in order as strings
 myHighlight:getTable()
 
 --- Returns the (int) number of lines in the code box

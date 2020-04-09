@@ -187,7 +187,7 @@ function Highlight:getRaw()
 end
 
 --- Returns the (char[]) array that holds all the lines in order as strings
---- @return string[]
+--- @return table[]
 function Highlight:getTable()
     return tableContents
 end
