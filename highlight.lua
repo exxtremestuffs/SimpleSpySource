@@ -22,6 +22,11 @@ local Highlight = {}
     }
 ]]
 
+local scrollingFrame
+local lineNumberFrame
+local lineNumbers
+local lines = {}
+
 --- Contents of the table- array of char objects
 local tableContents = {}
 
@@ -38,6 +43,7 @@ local objectColor = Color3.fromRGB(229, 192, 123)
 local defaultColor = Color3.fromRGB(204, 160, 163)
 local lineNumberColor = Color3.fromRGB(187, 85, 255)
 local commentColor = Color3.fromRGB(148, 148, 148)
+local genericColor = Color3.fromRGB(240, 240, 240)
 
 local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 local strings = {'"', "'"}
@@ -49,7 +55,7 @@ local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
 local offLimits = {}
 
 --- Determines if index is in a string
-function isInString(index)
+function isOffLimits(index)
     for _, v in pairs(offLimits) do
         if index > v[1] and index < v[2] then
             return true
@@ -63,7 +69,7 @@ function gfind(str, pattern)
     local currentSub = str
     return function()
         local findStart, findEnd = currentSub:find(pattern)
-        if findStart and findEnd ~= #str and not isInString(findStart) and not isInString(findEnd) then
+        if findStart and findEnd ~= #str then
             currentSub = currentSub:sub(findEnd + 1, #currentSub)
             return findStart, findEnd
         else
@@ -116,8 +122,10 @@ function highlightPattern(patternArray, color)
     local str = Highlight:getRaw()
     for _, pattern in pairs(patternArray) do
         for findStart, findEnd in gfind(str, pattern) do
-            for i = findStart, findEnd do
-                tableContents[i].Color = color
+            if not isOffLimits(findStart) and not isOffLimits(findEnd) then
+                for i = findStart, findEnd do
+                    tableContents[i].Color = color
+                end
             end
         end
     end
@@ -134,6 +142,7 @@ function render()
     highlightPattern(functions, functionColor)
     highlightPattern(numbers, numberColor)
     highlightPattern(operators, operatorColor)
+    highlightPattern(other, genericColor)
 end
 
 -- PUBLIC METHODS --
