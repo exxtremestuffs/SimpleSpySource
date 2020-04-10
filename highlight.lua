@@ -178,7 +178,7 @@ function render()
             textBox.Text = "\t____"
             textBox.TextTransparency = 1
         elseif v.Char:match(" ") then
-            v.Char = " -"
+            v.Char = " |"
             textBox.Text = " -"
             textBox.TextTransparency = 1
         else
