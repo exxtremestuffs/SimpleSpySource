@@ -1,13 +1,12 @@
 --[[
-    higlight.lua v0.1 by exxtremewa#9394
+    higlight.lua v0.0.1 by exxtremewa#9394
     
-     - uses the power of fancy gradient api shenanigans to do line-based syntax higlighting
+    Features:
+     - uses the power of fancy syntax detection algorithms to convert a frame into a syntax highlighted high quality code box
      - is cool
 ]]
 
 local TextService = game:GetService("TextService")
---- The metatable of the Highlight class
-local HighlightMeta = {}
 --- The Highlight class
 --- @class Highlight
 local Highlight = {}
@@ -19,6 +18,7 @@ local Highlight = {}
     {
         Char: string -- A single character
         Color: Color3 -- The intended color of the char
+        Line: number -- The line number
     }
 ]]
 
@@ -37,27 +37,26 @@ local continuingString = false
 local lineSpace = 15
 
 local backgroundColor = Color3.fromRGB(40, 44, 52)
-local operatorColor = Color3.fromRGB(198, 120, 221)
+local operatorColor = Color3.fromRGB(187, 85, 255)
 local functionColor = Color3.fromRGB(97, 175, 239)
 local stringColor = Color3.fromRGB(152, 195, 121)
 local numberColor = Color3.fromRGB(209, 154, 102)
 local booleanColor = numberColor
 local objectColor = Color3.fromRGB(229, 192, 123)
-local defaultColor = Color3.fromRGB(204, 160, 163)
-local lineNumberColor = Color3.fromRGB(187, 85, 255)
+local defaultColor = Color3.fromRGB(224, 67, 78)
 local commentColor = Color3.fromRGB(148, 148, 148)
+local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
 local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
-local comments = {"(--.)\n", "--[[.]]"}
-local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%("}
+local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
+local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[^_%s%w]([%a_][%a%d_]*)%s*%("}
 local numbers = {"[^%w_](%d+)", "[^%w_](%.%d+)", "[^%w_](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
-local booleans = {"[^%w_]true", "^true", "^%w_]false", "^false"}
+local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)"}
 local objects = {"[^%w_.:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
-local other = {"%p", "%(", "%)", "{", "}", "[", "]"}
-
+local other = {"[^_%s%w]"}
 local offLimits = {}
 
 --- Determines if index is in a string
@@ -89,9 +88,13 @@ function renderComments()
     local str = Highlight:getRaw()
     for _, pattern in pairs(comments) do
         for commentStart, commentEnd in gfind(str, pattern) do
-            for i = commentStart, commentEnd do
-                table.insert(offLimits, {commentStart, commentEnd})
-                tableContents[i].Color = commentColor
+            if not isOffLimits(commentStart) then
+                for i = commentStart, commentEnd do
+                    table.insert(offLimits, {commentStart, commentEnd})
+                    if tableContents[i] then
+                        tableContents[i].Color = commentColor
+                    end
+                end
             end
         end
     end
@@ -99,25 +102,30 @@ end
 
 -- Finds and highlights strings with `stringColor`
 function renderStrings()
-    local stringType = ""
+    local stringType = nil
     local stringStart
     local stringEnd
+    local skip = false
     for i, char in pairs(tableContents) do
         if stringType then
             char.Color = stringColor
             if char.Char == stringType and tableContents[i - 1].Char ~= "\\" then
-                stringType = ""
+                skip = true
+                stringType = nil
                 stringEnd = i
                 table.insert(offLimits, {stringStart, stringEnd})
             end
         end
-        for _, v in pairs(strings) do
-            if char.Char == v then
-                stringType = v
-                char.Color = stringColor
-                stringStart = i
+        if not skip then
+            for _, v in pairs(strings) do
+                if char.Char == v and not isOffLimits(i) then
+                    stringType = v
+                    char.Color = stringColor
+                    stringStart = i
+                end
             end
         end
+        skip = false
     end
 end
 
@@ -130,7 +138,9 @@ function highlightPattern(patternArray, color)
         for findStart, findEnd in gfind(str, pattern) do
             if not isOffLimits(findStart) and not isOffLimits(findEnd) then
                 for i = findStart, findEnd do
-                    tableContents[i].Color = color
+                    if tableContents[i] then
+                        tableContents[i].Color = color
+                    end
                 end
             end
         end
@@ -153,35 +163,50 @@ function render()
     highlightPattern(booleans, booleanColor)
     highlightPattern(other, genericColor)
 
-    for _, v in pairs(tableContents) do
-        if v.Char ~= "\n" then
-            local textBox = Instance.new("TextLabel")
-            local size = TextService:GetTextSize(v.Char, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
-            local lineSizeX = 0
-            for _, c in pairs(lines[v.Line]) do
-                lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge)).X
-            end
-            textBox.Text = v.Char
-            textBox.TextColor3 = v.Color
-            textBox.Size = UDim2.new(0, size.X, 0, size.Y)
-            textBox.TextXAlignment = Enum.TextXAlignment.Left
-            textBox.TextYAlignment = Enum.TextYAlignment.Top
-            textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace)
-            if not lines[v.Line] then
-                lines[v.Line] = {}
-            end
-            table.insert(lines[v.Line], v)
-            textBox.Parent = textFrame
+    for i = 1, #tableContents do
+        local v = tableContents[i]
+        local textBox = Instance.new("TextLabel")
+        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge))
+        local lineSizeX = 0
+        if not lines[v.Line] then
+            lines[v.Line] = {}
         end
+        if v.Char == "\n" then
+            textBox.Text = ""
+        elseif v.Char:match("\t") then
+            v.Char = "\t____"
+            textBox.Text = "\t____"
+            textBox.TextTransparency = 1
+        elseif v.Char:match(" ") then
+            v.Char = " -"
+            textBox.Text = " -"
+            textBox.TextTransparency = 1
+        else
+            textBox.Text = v.Char
+        end
+        for _, c in pairs(lines[v.Line]) do
+            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X
+        end
+        textBox.TextColor3 = v.Color
+        textBox.Size = UDim2.new(0, size.X, 0, size.Y)
+        textBox.TextXAlignment = Enum.TextXAlignment.Left
+        textBox.TextYAlignment = Enum.TextYAlignment.Top
+        textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
+        textBox.BackgroundTransparency = 1
+        if not lines[v.Line] then
+            lines[v.Line] = {}
+        end
+        table.insert(lines[v.Line], v)
+        textBox.Parent = textFrame
     end
     for i = 1, #lines do
         local lineNumber = Instance.new("TextLabel")
         lineNumber.Text = i
         lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
         lineNumber.TextXAlignment = Enum.TextXAlignment.Right
-        lineNumber.TextYAlignment = Enum.TextYAlignment.Top
         lineNumber.TextColor3 = lineNumberColor
-        lineNumber.Position = UDim2.new(0, 0, 0, i * lineSpace - lineSpace)
+        lineNumber.Position = UDim2.new(0, 0, 0, i * lineSpace - lineSpace / 2)
+        lineNumber.BackgroundTransparency = 1
         lineNumber.Parent = lineNumbersFrame
     end
 
@@ -194,14 +219,14 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:GetRaw(), 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge)).X + 30, #lines * lineSpace)
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X + 40, #lines * lineSpace)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
 end
 
 -- PUBLIC METHODS --
 
 --- Runs when a new object is instantiated
---- @param frame Frame
+--- @param frame userdata
 function Highlight:init(frame)
     if typeof(frame) == "Instance" and frame:IsA("Frame") then
         parentFrame = frame
@@ -216,8 +241,8 @@ function Highlight:init(frame)
         scrollingFrame.BorderSizePixel = 0
 
         textFrame.Name = ""
-        textFrame.Size = UDim2.new(1, -30, 1, 0)
-        textFrame.Position = UDim2.new(0, 30, 0, 0)
+        textFrame.Size = UDim2.new(1, -40, 1, 0)
+        textFrame.Position = UDim2.new(0, 40, 0, 0)
         textFrame.BackgroundTransparency = 1
 
         lineNumbersFrame.Name = ""
@@ -231,22 +256,23 @@ function Highlight:init(frame)
         render()
         parentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(onFrameSizeChange)
     else
-        error("Initialization error: argument " .. tostring(frame) .. " is not a Frame Instance")
+        error("Initialization error: argument " .. typeof(frame) .. " is not a Frame Instance")
     end
 end
 
 --- Sets the raw text of the code box (\n = new line, \t converted to spaces)
 --- @param raw string
 function Highlight:setRaw(raw)
+    raw = raw .. "\n"
     tableContents = {}
     local line = 1
-    for i in gfind(raw, ".") do
+    for i = 1, #raw do
         table.insert(tableContents, {
-            Char = raw:sub(i),
+            Char = raw:sub(i, i),
             Color = defaultColor,
             Line = line
         })
-        if raw:sub(i) == "\n" then
+        if raw:sub(i, i) == "\n" then
             line = line + 1
         end
     end
@@ -352,19 +378,6 @@ function Highlight:insertLine(line, text)
     error("Unable to insert line")
 end
 
-local oldIndex = HighlightMeta.__index
---- @param table table
----@param key any
-HighlightMeta.__index = function(table, key)
-    local old = {oldIndex()}
-    if typeof(key) == "string" then
-
-    end
-    return unpack(old)
-end
-
-setmetatable(Highlight, HighlightMeta)
-
 -- CONSTRUCTOR --
 
 local constructor = {}
@@ -379,6 +392,3 @@ function constructor.new(...)
 end
 
 return constructor
-
---- @class Frame
---- @class Line
