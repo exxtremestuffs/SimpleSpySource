@@ -1314,7 +1314,7 @@ newButton(
     "Click to copy code",
     function(button)
         local orText = "Click to copy code"
-        syn.write_clipboard(codebox.Text)
+        setclipboard(codebox.Text)
         button.Text = "Copied successfully!"
         wait(2)
         button.Text = orText
@@ -1327,7 +1327,7 @@ newButton(
     "Click to copy the path of the remote",
     function(button)
         local orText = "Click to copy the path of the remote"
-        syn.write_clipboard(typeToString(selected.Remote))
+        setclipboard(typeToString(selected.Remote))
         button.Text = "Copied!"
         wait(3)
         button.Text = orText
