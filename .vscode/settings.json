@@ -32,7 +32,9 @@
         "fireclickdetector",
         "setclipboard",
         "rconsolewarn",
-        "CFrame"
+        "CFrame",
+        "getsenv",
+        "getscripts"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [

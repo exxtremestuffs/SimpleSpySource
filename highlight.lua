@@ -284,7 +284,7 @@ end
 function Highlight:getRaw()
     local result = ""
     for _, char in pairs(tableContents) do
-        result = result .. char.Char
+        result = result .. char.Char:sub(1, 1)
     end
     return result
 end
