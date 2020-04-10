@@ -52,10 +52,10 @@ local operators = {"function", "local", "if", "for", "while", "then", "do", "els
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
-local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[^_%s%w]([%a_][%a%d_]*)%s*%("}
+local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.]([%a_][%a%d_]*)%s*%("}
 local numbers = {"[^%w_](%d+)", "[^%w_](%.%d+)", "[^%w_](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
 local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)"}
-local objects = {"[^%w_.:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
+local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"[^_%s%w]"}
 local offLimits = {}
 
@@ -166,7 +166,7 @@ function render()
     for i = 1, #tableContents do
         local v = tableContents[i]
         local textBox = Instance.new("TextLabel")
-        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge))
+        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
         local lineSizeX = 0
         if not lines[v.Line] then
             lines[v.Line] = {}
@@ -185,7 +185,7 @@ function render()
             textBox.Text = v.Char
         end
         for _, c in pairs(lines[v.Line]) do
-            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X
+            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
         end
         textBox.TextColor3 = v.Color
         textBox.Size = UDim2.new(0, size.X, 0, size.Y)
@@ -219,7 +219,7 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 20)
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 20)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
 end
 
