@@ -13,6 +13,7 @@ end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local Highlight = loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/highlight.lua"))()
 
 ---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
@@ -40,9 +41,10 @@ local UIListLayout_2 = Instance.new("UIListLayout")
 local functionTemplate = Instance.new("ImageButton")
 local name_3 = Instance.new("TextLabel")
 local description = Instance.new("TextLabel")
-local code = Instance.new("ScrollingFrame")
-codebox = Instance.new("TextBox")
-local lines = Instance.new("TextLabel")
+local code = Instance.new("Frame")--"ScrollingFrame")
+-- local codebox = Instance.new("TextBox")
+-- local lines = Instance.new("TextLabel")
+local codebox = Highlight.new(code)
 
 --Properties:
 
@@ -268,36 +270,36 @@ code.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 code.BorderSizePixel = 0
 code.Size = UDim2.new(1, 0, 0.5, 0)
 code.ZIndex = 0
-code.CanvasSize = UDim2.new(0, 0, 0, 0)
-code.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-code.ScrollBarThickness = 10
+-- code.CanvasSize = UDim2.new(0, 0, 0, 0)
+-- code.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+-- code.ScrollBarThickness = 10
 
-codebox.Name = "codebox"
-codebox.Parent = code
-codebox.BackgroundColor3 = Color3.new(1, 1, 1)
-codebox.BackgroundTransparency = 1
-codebox.Position = UDim2.new(0, 18, 0, 0)
-codebox.Size = UDim2.new(1, -18, 1, 0)
-codebox.Font = Enum.Font.SourceSans
-codebox.Text = "-- hiya, you shouldn't be seeing this"
-codebox.TextColor3 = Color3.new(0.87451, 0.87451, 0.87451)
-codebox.TextSize = 14
-codebox.TextXAlignment = Enum.TextXAlignment.Left
-codebox.TextYAlignment = Enum.TextYAlignment.Top
-codebox.ZIndex = 0
-codebox.ClearTextOnFocus = false
+-- codebox.Name = "codebox"
+-- codebox.Parent = code
+-- codebox.BackgroundColor3 = Color3.new(1, 1, 1)
+-- codebox.BackgroundTransparency = 1
+-- codebox.Position = UDim2.new(0, 18, 0, 0)
+-- codebox.Size = UDim2.new(1, -18, 1, 0)
+-- codebox.Font = Enum.Font.SourceSans
+-- codebox.Text = "-- hiya, you shouldn't be seeing this"
+-- codebox.TextColor3 = Color3.new(0.87451, 0.87451, 0.87451)
+-- codebox.TextSize = 14
+-- codebox.TextXAlignment = Enum.TextXAlignment.Left
+-- codebox.TextYAlignment = Enum.TextYAlignment.Top
+-- codebox.ZIndex = 0
+-- codebox.ClearTextOnFocus = false
 
-lines.Name = "lines"
-lines.Parent = code
-lines.BackgroundColor3 = Color3.new(0.0823529, 0.0823529, 0.0823529)
-lines.BorderSizePixel = 0
-lines.Size = UDim2.new(0, 15, 1, 0)
-lines.Font = Enum.Font.SourceSansSemibold
-lines.Text = "1"
-lines.TextColor3 = Color3.new(0.466667, 0.494118, 1)
-lines.TextSize = 14
-lines.TextYAlignment = Enum.TextYAlignment.Top
-lines.ZIndex = 0
+-- lines.Name = "lines"
+-- lines.Parent = code
+-- lines.BackgroundColor3 = Color3.new(0.0823529, 0.0823529, 0.0823529)
+-- lines.BorderSizePixel = 0
+-- lines.Size = UDim2.new(0, 15, 1, 0)
+-- lines.Font = Enum.Font.SourceSansSemibold
+-- lines.Text = "1"
+-- lines.TextColor3 = Color3.new(0.466667, 0.494118, 1)
+-- lines.TextSize = 14
+-- lines.TextYAlignment = Enum.TextYAlignment.Top
+-- lines.ZIndex = 0
 
 -------------------------------------------------------------------------------
 -- init
@@ -523,49 +525,49 @@ end
 
 --- Runs when the cursor position changes, saves the previous value and current value to variables
 function onCursorPosChange()
-    lastCursorPos = cursorPos
-    cursorPos = codebox.CursorPosition
+    -- lastCursorPos = cursorPos
+    -- cursorPos = codebox.CursorPosition
 end
 
 --- Returns a table of {number of lines: number, canvas size:UDim2} from the codebox
 function getLinesAndCanvas()
-    local lineNumber = 0
-    for _ in string.gmatch(codebox.Text, "\n") do
-        lineNumber = lineNumber + 1
-    end
-    local size = TextService:GetTextSize(codebox.Text, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
-    return {lineNumber, UDim2.new(0, size.X + 25, 0, size.Y)}
+    -- local lineNumber = 0
+    -- for _ in string.gmatch(codebox.Text, "\n") do
+    --     lineNumber = lineNumber + 1
+    -- end
+    -- local size = TextService:GetTextSize(codebox.Text, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
+    -- return {lineNumber, UDim2.new(0, size.X + 25, 0, size.Y)}
 end
 
 --- Runs every time the codebox is modified
 function updateCodebox()
-    local lineNumber, canvasSize = unpack(getLinesAndCanvas())
-    code.CanvasSize = canvasSize
-    local lineString = ""
-    for i = 1, lineNumber + 1 do
-        lineString = lineString .. tostring(i) .. "\n"
-    end
-    lines.Text = lineString
+    -- local lineNumber, canvasSize = unpack(getLinesAndCanvas())
+    -- code.CanvasSize = canvasSize
+    -- local lineString = ""
+    -- for i = 1, lineNumber + 1 do
+    --     lineString = lineString .. tostring(i) .. "\n"
+    -- end
+    -- lines.Text = lineString
 end
 
 --- Used to have enter key create a new line
 function onDeselect(isEnter)
-    if isEnter and cursorPos == -1 then
-        local cPos = lastCursorPos
-        if cPos == #codebox.Text then
-            codebox.Text = codebox.Text .. "\n"
-            codebox.Text = codebox.Text:sub(1, #codebox.Text - 1)
-        elseif cPos == 0 then
-            codebox.Text = "\n" .. codebox.Text
-            codebox.Text = codebox.Text:sub(2, #codebox.Text)
-            codebox.Text = codebox.Text:sub(1, 1) .. codebox.Text:sub(3, #codebox.Text)
-        else
-            codebox.Text = codebox.Text:sub(1, cPos) .. "\n" .. codebox.Text:sub(cPos, #codebox.Text)
-            codebox.Text = codebox.Text:sub(1, cPos) .. codebox.Text:sub(cPos + 2, #codebox.Text)
-        end
-        codebox:CaptureFocus()
-        codebox.CursorPosition = cPos + 1
-    end
+    -- if isEnter and cursorPos == -1 then
+    --     local cPos = lastCursorPos
+    --     if cPos == #codebox.Text then
+    --         codebox.Text = codebox.Text .. "\n"
+    --         codebox.Text = codebox.Text:sub(1, #codebox.Text - 1)
+    --     elseif cPos == 0 then
+    --         codebox.Text = "\n" .. codebox.Text
+    --         codebox.Text = codebox.Text:sub(2, #codebox.Text)
+    --         codebox.Text = codebox.Text:sub(1, 1) .. codebox.Text:sub(3, #codebox.Text)
+    --     else
+    --         codebox.Text = codebox.Text:sub(1, cPos) .. "\n" .. codebox.Text:sub(cPos, #codebox.Text)
+    --         codebox.Text = codebox.Text:sub(1, cPos) .. codebox.Text:sub(cPos + 2, #codebox.Text)
+    --     end
+    --     codebox:CaptureFocus()
+    --     codebox.CursorPosition = cPos + 1
+    -- end
 end
 
 --- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
@@ -609,7 +611,7 @@ function eventSelect(frame)
     end
     if selected and selected.Log and selected.Log.name then
         TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(0, 195, 255)}):Play()
-        codebox.Text = selected.GenScript
+        codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
         toggleSideTray()
@@ -1254,15 +1256,15 @@ if not _G.SimpleSpyExecuted then
         functionTemplate.Parent = nil
         fTemplate.Parent = nil
         eTemplate.Parent = nil
-        codebox.Text = ""
+        codebox:setRaw("")
         topbar.InputBegan:Connect(onBarInput)
         minimize.MouseButton1Click:Connect(toggleMinimize)
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         remoteHandlerEvent.Event:Connect(bindableHandler)
-        codebox:GetPropertyChangedSignal("Text"):Connect(updateCodebox)
-        codebox.FocusLost:Connect(onDeselect)
-        codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
+        -- codebox:GetPropertyChangedSignal("Text"):Connect(updateCodebox)
+        -- codebox.FocusLost:Connect(onDeselect)
+        -- codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
         connectResize()
         onToggleButtonClick()
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
@@ -1314,7 +1316,7 @@ newButton(
     "Click to copy code",
     function(button)
         local orText = "Click to copy code"
-        setclipboard(codebox.Text)
+        setclipboard(codebox:getRaw())
         button.Text = "Copied successfully!"
         wait(2)
         button.Text = orText
@@ -1353,7 +1355,7 @@ newButton(
     "Click to get the upvalues from the source",
     function(button)
         local orText = "Click to get upvalues from the source script"
-        codebox.Text = "-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Upvalues
+        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Upvalues)
         button.Text = "Put in Code Box!"
         wait(3)
         button.Text = orText
@@ -1366,7 +1368,7 @@ newButton(
     "Click to get the constants from the source",
     function(button)
         local orText = "Click to get constants from the source script"
-        codebox.Text = "-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Constants
+        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Constants)
         button.Text = "Put in Code Box!"
         wait(3)
         button.Text = orText
@@ -1379,7 +1381,7 @@ newButton(
     "Click to decompile the source script",
     function(button)
         local orText = "Click to decompile the source script"
-        codebox.Text = "-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source)
+        codebox:setRaw("-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source))
         button.Text = "Decompiled!"
         wait(3)
         button.Text = orText
@@ -1396,7 +1398,7 @@ newButton(
         local execute = {
             pcall(
                 function()
-                    return loadstring(codebox.Text)()
+                    return loadstring(codebox:getRaw())()
                 end
             )
         }
@@ -1424,7 +1426,7 @@ newButton(
                 v:Destroy()
             end
         end
-        codebox.Text = ""
+        codebox:setRaw("")
         selected = nil
         button.Text = "Logs cleared!"
         wait(3)
