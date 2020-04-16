@@ -219,7 +219,7 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 40)
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
 end
 
