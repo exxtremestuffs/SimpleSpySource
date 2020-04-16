@@ -910,7 +910,7 @@ function valueToString(pt, x, level, getRecursive, tableName)
 end
 
 --- Converts a var to a string (including userdata)
-function typeToString(var, parentTable, level, tableName)
+function typeToString(var, parentTable, level, tableName, bypassTool)
     if not level then
         level = 4
     end
@@ -1014,9 +1014,50 @@ function typeToString(var, parentTable, level, tableName)
     elseif type(var) == "userdata" and typeof(var) == "Instance" then
         -- Instances
         local player = getPlayerFromInstance(var)
+        local tool
+        if var:IsA("Tool") then
+            tool = var
+        elseif player then
+            tool = var:FindFirstAncestorWhichIsA("Tool")
+        end
         local parent = var
         if parent == nil then
             out = "nil"
+        elseif tool and (Players:GetPlayerFromCharacter(tool.Parent) or tool.Parent:IsA("Backpack")) then
+            player = Players:GetPlayerFromCharacter(tool.Parent) or tool:FindFirstAncestorWhichIsA("Player")
+            while true do
+                if parent and parent.Parent == tool then
+                    if player == Players.LocalPlayer then
+                        out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
+                        break
+                    else
+                        local playerStr = typeToString(player, parentTable, level, tableName)
+                        out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
+                        break
+                    end
+                elseif parent and parent == tool then
+                    if parent.Name:match("%a+") ~= parent.Name then
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                    if player == Players.LocalPlayer then
+                        out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
+                        break
+                    else
+                        local playerStr = typeToString(player, parentTable, level, tableName)
+                        out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
+                        break
+                    end
+                else
+                    if parent.Name:match("%a+") ~= parent.Name then
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                end
+                parent = parent.Parent
+            end
         elseif player then
             while true do
                 if parent and parent.Parent == player.Character then
@@ -1024,7 +1065,7 @@ function typeToString(var, parentTable, level, tableName)
                         out = 'game:GetService("Players").LocalPlayer.Character' .. out
                         break
                     else
-                        out = typeToString(player) .. ".Character" .. out
+                        out = typeToString(player, parentTable, level, tableName) .. ".Character" .. out
                         break
                     end
                 else
