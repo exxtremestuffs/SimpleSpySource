@@ -570,6 +570,15 @@ function onDeselect(isEnter)
     -- end
 end
 
+--- Gets the player an instance is descended from
+function getPlayerFromInstance(instance)
+    for _, v in pairs(Players:GetPlayers()) do
+        if v.Character and instance:IsDescendantOf(v.Character) then
+            return v
+        end
+    end
+end
+
 --- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
 function blacklisted(remote)
     if #blacklist > 0 then
@@ -1004,9 +1013,29 @@ function typeToString(var, parentTable, level, tableName)
         out = out .. dataName .. ".new(" .. args .. ")"
     elseif type(var) == "userdata" and typeof(var) == "Instance" then
         -- Instances
+        local player = getPlayerFromInstance(var)
         local parent = var
         if parent == nil then
             out = "nil"
+        elseif player then
+            while true do
+                if parent and parent.Parent == player.Character then
+                    if player == Players.LocalPlayer then
+                        out = 'game:GetService("Players").LocalPlayer.Character' .. out
+                        break
+                    else
+                        out = typeToString(player) .. ".Character" .. out
+                        break
+                    end
+                else
+                    if parent.Name:match("%a+") ~= parent.Name then
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                end
+                parent = parent.Parent
+            end
         elseif parent ~= game then
             while true do
                 if parent and parent.Parent == game then
@@ -1018,7 +1047,7 @@ function typeToString(var, parentTable, level, tableName)
                         end
                         break
                     else
-                        out = 'game["' .. getSpecials(parent.Name) .. '"]'
+                        out = 'game["' .. getSpecials(parent.Name) .. '"]' .. out
                         break
                     end
                 elseif parent.Parent == nil then
