@@ -191,7 +191,7 @@ function render()
         textBox.Size = UDim2.new(0, size.X, 0, size.Y)
         textBox.TextXAlignment = Enum.TextXAlignment.Left
         textBox.TextYAlignment = Enum.TextYAlignment.Top
-        textBox.ZIndex = parentFrame.ZIndex
+        textBox.ZIndex = parentFrame.ZIndex + 1
         textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
         textBox.BackgroundTransparency = 1
         if not lines[v.Line] then
@@ -225,12 +225,12 @@ function updateCanvasSize()
 end
 
 function updateZIndex()
-    scrollingFrame.ZIndex = parentFrame.ZIndex
-    textFrame.ZIndex = parentFrame.ZIndex
-    lineNumbersFrame.ZIndex = parentFrame.ZIndex
+    scrollingFrame.ZIndex = parentFrame.ZIndex + 1
+    textFrame.ZIndex = parentFrame.ZIndex + 1
+    lineNumbersFrame.ZIndex = parentFrame.ZIndex + 1
     for _, y in pairs(lines) do
         for _, x in pairs(y) do
-            x.ZIndex = parentFrame.ZIndex
+            x.ZIndex = parentFrame.ZIndex + 1
         end
     end
 end
