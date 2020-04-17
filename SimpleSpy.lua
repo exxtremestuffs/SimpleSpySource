@@ -13,6 +13,7 @@ end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local Highlight = loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/SimpleSpy-Syntax-Highlighted/highlight.lua"))()
 
 ---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
@@ -35,14 +36,15 @@ local name_2 = Instance.new("TextLabel")
 local side = Instance.new("Frame")
 local topbar_2 = Instance.new("ImageLabel")
 local bottombar_2 = Instance.new("ImageLabel")
+local maximize = Instance.new("TextButton")
+local maximizeSquare = Instance.new("ImageLabel")
 local functions = Instance.new("ScrollingFrame")
 local UIListLayout_2 = Instance.new("UIListLayout")
 local functionTemplate = Instance.new("ImageButton")
 local name_3 = Instance.new("TextLabel")
 local description = Instance.new("TextLabel")
-local code = Instance.new("ScrollingFrame")
-codebox = Instance.new("TextBox")
-local lines = Instance.new("TextLabel")
+local code = Instance.new("Frame")
+local codebox = Highlight.new(code)
 
 --Properties:
 
@@ -211,6 +213,25 @@ bottombar_2.Size = UDim2.new(1, 0, 0, 11)
 bottombar_2.ZIndex = 0
 bottombar_2.Image = "rbxassetid://4652116060"
 
+maximize.Name = "maximize"
+maximize.Parent = topbar_2
+maximize.BackgroundColor3 = Color3.new(1, 1, 1)
+maximize.BackgroundTransparency = 0.9
+maximize.BorderColor3 = Color3.fromRGB(255, 255, 255)
+maximize.BorderSizePixel = 1
+maximize.Position = UDim2.new(1, -20, 0, 0)
+maximize.Size = UDim2.new(0, 11, 1, 0)
+maximize.Font = Enum.Font.ArialBold
+maximize.Text = ""
+maximize.ZIndex = 0
+
+maximizeSquare.Name = "maximizeSquare"
+maximizeSquare.Parent = maximize
+maximizeSquare.BackgroundTransparency = 1
+maximizeSquare.Image = "rbxassetid://4908131920"
+maximizeSquare.Size = UDim2.new(1, 0, 1, 0)
+maximizeSquare.ZIndex = 0
+
 functions.Name = "functions"
 functions.Parent = side
 functions.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -268,36 +289,6 @@ code.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 code.BorderSizePixel = 0
 code.Size = UDim2.new(1, 0, 0.5, 0)
 code.ZIndex = 0
-code.CanvasSize = UDim2.new(0, 0, 0, 0)
-code.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-code.ScrollBarThickness = 10
-
-codebox.Name = "codebox"
-codebox.Parent = code
-codebox.BackgroundColor3 = Color3.new(1, 1, 1)
-codebox.BackgroundTransparency = 1
-codebox.Position = UDim2.new(0, 18, 0, 0)
-codebox.Size = UDim2.new(1, -18, 1, 0)
-codebox.Font = Enum.Font.SourceSans
-codebox.Text = "-- hiya, you shouldn't be seeing this"
-codebox.TextColor3 = Color3.new(0.87451, 0.87451, 0.87451)
-codebox.TextSize = 14
-codebox.TextXAlignment = Enum.TextXAlignment.Left
-codebox.TextYAlignment = Enum.TextYAlignment.Top
-codebox.ZIndex = 0
-codebox.ClearTextOnFocus = false
-
-lines.Name = "lines"
-lines.Parent = code
-lines.BackgroundColor3 = Color3.new(0.0823529, 0.0823529, 0.0823529)
-lines.BorderSizePixel = 0
-lines.Size = UDim2.new(0, 15, 1, 0)
-lines.Font = Enum.Font.SourceSansSemibold
-lines.Text = "1"
-lines.TextColor3 = Color3.new(0.466667, 0.494118, 1)
-lines.TextSize = 14
-lines.TextYAlignment = Enum.TextYAlignment.Top
-lines.ZIndex = 0
 
 -------------------------------------------------------------------------------
 -- init
@@ -323,6 +314,8 @@ closed = false
 local sideClosing = false
 --- Whether or not the sidebar is closed (defaults to true but opens automatically on remote selection)
 local sideClosed = false
+--- Whether or not the code box is maximized (defaults to false)
+local maximized = false
 --- The event logs to be read from
 logs = {}
 --- The event currently selected.Log (defaults to nil)
@@ -472,7 +465,7 @@ end
 
 --- Expands and minimizes the gui (closed is the toggle boolean)
 function toggleMinimize(override)
-    if mainClosing and not override then
+    if mainClosing and not override or maximized then
         return
     end
     mainClosing = true
@@ -496,7 +489,7 @@ end
 
 --- Expands and minimizes the sidebar (sideClosed is the toggle boolean)
 function toggleSideTray(override)
-    if sideClosing and not override then
+    if sideClosing and not override or maximized then
         return
     end
     sideClosing = true
@@ -521,50 +514,51 @@ function toggleSideTray(override)
     sideClosing = false
 end
 
---- Runs when the cursor position changes, saves the previous value and current value to variables
-function onCursorPosChange()
-    lastCursorPos = cursorPos
-    cursorPos = codebox.CursorPosition
-end
-
---- Returns a table of {number of lines: number, canvas size:UDim2} from the codebox
-function getLinesAndCanvas()
-    local lineNumber = 0
-    for _ in string.gmatch(codebox.Text, "\n") do
-        lineNumber = lineNumber + 1
+--- Expands code box to fit screen for more convenient viewing
+function toggleMaximize()
+    if not sideClosed and not maximized then
+        maximized = true
+        local disable = Instance.new("TextButton")
+        local prevSize = UDim2.new(0, code.AbsoluteSize.X, 0, code.AbsoluteSize.Y)
+        local prevPos = UDim2.new(0,code.AbsolutePosition.X, 0, code.AbsolutePosition.Y)
+        disable.Size = UDim2.new(1, 0, 1, 0)
+        disable.BackgroundColor3 = Color3.new()
+        disable.BorderSizePixel = 0
+        disable.Text = 0
+        disable.ZIndex = 3
+        disable.BackgroundTransparency = 1
+        disable.Parent = ScreenguiS
+        disable.AutoButtonColor = false
+        code.ZIndex = 4
+        code.Parent = ScreenguiS
+        code.Position = prevPos
+        code.Size = prevSize
+        TweenService:Create(code, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
+        TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
+        disable.MouseButton1Click:Connect(function()
+            if UserInputService:GetMouseLocation().Y >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
+            and UserInputService:GetMouseLocation().X >= code.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= code.AbsolutePosition.X + code.AbsoluteSize.X then
+                return
+            end
+            TweenService:Create(code, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
+            TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+            wait(0.5)
+            disable:Destroy()
+            code.Parent = side
+            code.Size = UDim2.new(1, 0, 0.5, 0)
+            code.Position = UDim2.new(0, 0, 0, 0)
+            code.ZIndex = 0
+            maximized = false
+        end)
     end
-    local size = TextService:GetTextSize(codebox.Text, 14, Enum.Font.SourceSans, Vector2.new(math.huge, math.huge))
-    return {lineNumber, UDim2.new(0, size.X + 25, 0, size.Y)}
 end
 
---- Runs every time the codebox is modified
-function updateCodebox()
-    local lineNumber, canvasSize = unpack(getLinesAndCanvas())
-    code.CanvasSize = canvasSize
-    local lineString = ""
-    for i = 1, lineNumber + 1 do
-        lineString = lineString .. tostring(i) .. "\n"
-    end
-    lines.Text = lineString
-end
-
---- Used to have enter key create a new line
-function onDeselect(isEnter)
-    if isEnter and cursorPos == -1 then
-        local cPos = lastCursorPos
-        if cPos == #codebox.Text then
-            codebox.Text = codebox.Text .. "\n"
-            codebox.Text = codebox.Text:sub(1, #codebox.Text - 1)
-        elseif cPos == 0 then
-            codebox.Text = "\n" .. codebox.Text
-            codebox.Text = codebox.Text:sub(2, #codebox.Text)
-            codebox.Text = codebox.Text:sub(1, 1) .. codebox.Text:sub(3, #codebox.Text)
-        else
-            codebox.Text = codebox.Text:sub(1, cPos) .. "\n" .. codebox.Text:sub(cPos, #codebox.Text)
-            codebox.Text = codebox.Text:sub(1, cPos) .. codebox.Text:sub(cPos + 2, #codebox.Text)
+--- Gets the player an instance is descended from
+function getPlayerFromInstance(instance)
+    for _, v in pairs(Players:GetPlayers()) do
+        if v.Character and instance:IsDescendantOf(v.Character) then
+            return v
         end
-        codebox:CaptureFocus()
-        codebox.CursorPosition = cPos + 1
     end
 end
 
@@ -609,7 +603,7 @@ function eventSelect(frame)
     end
     if selected and selected.Log and selected.Log.name then
         TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(0, 195, 255)}):Play()
-        codebox.Text = selected.GenScript
+        codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
         toggleSideTray()
@@ -737,7 +731,7 @@ function genScript(remote, ...)
         if
             not pcall(
                 function()
-                    gen = tableToString(args) .. "\n\n"
+                    gen = tableToString(args) .. "\n"
                 end
             )
          then
@@ -792,7 +786,7 @@ function genScript(remote, ...)
         getNil = false
     end
     gen =
-        "-- Script generated by SimpleSpy - credits to exxtremewa#9394\n-- This generator is IN DEVELOPMENT, not compatible with all types/classes yet\n\n" ..
+        "-- Script generated by SimpleSpy - credits to exxtremewa#9394\n-- Powered by highlight.lua\n\n" ..
         gen
     prevTables = {}
     return gen
@@ -899,7 +893,7 @@ function valueToString(pt, x, level, getRecursive, tableName)
 end
 
 --- Converts a var to a string (including userdata)
-function typeToString(var, parentTable, level, tableName)
+function typeToString(var, parentTable, level, tableName, bypassTool)
     if not level then
         level = 4
     end
@@ -909,7 +903,11 @@ function typeToString(var, parentTable, level, tableName)
         out = out .. tostring(var)
     elseif type(var) == "string" then
         -- Strings
-        out = out .. '"' .. getSpecials(var) .. '"'
+        if var == Players.LocalPlayer.Name then
+            out = out .. 'game:GetService("Players").LocalPlayer.Name'
+        else
+            out = out .. '"' .. getSpecials(var) .. '"'
+        end
     elseif type(var) == "table" then
         -- Tables
         local recursive, selfRecursive = false, false
@@ -1002,9 +1000,57 @@ function typeToString(var, parentTable, level, tableName)
         out = out .. dataName .. ".new(" .. args .. ")"
     elseif type(var) == "userdata" and typeof(var) == "Instance" then
         -- Instances
+        local player = getPlayerFromInstance(var)
+        local tool
+        if var:IsA("Tool") then
+            tool = var
+        elseif player then
+            tool = var:FindFirstAncestorWhichIsA("Tool")
+        end
         local parent = var
         if parent == nil then
             out = "nil"
+        elseif tool and (Players:GetPlayerFromCharacter(tool.Parent) or tool.Parent:IsA("Backpack")) then
+            player = Players:GetPlayerFromCharacter(tool.Parent) or tool:FindFirstAncestorWhichIsA("Player")
+            while true do
+                if parent and parent == tool then
+                    out =  ':FindFirstChild("' .. getSpecials(parent.Name) .. '")' .. out
+                    if player == Players.LocalPlayer then
+                        out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
+                        break
+                    else
+                        local playerStr = typeToString(player, parentTable, level, tableName)
+                        out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
+                        break
+                    end
+                else
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                end
+                parent = parent.Parent
+            end
+        elseif player then
+            while true do
+                if parent and parent == player.Character then
+                    if player == Players.LocalPlayer then
+                        out = 'game:GetService("Players").LocalPlayer.Character' .. out
+                        break
+                    else
+                        out = typeToString(player, parentTable, level, tableName) .. ".Character" .. out
+                        break
+                    end
+                else
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
+                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                    else
+                        out = "." .. parent.Name .. out
+                    end
+                end
+                parent = parent.Parent
+            end
         elseif parent ~= game then
             while true do
                 if parent and parent.Parent == game then
@@ -1016,15 +1062,17 @@ function typeToString(var, parentTable, level, tableName)
                         end
                         break
                     else
-                        out = 'game["' .. getSpecials(parent.Name) .. '"]'
+                        out = 'game["' .. getSpecials(parent.Name) .. '"]' .. out
                         break
                     end
                 elseif parent.Parent == nil then
                     getNil = true
                     out = 'getNil("' .. getSpecials(parent.Name) .. '", "' .. parent.ClassName .. '")'
                     break
+                elseif parent == Players.LocalPlayer then
+                    out = ".LocalPlayer" .. out
                 else
-                    if parent.Name:match("%a+") ~= parent.Name then
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
                         out = '["' .. getSpecials(parent.Name) .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
@@ -1089,6 +1137,7 @@ function tableToString(t, level, parentTable, tableName)
     else
         level = level + 4
     end
+    getNil = false
     local out = ""
     local array, size
     if first then
@@ -1250,19 +1299,17 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate})
+        ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate, maximizeSquare})
         functionTemplate.Parent = nil
         fTemplate.Parent = nil
         eTemplate.Parent = nil
-        codebox.Text = ""
+        codebox:setRaw("")
         topbar.InputBegan:Connect(onBarInput)
         minimize.MouseButton1Click:Connect(toggleMinimize)
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         remoteHandlerEvent.Event:Connect(bindableHandler)
-        codebox:GetPropertyChangedSignal("Text"):Connect(updateCodebox)
-        codebox.FocusLost:Connect(onDeselect)
-        codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
+        maximize.MouseButton1Click:Connect(toggleMaximize)
         connectResize()
         onToggleButtonClick()
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
@@ -1314,7 +1361,7 @@ newButton(
     "Click to copy code",
     function(button)
         local orText = "Click to copy code"
-        setclipboard(codebox.Text)
+        setclipboard(codebox:getString())
         button.Text = "Copied successfully!"
         wait(2)
         button.Text = orText
@@ -1353,7 +1400,7 @@ newButton(
     "Click to get the upvalues from the source",
     function(button)
         local orText = "Click to get upvalues from the source script"
-        codebox.Text = "-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Upvalues
+        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Upvalues)
         button.Text = "Put in Code Box!"
         wait(3)
         button.Text = orText
@@ -1366,7 +1413,7 @@ newButton(
     "Click to get the constants from the source",
     function(button)
         local orText = "Click to get constants from the source script"
-        codebox.Text = "-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Constants
+        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Constants)
         button.Text = "Put in Code Box!"
         wait(3)
         button.Text = orText
@@ -1379,7 +1426,7 @@ newButton(
     "Click to decompile the source script",
     function(button)
         local orText = "Click to decompile the source script"
-        codebox.Text = "-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source)
+        codebox:setRaw("-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source))
         button.Text = "Decompiled!"
         wait(3)
         button.Text = orText
@@ -1396,7 +1443,7 @@ newButton(
         local execute = {
             pcall(
                 function()
-                    return loadstring(codebox.Text)()
+                    return loadstring(codebox:getString())()
                 end
             )
         }
@@ -1424,7 +1471,7 @@ newButton(
                 v:Destroy()
             end
         end
-        codebox.Text = ""
+        codebox:setRaw("")
         selected = nil
         button.Text = "Logs cleared!"
         wait(3)

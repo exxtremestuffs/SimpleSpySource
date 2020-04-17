@@ -52,10 +52,10 @@ local operators = {"function", "local", "if", "for", "while", "then", "do", "els
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
-local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[^_%s%w]([%a_][%a%d_]*)%s*%("}
-local numbers = {"[^%w_](%d+)", "[^%w_](%.%d+)", "[^%w_](%d+%.%d+)", "^(%d+)", "^(%.%d+)", "^(%d+%.%d+)"}
+local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.%(%[%p]([%a_][%a%d_]*)%s*%("}
+local numbers = {"[^%w_](%d+e?%d*)", "[^%w_](%.%d+e?%d*)", "[^%w_](%d+%.%d+e?%d*)", "^(%d+e?%d*)", "^(%.%d+e?%d*)", "^(%d+%.%d+e?%d*)"}
 local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)"}
-local objects = {"[^%w_.:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
+local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"[^_%s%w]"}
 local offLimits = {}
 
@@ -166,7 +166,7 @@ function render()
     for i = 1, #tableContents do
         local v = tableContents[i]
         local textBox = Instance.new("TextLabel")
-        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge))
+        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
         local lineSizeX = 0
         if not lines[v.Line] then
             lines[v.Line] = {}
@@ -178,14 +178,14 @@ function render()
             textBox.Text = "\t____"
             textBox.TextTransparency = 1
         elseif v.Char:match(" ") then
-            v.Char = " -"
+            v.Char = " |"
             textBox.Text = " -"
             textBox.TextTransparency = 1
         else
             textBox.Text = v.Char
         end
         for _, c in pairs(lines[v.Line]) do
-            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X
+            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
         end
         textBox.TextColor3 = v.Color
         textBox.Size = UDim2.new(0, size.X, 0, size.Y)
@@ -196,6 +196,7 @@ function render()
         if not lines[v.Line] then
             lines[v.Line] = {}
         end
+        v.TextBox = textBox
         table.insert(lines[v.Line], v)
         textBox.Parent = textFrame
     end
@@ -210,6 +211,7 @@ function render()
         lineNumber.Parent = lineNumbersFrame
     end
 
+    updateZIndex()
     updateCanvasSize()
 end
 
@@ -219,8 +221,16 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.SourceSansBold, Vector2.new(math.huge, math.huge)).X + 70, #lines * lineSpace)
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
+end
+
+function updateZIndex()
+    for _, v in pairs(parentFrame:GetDescendants()) do
+        if v:IsA("GuiObject") then
+            v.ZIndex = parentFrame.ZIndex
+        end
+    end
 end
 
 -- PUBLIC METHODS --
@@ -229,6 +239,8 @@ end
 --- @param frame userdata
 function Highlight:init(frame)
     if typeof(frame) == "Instance" and frame:IsA("Frame") then
+        frame:ClearAllChildren()
+
         parentFrame = frame
         scrollingFrame = Instance.new("ScrollingFrame")
         textFrame = Instance.new("Frame")
@@ -255,6 +267,7 @@ function Highlight:init(frame)
 
         render()
         parentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(onFrameSizeChange)
+        parentFrame:GetPropertyChangedSignal("ZIndex"):Connect(updateZIndex)
     else
         error("Initialization error: argument " .. typeof(frame) .. " is not a Frame Instance")
     end
@@ -279,12 +292,22 @@ function Highlight:setRaw(raw)
     render()
 end
 
---- Returns the (string) raw text of the code box (\n = new line)
+--- Returns the (string) raw text of the code box (\n = new line). This includes placeholder characters so it should only be used internally.
 --- @return string
 function Highlight:getRaw()
     local result = ""
     for _, char in pairs(tableContents) do
         result = result .. char.Char
+    end
+    return result
+end
+
+--- Returns the (string) text of the code box (\n = new line)
+--- @return string
+function Highlight:getString()
+    local result = ""
+    for _, char in pairs(tableContents) do
+        result = result .. char.Char:sub(1, 1)
     end
     return result
 end
