@@ -920,7 +920,11 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         out = out .. tostring(var)
     elseif type(var) == "string" then
         -- Strings
-        out = out .. '"' .. getSpecials(var) .. '"'
+        if var == Players.LocalPlayer.Name then
+            out = out .. 'game:GetService("Players").LocalPlayer.Name'
+        else
+            out = out .. '"' .. getSpecials(var) .. '"'
+        end
     elseif type(var) == "table" then
         -- Tables
         local recursive, selfRecursive = false, false
