@@ -1374,7 +1374,7 @@ newButton(
     "Click to copy code",
     function(button)
         local orText = "Click to copy code"
-        setclipboard(codebox:getRaw())
+        setclipboard(codebox:getString())
         button.Text = "Copied successfully!"
         wait(2)
         button.Text = orText
@@ -1456,7 +1456,7 @@ newButton(
         local execute = {
             pcall(
                 function()
-                    return loadstring(codebox:getRaw())()
+                    return loadstring(codebox:getString())()
                 end
             )
         }
