@@ -1026,21 +1026,8 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         elseif tool and (Players:GetPlayerFromCharacter(tool.Parent) or tool.Parent:IsA("Backpack")) then
             player = Players:GetPlayerFromCharacter(tool.Parent) or tool:FindFirstAncestorWhichIsA("Player")
             while true do
-                if parent and parent.Parent == tool then
-                    if player == Players.LocalPlayer then
-                        out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
-                        break
-                    else
-                        local playerStr = typeToString(player, parentTable, level, tableName)
-                        out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
-                        break
-                    end
-                elseif parent and parent == tool then
-                    if parent.Name:match("%a+") ~= parent.Name then
-                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
-                    else
-                        out = "." .. parent.Name .. out
-                    end
+                if parent and parent == tool then
+                    out =  ':FindFirstChild("' .. getSpecials(parent.Name) .. '")' .. out
                     if player == Players.LocalPlayer then
                         out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
                         break
@@ -1161,6 +1148,7 @@ function tableToString(t, level, parentTable, tableName)
     else
         level = level + 4
     end
+    getNil = false
     local out = ""
     local array, size
     if first then
