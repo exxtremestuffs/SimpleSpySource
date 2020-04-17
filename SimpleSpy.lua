@@ -1004,33 +1004,20 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         local tool
         if var:IsA("Tool") then
             tool = var
-        elseif player then
-            tool = var:FindFirstAncestorWhichIsA("Tool")
         end
         local parent = var
         if parent == nil then
             out = "nil"
         elseif tool and (Players:GetPlayerFromCharacter(tool.Parent) or tool.Parent:IsA("Backpack")) then
             player = Players:GetPlayerFromCharacter(tool.Parent) or tool:FindFirstAncestorWhichIsA("Player")
-            while true do
-                if parent and parent == tool then
-                    out =  ':FindFirstChild("' .. getSpecials(parent.Name) .. '")' .. out
-                    if player == Players.LocalPlayer then
-                        out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
-                        break
-                    else
-                        local playerStr = typeToString(player, parentTable, level, tableName)
-                        out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
-                        break
-                    end
+            if parent and parent == tool then
+                out =  ':FindFirstChild("' .. getSpecials(parent.Name) .. '")' .. out
+                if player == Players.LocalPlayer then
+                    out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
                 else
-                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
-                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
-                    else
-                        out = "." .. parent.Name .. out
-                    end
+                    local playerStr = typeToString(player, parentTable, level, tableName)
+                    out = playerStr .. ".Character" .. out .. " or" .. playerStr .. ".Backpack" .. out
                 end
-                parent = parent.Parent
             end
         elseif player then
             while true do
