@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v0.9.7 SOURCE 
+    SimpleSpy v1 SOURCE 
 
     Credits: 
         exxtremestuffs - basically everything
