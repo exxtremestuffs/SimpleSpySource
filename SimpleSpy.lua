@@ -748,7 +748,7 @@ function genScript(remote, ...)
         if
             not pcall(
                 function()
-                    gen = tableToString(args) .. "\n\n"
+                    gen = tableToString(args) .. "\n"
                 end
             )
          then
