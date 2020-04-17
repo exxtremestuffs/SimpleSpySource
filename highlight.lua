@@ -279,9 +279,19 @@ function Highlight:setRaw(raw)
     render()
 end
 
---- Returns the (string) raw text of the code box (\n = new line)
+--- Returns the (string) raw text of the code box (\n = new line). This includes placeholder characters so it should only be used internally.
 --- @return string
 function Highlight:getRaw()
+    local result = ""
+    for _, char in pairs(tableContents) do
+        result = result .. char.Char
+    end
+    return result
+end
+
+--- Returns the (string) text of the code box (\n = new line)
+--- @return string
+function Highlight:getString()
     local result = ""
     for _, char in pairs(tableContents) do
         result = result .. char.Char:sub(1, 1)
