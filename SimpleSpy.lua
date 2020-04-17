@@ -541,7 +541,7 @@ function toggleMaximize()
                 return
             end
             TweenService:Create(code, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
-            TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
+            TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
             wait(0.5)
             disable:Destroy()
             code.Parent = side

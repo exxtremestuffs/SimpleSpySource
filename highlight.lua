@@ -197,7 +197,8 @@ function render()
         if not lines[v.Line] then
             lines[v.Line] = {}
         end
-        table.insert(lines[v.Line], textBox)
+        v.TextBox = textBox
+        table.insert(lines[v.Line], v)
         textBox.Parent = textFrame
     end
     for i = 1, #lines do
@@ -230,7 +231,7 @@ function updateZIndex()
     lineNumbersFrame.ZIndex = parentFrame.ZIndex + 1
     for _, y in pairs(lines) do
         for _, x in pairs(y) do
-            x.ZIndex = parentFrame.ZIndex + 1
+            x.TextBox = parentFrame.ZIndex + 1
         end
     end
 end
