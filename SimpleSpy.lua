@@ -1034,7 +1034,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
             end
         elseif player then
             while true do
-                if parent and parent.Parent == player.Character then
+                if parent and parent == player.Character then
                     if player == Players.LocalPlayer then
                         out = 'game:GetService("Players").LocalPlayer.Character' .. out
                         break
