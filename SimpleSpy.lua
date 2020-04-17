@@ -36,6 +36,8 @@ local name_2 = Instance.new("TextLabel")
 local side = Instance.new("Frame")
 local topbar_2 = Instance.new("ImageLabel")
 local bottombar_2 = Instance.new("ImageLabel")
+local maximize = Instance.new("TextButton")
+local maximizeSquare = Instance.new("ImageLabel")
 local functions = Instance.new("ScrollingFrame")
 local UIListLayout_2 = Instance.new("UIListLayout")
 local functionTemplate = Instance.new("ImageButton")
@@ -210,6 +212,25 @@ bottombar_2.Rotation = 180
 bottombar_2.Size = UDim2.new(1, 0, 0, 11)
 bottombar_2.ZIndex = 0
 bottombar_2.Image = "rbxassetid://4652116060"
+
+maximize.Name = "maximize"
+maximize.Parent = topbar_2
+maximize.BackgroundColor3 = Color3.new(1, 1, 1)
+maximize.BackgroundTransparency = 0.9
+maximize.BorderColor3 = Color3.fromRGB(255, 255, 255)
+maximize.BorderSizePixel = 1
+maximize.Position = UDim2.new(1, -20, 0, 0)
+maximize.Size = UDim2.new(0, 11, 1, 0)
+maximize.Font = Enum.Font.ArialBold
+maximize.Text = ""
+maximize.ZIndex = 0
+
+maximizeSquare.Name = "maximizeSquare"
+maximizeSquare.Parent = maximize
+maximizeSquare.BackgroundTransparency = 1
+maximizeSquare.Image = "rbxassetid://4908131920"
+maximizeSquare.Size = UDim2.new(1, 0, 1, 0)
+maximizeSquare.ZIndex = 0
 
 functions.Name = "functions"
 functions.Parent = side
@@ -1235,7 +1256,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate})
+        ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate, maximizeSquare})
         functionTemplate.Parent = nil
         fTemplate.Parent = nil
         eTemplate.Parent = nil
