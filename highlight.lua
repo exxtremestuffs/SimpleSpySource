@@ -191,6 +191,7 @@ function render()
         textBox.Size = UDim2.new(0, size.X, 0, size.Y)
         textBox.TextXAlignment = Enum.TextXAlignment.Left
         textBox.TextYAlignment = Enum.TextYAlignment.Top
+        textBox.ZIndex = parentFrame.ZIndex
         textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
         textBox.BackgroundTransparency = 1
         if not lines[v.Line] then
@@ -221,6 +222,17 @@ end
 function updateCanvasSize()
     local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
+end
+
+function updateZIndex()
+    scrollingFrame.ZIndex = parentFrame.ZIndex
+    textFrame.ZIndex = parentFrame.ZIndex
+    lineNumbersFrame.ZIndex = parentFrame.ZIndex
+    for _, y in pairs(lines) do
+        for _, x in pairs(y) do
+            x[2].ZIndex = parentFrame.ZIndex
+        end
+    end
 end
 
 -- PUBLIC METHODS --
@@ -255,6 +267,7 @@ function Highlight:init(frame)
 
         render()
         parentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(onFrameSizeChange)
+        parentFrame:GetPropertyChangedSignal("ZIndex"):Connect(updateZIndex)
     else
         error("Initialization error: argument " .. typeof(frame) .. " is not a Frame Instance")
     end
