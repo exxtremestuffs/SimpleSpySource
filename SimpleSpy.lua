@@ -314,6 +314,8 @@ closed = false
 local sideClosing = false
 --- Whether or not the sidebar is closed (defaults to true but opens automatically on remote selection)
 local sideClosed = false
+--- Whether or not the code box is maximized (defaults to false)
+local maximized = false
 --- The event logs to be read from
 logs = {}
 --- The event currently selected.Log (defaults to nil)
@@ -463,7 +465,7 @@ end
 
 --- Expands and minimizes the gui (closed is the toggle boolean)
 function toggleMinimize(override)
-    if mainClosing and not override then
+    if mainClosing and not override or maximized then
         return
     end
     mainClosing = true
@@ -487,7 +489,7 @@ end
 
 --- Expands and minimizes the sidebar (sideClosed is the toggle boolean)
 function toggleSideTray(override)
-    if sideClosing and not override then
+    if sideClosing and not override or maximized then
         return
     end
     sideClosing = true
@@ -510,6 +512,45 @@ function toggleSideTray(override)
         wait(0.5)
     end
     sideClosing = false
+end
+
+--- Expands code box to fit screen for more convenient viewing
+function toggleMaximize()
+    if not sideClosed and not maximized then
+        maximized = true
+        local disable = Instance.new("TextButton")
+        local prevSize = UDim2.new(0, code.AbsoluteSize.X, 0, code.AbsoluteSize.Y)
+        local prevPos = UDim2.new(0,code.AbsolutePosition.X, 0, code.AbsolutePosition.Y)
+        disable.Size = UDim2.new(1, 0, 1, 0)
+        disable.BackgroundColor3 = Color3.new()
+        disable.BorderSizePixel = 0
+        disable.Text = 0
+        disable.ZIndex = 3
+        disable.BackgroundTransparency = 1
+        disable.Parent = ScreenguiS
+        disable.AutoButtonColor = false
+        code.ZIndex = 4
+        code.Parent = ScreenguiS
+        code.Position = prevPos
+        code.Size = prevSize
+        TweenService:Create(code, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
+        TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
+        disable.MouseButton1Click:Connect(function()
+            if UserInputService:GetMouseLocation().Y >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
+            and UserInputService:GetMouseLocation().X >= code.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= code.AbsolutePosition.X + code.AbsoluteSize.X then
+                return
+            end
+            TweenService:Create(code, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
+            TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
+            wait(0.5)
+            disable:Destroy()
+            code.Parent = side
+            code.Size = UDim2.new(1, 0, 0.5, 0)
+            code.Position = UDim2.new(0, 0, 0, 0)
+            code.ZIndex = 0
+            maximized = false
+        end)
+    end
 end
 
 --- Gets the player an instance is descended from
@@ -1266,9 +1307,7 @@ if not _G.SimpleSpyExecuted then
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         remoteHandlerEvent.Event:Connect(bindableHandler)
-        -- codebox:GetPropertyChangedSignal("Text"):Connect(updateCodebox)
-        -- codebox.FocusLost:Connect(onDeselect)
-        -- codebox:GetPropertyChangedSignal("CursorPosition"):Connect(onCursorPosChange)
+        maximize.MouseButton1Click:Connect(toggleMaximize)
         connectResize()
         onToggleButtonClick()
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
