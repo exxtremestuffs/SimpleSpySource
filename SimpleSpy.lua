@@ -1069,6 +1069,8 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                     getNil = true
                     out = 'getNil("' .. getSpecials(parent.Name) .. '", "' .. parent.ClassName .. '")'
                     break
+                elseif parent == Players.LocalPlayer then
+                    out = ".LocalPlayer" .. out
                 else
                     if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
                         out = '["' .. getSpecials(parent.Name) .. '"]' .. out
