@@ -1041,7 +1041,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                         break
                     end
                 else
-                    if parent.Name:match("%a+") ~= parent.Name then
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
                         out = '["' .. getSpecials(parent.Name) .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
@@ -1060,7 +1060,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                         break
                     end
                 else
-                    if parent.Name:match("%a+") ~= parent.Name then
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
                         out = '["' .. getSpecials(parent.Name) .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
@@ -1087,7 +1087,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                     out = 'getNil("' .. getSpecials(parent.Name) .. '", "' .. parent.ClassName .. '")'
                     break
                 else
-                    if parent.Name:match("%a+") ~= parent.Name then
+                    if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
                         out = '["' .. getSpecials(parent.Name) .. '"]' .. out
                     else
                         out = "." .. parent.Name .. out
