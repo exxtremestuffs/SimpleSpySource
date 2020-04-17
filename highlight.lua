@@ -191,7 +191,6 @@ function render()
         textBox.Size = UDim2.new(0, size.X, 0, size.Y)
         textBox.TextXAlignment = Enum.TextXAlignment.Left
         textBox.TextYAlignment = Enum.TextYAlignment.Top
-        textBox.ZIndex = parentFrame.ZIndex + 1
         textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
         textBox.BackgroundTransparency = 1
         if not lines[v.Line] then
@@ -212,6 +211,7 @@ function render()
         lineNumber.Parent = lineNumbersFrame
     end
 
+    updateZIndex()
     updateCanvasSize()
 end
 
@@ -226,12 +226,9 @@ function updateCanvasSize()
 end
 
 function updateZIndex()
-    scrollingFrame.ZIndex = parentFrame.ZIndex + 1
-    textFrame.ZIndex = parentFrame.ZIndex + 1
-    lineNumbersFrame.ZIndex = parentFrame.ZIndex + 1
-    for _, y in pairs(lines) do
-        for _, x in pairs(y) do
-            x.TextBox = parentFrame.ZIndex + 1
+    for _, v in pairs(parentFrame:GetDescendants()) do
+        if v:IsA("GuiObject") then
+            v.ZIndex = parentFrame.ZIndex
         end
     end
 end
@@ -242,6 +239,8 @@ end
 --- @param frame userdata
 function Highlight:init(frame)
     if typeof(frame) == "Instance" and frame:IsA("Frame") then
+        frame:ClearAllChildren()
+
         parentFrame = frame
         scrollingFrame = Instance.new("ScrollingFrame")
         textFrame = Instance.new("Frame")
