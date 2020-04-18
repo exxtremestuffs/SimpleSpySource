@@ -48,7 +48,7 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
-local operators = {"[%w;,](function)[%w;,]", "[%w;,](local)[%w;,]", "[%w;,](if)[%w;,]", "[%w;,](for)[%w;,]", "[%w;,](while)[%w;,]", "[%w;,](then)[%w;,]", "[%w;,](do)[%w;,]", "[%w;,](else)[%w;,]", "[%w;,](elseif)[%w;,]", "[%w;,](return)[%w;,]", "[%w;,](end)[%w;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+local operators = {"[ \n\t;,](function)[ \n\t;,]", "[ \n\t;,](local)[ \n\t;,]", "[ \n\t;,](if)[ \n\t;,]", "[ \n\t;,](for)[ \n\t;,]", "[ \n\t;,](while)[ \n\t;,]", "[ \n\t;,](then)[ \n\t;,]", "[ \n\t;,](do)[ \n\t;,]", "[ \n\t;,](else)[ \n\t;,]", "[ \n\t;,](elseif)[ \n\t;,]", "[ \n\t;,](return)[ \n\t;,]", "[ \n\t;,](end)[ \n\t;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
