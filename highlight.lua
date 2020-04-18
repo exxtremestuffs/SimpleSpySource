@@ -48,13 +48,13 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
-local operators = {"[%s;,](function)[%s;,]", "[%s;,](local)[%s;,]", "[%s;,](if)[%s;,]", "[%s;,](for)[%s;,]", "[%s;,](while)[%s;,]", "[%s;,](then)[%s;,]", "[%s;,](do)[%s;,]", "[%s;,](else)[%s;,]", "[%s;,](elseif)[%s;,]", "[%s;,](return)[%s;,]", "[%s;,](end)[%s;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+local operators = {"^(function)[%s;,]", "^(local)[%s;,]", "^(if)[%s;,]", "^(for)[%s;,]", "^(while)[%s;,]", "^(then)[%s;,]", "^(do)[%s;,]", "^(else)[%s;,]", "^(elseif)[%s;,]", "^(return)[%s;,]", "^(end)[%s;,]", "^(continue)[%s;,]", "[%s;,](continue)[%s;,]", "[%s;,](function)[%s;,]", "[%s;,](local)[%s;,]", "[%s;,](if)[%s;,]", "[%s;,](for)[%s;,]", "[%s;,](while)[%s;,]", "[%s;,](then)[%s;,]", "[%s;,](do)[%s;,]", "[%s;,](else)[%s;,]", "[%s;,](elseif)[%s;,]", "[%s;,](return)[%s;,]", "[%s;,](end)[%s;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
 local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.%(%[%p]([%a_][%a%d_]*)%s*%("}
 local numbers = {"[^%w_](%d+e?%d*)", "[^%w_](%.%d+e?%d*)", "[^%w_](%d+%.%d+e?%d*)", "^(%d+e?%d*)", "^(%.%d+e?%d*)", "^(%d+%.%d+e?%d*)"}
-local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)"}
+local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)", "[^%w_](nil)", "^(nil)"}
 local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"[^_%s%w]"}
 local offLimits = {}
