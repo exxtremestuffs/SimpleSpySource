@@ -48,7 +48,7 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
-local operators = {"function", "local", "if", "for", "while", "then", "do", "else", "elseif", "return", "end", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+local operators = {"[%w;,]function[%w;,]", "[%w;,]local[%w;,]", "[%w;,]if[%w;,]", "[%w;,]for[%w;,]", "[%w;,]while[%w;,]", "[%w;,]then[%w;,]", "[%w;,]do[%w;,]", "[%w;,]else[%w;,]", "[%w;,]elseif[%w;,]", "[%w;,]return[%w;,]", "[%w;,]end[%w;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
