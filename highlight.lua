@@ -48,7 +48,7 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
-local operators = {"^(function)[%s;,]", "^(local)[%s;,]", "^(if)[%s;,]", "^(for)[%s;,]", "^(while)[%s;,]", "^(then)[%s;,]", "^(do)[%s;,]", "^(else)[%s;,]", "^(elseif)[%s;,]", "^(return)[%s;,]", "^(end)[%s;,]", "^(continue)[%s;,]", "[%s;,](continue)[%s;,]", "[%s;,](function)[%s;,]", "[%s;,](local)[%s;,]", "[%s;,](if)[%s;,]", "[%s;,](for)[%s;,]", "[%s;,](while)[%s;,]", "[%s;,](then)[%s;,]", "[%s;,](do)[%s;,]", "[%s;,](else)[%s;,]", "[%s;,](elseif)[%s;,]", "[%s;,](return)[%s;,]", "[%s;,](end)[%s;,]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
+local operators = {"^(function)[^%w_]", "^(local)[^%w_]", "^(if)[^%w_]", "^(for)[^%w_]", "^(while)[^%w_]", "^(then)[^%w_]", "^(do)[^%w_]", "^(else)[^%w_]", "^(elseif)[^%w_]", "^(return)[^%w_]", "^(end)[^%w_]", "^(continue)[^%w_]", "[^%w_](continue)[^%w_]", "[^%w_](function)[^%w_]", "[^%w_](local)[^%w_]", "[^%w_](if)[^%w_]", "[^%w_](for)[^%w_]", "[^%w_](while)[^%w_]", "[^%w_](then)[^%w_]", "[^%w_](do)[^%w_]", "[^%w_](else)[^%w_]", "[^%w_](elseif)[^%w_]", "[^%w_](return)[^%w_]", "[^%w_](end)[^%w_]", "=", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
 local strings = {'"', "'"}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
