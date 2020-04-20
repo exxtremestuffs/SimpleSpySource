@@ -1234,6 +1234,7 @@ end
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
+        setreadonly(gm, false)
         originalEvent = hookfunction(remoteEvent.FireServer, newcclosure(function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end))
         originalFunction = hookfunction(remoteFunction.InvokeServer, newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end))
         gm.__namecall = newcclosure(function(...)
@@ -1252,6 +1253,7 @@ function toggleSpy()
             end
         end)
     else
+        setreadonly(gm, false)
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
         gm.__namecall = original
@@ -1275,6 +1277,7 @@ end
 
 --- Shuts down the remote spy
 function shutdown()
+    setreadonly(gm, false)
     ScreenguiS:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
