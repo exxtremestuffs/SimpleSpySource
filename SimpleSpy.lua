@@ -901,6 +901,8 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" then
         -- Number, booleans
         out = out .. tostring(var)
+    elseif type(var) == "function" then
+        out = out .. "function()end --[[" .. tostring(var) .. "]]"
     elseif type(var) == "string" then
         -- Strings
         if var == Players.LocalPlayer.Name then
@@ -998,6 +1000,9 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
             end
         end
         out = out .. dataName .. ".new(" .. args .. ")"
+    elseif type(var) == "userdata" and typeof(var) == "Instance" and var:IsA("Mouse") then
+        --- Mouse Object
+        out = out .. 'game:GetService("Players").LocalPlayer:GetMouse()'
     elseif type(var) == "userdata" and typeof(var) == "Instance" then
         -- Instances
         local player = getPlayerFromInstance(var)
