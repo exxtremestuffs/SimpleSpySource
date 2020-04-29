@@ -982,6 +982,34 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         local vector1 = center - size / 2
         local vector2 = center + size / 2
         out = out .. "Region3.new(Vector3.new(" .. tostring(vector1) .. "), Vector3.new(" .. tostring(vector2) .. ")"
+    elseif typeof(var) == "Faces" then
+        -- Faces
+        local faces = {}
+        if var.Top then
+            table.insert(faces, "Enum.NormalId.Top")
+        end
+        if var.Bottom then
+            table.insert(faces, "Enum.NormalId.Bottom")
+        end
+        if var.Left then
+            table.insert(faces, "Enum.NormalId.Left")
+        end
+        if var.Right then
+            table.insert(faces, "Enum.NormalId.Right")
+        end
+        if var.Back then
+            table.insert(faces, "Enum.NormalId.Back")
+        end
+        if var.Front then
+            table.insert(faces, "Enum.NormalId.Front")
+        end
+        out = out .. "Faces.new("
+        for i, v in pairs(faces) do
+            out = out .. v
+            if i < #faces then
+                out = out .. ", "
+            end
+        end
     elseif type(var) == "userdata" and typeof(var) ~= "Instance" and typeof(var) ~= "userdata" then
         -- Default userdata (no instances)
         local dataName = typeof(var)
