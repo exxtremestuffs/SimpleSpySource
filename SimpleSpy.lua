@@ -901,8 +901,6 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" then
         -- Number, booleans
         out = out .. tostring(var)
-    elseif type(var) == "function" then
-        out = out .. "function()end --[[" .. tostring(var) .. "]]"
     elseif type(var) == "string" then
         -- Strings
         if var == Players.LocalPlayer.Name then
@@ -984,7 +982,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         local vector1 = center - size / 2
         local vector2 = center + size / 2
         out = out .. "Region3.new(Vector3.new(" .. tostring(vector1) .. "), Vector3.new(" .. tostring(vector2) .. ")"
-    elseif type(var) == "userdata" and typeof(var) ~= "Instance" then
+    elseif type(var) == "userdata" and typeof(var) ~= "Instance" and typeof(var) ~= "userdata" then
         -- Default userdata (no instances)
         local dataName = typeof(var)
         local args = tostring(var)
@@ -1000,6 +998,10 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
             end
         end
         out = out .. dataName .. ".new(" .. args .. ")"
+    elseif typeof(var) == "userdata" then
+        out = out .. "newproxy() --[[" .. tostring(var) .. "]]"
+    elseif type(var) == "function" then
+        out = out .. "function()end --[[" .. tostring(var) .. "]]"
     elseif type(var) == "userdata" and typeof(var) == "Instance" and var:IsA("Mouse") then
         --- Mouse Object
         out = out .. 'game:GetService("Players").LocalPlayer:GetMouse()'
