@@ -536,7 +536,7 @@ function toggleMaximize()
         TweenService:Create(code, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
-            if UserInputService:GetMouseLocation().Y >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
+            if UserInputService:GetMouseLocation().Y + 36 >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
             and UserInputService:GetMouseLocation().X >= code.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= code.AbsolutePosition.X + code.AbsoluteSize.X then
                 return
             end
