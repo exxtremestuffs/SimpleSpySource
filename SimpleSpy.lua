@@ -1001,7 +1001,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     elseif typeof(var) == "userdata" then
         out = out .. "newproxy() --[[" .. tostring(var) .. "]]"
     elseif type(var) == "function" then
-        out = out .. "function()end --[[" .. tostring(var) .. "]]"
+        out = out .. "function()end --[[" .. debug.getinfo(var).name .. "]]"
     elseif type(var) == "userdata" and typeof(var) == "Instance" and var:IsA("Mouse") then
         --- Mouse Object
         out = out .. 'game:GetService("Players").LocalPlayer:GetMouse()'
