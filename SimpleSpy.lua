@@ -898,7 +898,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         level = 4
     end
     local out = ""
-    if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" then
+    if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" and type(var) ~= "function" then
         -- Number, booleans
         out = out .. tostring(var)
     elseif type(var) == "string" then
