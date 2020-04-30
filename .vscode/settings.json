@@ -35,7 +35,8 @@
         "CFrame",
         "getsenv",
         "getscripts",
-        "utf8"
+        "utf8",
+        "getreg"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [

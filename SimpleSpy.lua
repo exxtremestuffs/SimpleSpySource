@@ -906,11 +906,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         if var == Players.LocalPlayer.Name then
             out = out .. 'game:GetService("Players").LocalPlayer.Name'
         else
-            var = getSpecials(var)
-            -- for pos, pos2 in utf8.graphemes(var) do
-            --     var = var:sub(0, pos - 1) .. '" .. utf8.char(' .. tostring(utf8.codepoint(var, pos, pos2)) .. ') .. "' .. var:sub(pos2 + 1, -1)
-            -- end
-            out = out .. '"' .. var .. '"'
+            out = out .. '"' .. getSpecials(var) .. '"'
         end
     elseif type(var) == "table" then
         -- Tables
