@@ -1116,26 +1116,6 @@ function isArray(t)
     return true, size
 end
 
---- Iterates through a full array (thx frosty)
-local function iterate(t)
-    local i, n, continue_table, f = 0, #t, {}, #t
-    for i, v in pairs(t) do
-        if type(i) ~= "number" then
-            n = n + 1;
-            table.insert(continue_table, {i, v})
-        end
-    end
-    return function ()
-        i = i + 1
-        if i <= n then 
-            if i > f then
-                return unpack(continue_table[i - f])
-            end
-            return i, t[i] 
-        end
-    end
-end
-
 --- Converts a table to a string (includes nested tables)
 function tableToString(t, level, parentTable, tableName)
     local first = false
@@ -1158,14 +1138,8 @@ function tableToString(t, level, parentTable, tableName)
     if first then
         array, size = isArray(t)
     end
-    if first and array then
-        for i, v in iterate(t) do
-            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
-        end
-    else
-        for i, v in pairs(t) do
-            out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
-        end
+    for i, v in pairs(t) do
+        out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
     end
     out = "{" .. out .. "\n" .. space(level - 4) .. "}"
     if first then
