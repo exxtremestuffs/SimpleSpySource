@@ -1104,18 +1104,6 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     return out
 end
 
---- Determines if a provided table is an array, also returns size
-function isArray(t)
-    local size = 0
-    for i, v in pairs(t) do
-        size = size + 1
-        if type(i) ~= "number" or i ~= math.floor(i) then
-            return false
-        end
-    end
-    return true, size
-end
-
 --- Converts a table to a string (includes nested tables)
 function tableToString(t, level, parentTable, tableName)
     local first = false
@@ -1134,10 +1122,6 @@ function tableToString(t, level, parentTable, tableName)
     end
     getNil = false
     local out = ""
-    local array, size
-    if first then
-        array, size = isArray(t)
-    end
     for i, v in pairs(t) do
         out = out .. "\n" .. space(level) .. "[" .. typeToString(i, parentTable, level, tableName) .. "] = " .. typeToString(v, parentTable, level, tableName) .. ","
     end
