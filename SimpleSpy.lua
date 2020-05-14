@@ -46,6 +46,8 @@ local description = Instance.new("TextLabel")
 local code = Instance.new("Frame")
 local codebox = Highlight.new(code)
 
+syn.protect_gui(ScreenguiS)
+
 --Properties:
 
 ScreenguiS.Name = "ScreenguiS"
