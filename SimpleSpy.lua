@@ -562,7 +562,7 @@ end
 --- Gets the player an instance is descended from
 function getPlayerFromInstance(instance)
     for _, v in pairs(Players:GetPlayers()) do
-        if v.Character and instance:IsDescendantOf(v.Character) then
+        if v.Character and (instance:IsDescendantOf(v.Character) or instance == v.Character) then
             return v
         end
     end
