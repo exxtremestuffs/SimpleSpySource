@@ -653,7 +653,7 @@ function newButton(name, defaultName, onClick)
 end
 
 --- Adds new RemoteEvent to logs
-function newEvent(name, gen_script, remote, source_script, blocked, upvalues, constants, num)
+function newEvent(name, gen_script, remote, source_script, blocked, num)
     local remoteFrame = eTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -666,8 +666,6 @@ function newEvent(name, gen_script, remote, source_script, blocked, upvalues, co
         Source = source_script,
         Remote = remote,
         Log = remoteFrame,
-        Upvalues = upvalues,
-        Constants = constants,
         Blocked = blocked,
         FunNum = num
     }
@@ -691,7 +689,7 @@ function newEvent(name, gen_script, remote, source_script, blocked, upvalues, co
 end
 
 --- Adds new RemoteFunction to logs
-function newFunction(name, gen_script, remote, source_script, blocked, upvalues, constants, num)
+function newFunction(name, gen_script, remote, source_script, blocked, num)
     local remoteFrame = fTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -704,8 +702,6 @@ function newFunction(name, gen_script, remote, source_script, blocked, upvalues,
         Source = source_script,
         Remote = remote,
         Log = remoteFrame,
-        Upvalues = upvalues,
-        Constants = constants,
         Blocked = blocked,
         FunNum = num
     }
@@ -838,7 +834,6 @@ function tableEquals(x, y)
             equal = false
         end
     end
-    print(x, y, equal)
     wait(1)
     return equal
 end
@@ -918,7 +913,6 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     elseif type(var) == "table" then
         -- Tables
         if isRecursive(var, parentTable, tableName) then
-            print("owo var ", var[1], "is recursive!")
             out = out .. "{} --[[RECURSIVE]]"
         else
             out = out .. tableToString(var, level, parentTable, tableName)
@@ -1178,9 +1172,9 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func), nil, nil, "upvalues"), tableToString(debug.getconstants(func), nil, nil, "constants"), funNum)
+            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), funNum)
         else
-            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
+            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), 0)
         end
     elseif methodName == "InvokeServer" and not blacklisted(remote) then
         table.remove(args, 1)
@@ -1192,9 +1186,9 @@ function remoteHandler(hookfunction, methodName, remote, args, script, func)
                     break
                 end
             end
-            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString(debug.getupvalues(func), nil, nil, "upvalues"), tableToString(debug.getconstants(func), nil, nil, "constants"), funNum)
+            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), funNum)
         else
-            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), tableToString({}), tableToString({}), 0)
+            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), 0)
         end
     end
 end
@@ -1373,32 +1367,6 @@ newButton(
         local orText = "Click to copy the path of the source script"
         setclipboard(typeToString(selected.Source))
         button.Text = "Copied!"
-        wait(3)
-        button.Text = orText
-    end
-)
-
---- Puts the upvalues from the remote into the console for your viewing pleasure... (also puts function #)
-newButton(
-    "Get Upvalues",
-    "Click to get the upvalues from the source",
-    function(button)
-        local orText = "Click to get upvalues from the source script"
-        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Upvalues)
-        button.Text = "Put in Code Box!"
-        wait(3)
-        button.Text = orText
-    end
-)
-
---- Puts the constants from the remote into the console for your viewing pleasure... (also puts function #)
-newButton(
-    "Get Constants",
-    "Click to get the constants from the source",
-    function(button)
-        local orText = "Click to get constants from the source script"
-        codebox:setRaw("-- Serialized with SimpleSpy's TableToString! (credits to @exxtremewa#9394)\n-- (getgc) Function #" .. tostring(selected.FunNum) .. "\n\n" .. selected.Constants)
-        button.Text = "Put in Code Box!"
         wait(3)
         button.Text = orText
     end
