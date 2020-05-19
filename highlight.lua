@@ -107,6 +107,7 @@ function renderStrings()
     local ignoreBackslashes
     local stringStart
     local stringEnd
+    local offLimitsIndex
     local skip = false
     for i, char in pairs(tableContents) do
         if stringType then
@@ -121,7 +122,7 @@ function renderStrings()
                 stringEndType = nil
                 ignoreBackslashes = nil
                 stringEnd = i
-                table.insert(offLimits, {stringStart, stringEnd})
+                offLimits[offLimitsIndex][2] = stringEnd
             end
         end
         if not skip then
@@ -132,6 +133,8 @@ function renderStrings()
                     ignoreBackslashes = v[3]
                     char.Color = stringColor
                     stringStart = i
+                    offLimitsIndex = #offLimits + 1
+                    offLimits[offLimitsIndex] = {stringStart, math.huge}
                 end
             end
         end
