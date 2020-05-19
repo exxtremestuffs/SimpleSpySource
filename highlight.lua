@@ -48,15 +48,15 @@ local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
 
-local operators = {"^(function)[^%w_]", "^(local)[^%w_]", "^(if)[^%w_]", "^(for)[^%w_]", "^(while)[^%w_]", "^(then)[^%w_]", "^(do)[^%w_]", "^(else)[^%w_]", "^(elseif)[^%w_]", "^(return)[^%w_]", "^(end)[^%w_]", "^(continue)[^%w_]", "^(and)[^%w_]", "^(not)[^%w_]", "^(or)[^%w_]", "[^%w_](or)[^%w_]", "[^%w_](and)[^%w_]", "[^%w_](not)[^%w_]", "[^%w_](continue)[^%w_]", "[^%w_](function)[^%w_]", "[^%w_](local)[^%w_]", "[^%w_](if)[^%w_]", "[^%w_](for)[^%w_]", "[^%w_](while)[^%w_]", "[^%w_](then)[^%w_]", "[^%w_](do)[^%w_]", "[^%w_](else)[^%w_]", "[^%w_](elseif)[^%w_]", "[^%w_](return)[^%w_]", "[^%w_](end)[^%w_]", ">", "~", "<", "%-", "%+", "==", "%*"}
+local operators = {"^(function)[^%w_]", "^(local)[^%w_]", "^(if)[^%w_]", "^(for)[^%w_]", "^(while)[^%w_]", "^(then)[^%w_]", "^(do)[^%w_]", "^(else)[^%w_]", "^(elseif)[^%w_]", "^(return)[^%w_]", "^(end)[^%w_]", "^(continue)[^%w_]", "^(and)[^%w_]", "^(not)[^%w_]", "^(or)[^%w_]", "[^%w_](or)[^%w_]", "[^%w_](and)[^%w_]", "[^%w_](not)[^%w_]", "[^%w_](continue)[^%w_]", "[^%w_](function)[^%w_]", "[^%w_](local)[^%w_]", "[^%w_](if)[^%w_]", "[^%w_](for)[^%w_]", "[^%w_](while)[^%w_]", "[^%w_](then)[^%w_]", "[^%w_](do)[^%w_]", "[^%w_](else)[^%w_]", "[^%w_](elseif)[^%w_]", "[^%w_](return)[^%w_]", "[^%w_](end)[^%w_]", ">", "~", "<", "%-", "%+", "=", "%*"}
 --- In this case, patterns could not be used, so just the string characters are provided
-local strings = {{"\"", "\""}, {"'", "'"}, {"%[%[", "%]%]"}}
+local strings = {{"\"", "\""}, {"'", "'"}, {"%[%[", "%]%]", true}}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
 local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.%(%[%p]([%a_][%a%d_]*)%s*%("}
 local numbers = {"[^%w_](%d+e?%d*)", "[^%w_](%.%d+e?%d*)", "[^%w_](%d+%.%d+e?%d*)", "^(%d+e?%d*)", "^(%.%d+e?%d*)", "^(%d+%.%d+e?%d*)"}
 local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)", "[^%w_](nil)", "^(nil)"}
 local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
-local other = {"[^_%s%w=>~<%-%+%*]", "[^=_%s%w=>~<%-%+%*][^=_%s%w=>~<%-%+%*]"}
+local other = {"[^_%s%w=>~<%-%+%*]"}
 local offLimits = {}
 
 --- Determines if index is in a string
@@ -102,32 +102,26 @@ end
 
 -- Finds and highlights strings with `stringColor`
 function renderStrings()
-    local stringType = nil
-    local stringEndType = nil
+    local stringType
+    local stringEndType
+    local ignoreBackslashes
     local stringStart
     local stringEnd
     local skip = false
     for i, char in pairs(tableContents) do
         if stringType then
             char.Color = stringColor
-            if char.Char:match(stringEndType) and tableContents[i - 1].Char ~= "\\" then
+            local possibleString = ""
+            for k = stringStart, i do
+                possibleString = possibleString .. tableContents[k].Char
+            end
+            if char.Char:match(stringEndType) and not not ignoreBackslashes or (possibleString:match("(\\*)" .. stringEndType .. "$") and #possibleString:match("(\\*)" .. stringEndType .. "$") % 2 == 0) then
                 skip = true
                 stringType = nil
                 stringEndType = nil
+                ignoreBackslashes = nil
                 stringEnd = i
                 table.insert(offLimits, {stringStart, stringEnd})
-            elseif char.Char:match(stringEndType) and tableContents[i - 1].Char == "\\" then
-                local possibleString = ""
-                for k = stringStart, i do
-                    possibleString = possibleString .. tableContents[k].Char
-                end
-                if #string.match("(\\+)" .. stringType) then
-                    skip = true
-                    stringType = nil
-                    stringEndType = nil
-                    stringEnd = i
-                    table.insert(offLimits, {stringStart, stringEnd})
-                end
             end
         end
         if not skip then
@@ -135,6 +129,7 @@ function renderStrings()
                 if char.Char:match(v[1]) and not isOffLimits(i) then
                     stringType = v[1]
                     stringEndType = v[2]
+                    ignoreBackslashes = v[3]
                     char.Color = stringColor
                     stringStart = i
                 end
@@ -169,14 +164,14 @@ function render()
     textFrame:ClearAllChildren()
     lineNumbersFrame:ClearAllChildren()
 
-    renderComments()
-    renderStrings()
     highlightPattern(functions, functionColor)
     highlightPattern(numbers, numberColor)
     highlightPattern(operators, operatorColor)
     highlightPattern(objects, objectColor)
     highlightPattern(booleans, booleanColor)
     highlightPattern(other, genericColor)
+    renderComments()
+    renderStrings()
 
     for i = 1, #tableContents do
         local v = tableContents[i]
