@@ -1182,13 +1182,7 @@ end
 --- Used for hookfunction
 function hookRemote(methodName, remote, ...)
     local args = {...}
-    if isEqual(args, prevArgs) then
-        prevArgs = {unpack(args)}
-        return
-    end
-    prevArgs = {unpack(args)}
-    local script = getcallingscript()
-    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, script) end, remote.Name)
+    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
     if blocked(remote) then
         return false
     end
@@ -1203,13 +1197,12 @@ function toggleSpy()
         originalFunction = hookfunction(remoteFunction.InvokeServer, newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end))
         gm.__namecall = newcclosure(function(...)
             local args = {...}
-            local remote = args[1]
             local methodName = getnamecallmethod()
             if methodName == "InvokeServer" or methodName == "FireServer" then
-                local script = getcallingscript()
-                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, script) end, remote.Name)
+                local remote = args[1]
+                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
             end
-            if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
+            if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(args[1]) then
                 return nil
             else
                 return original(...)
