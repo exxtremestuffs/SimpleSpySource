@@ -84,7 +84,7 @@ function gfind(str, pattern)
 end
 
 --- Finds and highlights comments with `commentColor`
-function renderComments() 
+function renderComments()
     local str = Highlight:getRaw()
     for _, pattern in pairs(comments) do
         for commentStart, commentEnd in gfind(str, pattern) do

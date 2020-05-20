@@ -653,7 +653,7 @@ function newButton(name, defaultName, onClick)
 end
 
 --- Adds new RemoteEvent to logs
-function newEvent(name, gen_script, remote, source_script, blocked, num)
+function newEvent(name, gen_script, remote, source_script, blocked)
     local remoteFrame = eTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -667,7 +667,6 @@ function newEvent(name, gen_script, remote, source_script, blocked, num)
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
-        FunNum = num
     }
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
@@ -689,7 +688,7 @@ function newEvent(name, gen_script, remote, source_script, blocked, num)
 end
 
 --- Adds new RemoteFunction to logs
-function newFunction(name, gen_script, remote, source_script, blocked, num)
+function newFunction(name, gen_script, remote, source_script, blocked)
     local remoteFrame = fTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -703,7 +702,6 @@ function newFunction(name, gen_script, remote, source_script, blocked, num)
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
-        FunNum = num
     }
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
@@ -1161,35 +1159,13 @@ function scheduleFunction(f, name)
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, script, func)
+function remoteHandler(hookfunction, methodName, remote, args, script)
     if methodName == "FireServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        local funNum
-        if typeof(func) == "function" then
-            for i, v in pairs(getgc()) do
-                if v == func then
-                    funNum = i
-                    break
-                end
-            end
-            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), funNum)
-        else
-            remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), 0)
-        end
+        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     elseif methodName == "InvokeServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        local funNum
-        if typeof(func) == "function" then
-            for i, v in pairs(getgc()) do
-                if v == func then
-                    funNum = i
-                    break
-                end
-            end
-            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), funNum)
-        else
-            remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote), 0)
-        end
+        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     end
 end
 
@@ -1211,8 +1187,8 @@ function hookRemote(methodName, remote, ...)
         return
     end
     prevArgs = {unpack(args)}
-    local script = rawget(getfenv(0), "script")
-    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, script, nil) end, remote.Name)
+    local script = getcallingscript()
+    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, script) end, remote.Name)
     if blocked(remote) then
         return false
     end
@@ -1230,9 +1206,8 @@ function toggleSpy()
             local remote = args[1]
             local methodName = getnamecallmethod()
             if methodName == "InvokeServer" or methodName == "FireServer" then
-                local script = rawget(getfenv(3), "script")
-                local func = debug.getinfo(3).func
-                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, script, func) end, remote.Name)
+                local script = getcallingscript()
+                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, script) end, remote.Name)
             end
             if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(remote) then
                 return nil

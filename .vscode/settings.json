@@ -36,7 +36,8 @@
         "getsenv",
         "getscripts",
         "utf8",
-        "getreg"
+        "getreg",
+        "getcallingscript"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [
