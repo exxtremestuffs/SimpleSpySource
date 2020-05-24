@@ -1182,9 +1182,11 @@ end
 --- Used for hookfunction
 function hookRemote(methodName, remote, ...)
     local args = {...}
-    coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
-    if blocked(remote) then
-        return false
+    if typeof(remote) == "Instance" then
+        coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
+        if blocked(remote) then
+            return false
+        end
     end
     return true
 end
@@ -1198,7 +1200,7 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
-            if methodName == "InvokeServer" or methodName == "FireServer" then
+            if methodName == "InvokeServer" or methodName == "FireServer" and typeof(args[1]) == "Instance" and args[1]:IsA("RemoteEvent") or args[1]:IsA("RemoteFunction") then
                 local remote = args[1]
                 coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
             end
