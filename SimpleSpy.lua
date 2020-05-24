@@ -1014,7 +1014,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         end
         out = out .. dataName .. ".new(" .. args .. ")"
     elseif typeof(var) == "userdata" then
-        out = out .. "newproxy() --[[" .. tostring(var) .. "]]"
+        out = out .. "newproxy()"
     elseif type(var) == "function" then
         out = out .. "function()end --[[" .. debug.getinfo(var).name .. "]]"
     elseif type(var) == "userdata" and typeof(var) == "Instance" and var:IsA("Mouse") then

@@ -53,7 +53,7 @@ local operators = {"^(function)[^%w_]", "^(local)[^%w_]", "^(if)[^%w_]", "^(for)
 local strings = {{"\"", "\""}, {"'", "'"}, {"%[%[", "%]%]", true}}
 local comments = {"%-%-%[%[[^%]%]]+%]?%]?", "(%-%-[^\n]+)"}
 local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.%(%[%p]([%a_][%a%d_]*)%s*%("}
-local numbers = {"[^%w_](%d+e?%d*)", "[^%w_](%.%d+e?%d*)", "[^%w_](%d+%.%d+e?%d*)", "^(%d+e?%d*)", "^(%.%d+e?%d*)", "^(%d+%.%d+e?%d*)"}
+local numbers = {"[^%w_](%d+[eE]?%d*)", "[^%w_](%.%d+[eE]?%d*)", "[^%w_](%d+%.%d+[eE]?%d*)", "^(%d+[eE]?%d*)", "^(%.%d+[eE]?%d*)", "^(%d+%.%d+[eE]?%d*)"}
 local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)", "[^%w_](nil)", "^(nil)"}
 local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
 local other = {"[^_%s%w=>~<%-%+%*]"}
