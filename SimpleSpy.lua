@@ -1160,6 +1160,9 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, script)
+    if typeof(script) ~= "Instance" or (typeof(script) == "Instance" and not script:IsA("LuaSourceContainer")) then
+        script = nil
+    end
     if methodName == "FireServer" and not blacklisted(remote) then
         table.remove(args, 1)
         remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
@@ -1348,7 +1351,11 @@ newButton(
     "Click to decompile the source script",
     function(button)
         local orText = "Click to decompile the source script"
-        codebox:setRaw("-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source))
+        if selected.Source then
+            codebox:setRaw("-- Decompiled code from:\n-- " .. typeToString(selected.Source) .. "\n\n" .. decompile(selected.Source))
+        else
+            codebox:setRaw("-- Unable to decompile source: source not found")
+        end
         button.Text = "Decompiled!"
         wait(3)
         button.Text = orText
