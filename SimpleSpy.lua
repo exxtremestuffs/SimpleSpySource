@@ -1173,7 +1173,7 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
-            if methodName == "InvokeServer" or methodName == "FireServer" and typeof(args[1]) == "Instance" then
+            if methodName == "InvokeServer" or methodName == "FireServer" then
                 local remote = args[1]
                 coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
             end
