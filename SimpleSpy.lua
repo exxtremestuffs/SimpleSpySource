@@ -795,6 +795,36 @@ function space(level)
     return out
 end
 
+--- Adds \'s to the text as a replacement to whitespace chars and other things
+function getSpecials(s, nested)
+    if not nested then
+        s = s:gsub("\\", "\\\\")
+    end
+    if s:match("\n") then
+        local pos, pos2 = s:find("\n")
+        s = s:sub(0, pos - 1) .. "\\n" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("\t") then
+        local pos, pos2 = s:find("\t")
+        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("\t") then
+        local pos, pos2 = s:find("\t")
+        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("\"") and (s:sub(s:find("\"") - 1, s:find("\"") - 1) ~= "\\") then
+        local pos, pos2 = s:find("\"")
+        s = s:sub(0, pos - 1) .. "\\\"" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    elseif s:match("'") and (s:sub(s:find("'") - 1, s:find("'") - 1) ~= "\\") then
+        local pos, pos2 = s:find("'")
+        s = s:sub(0, pos - 1) .. "\\'" .. s:sub(pos2 + 1, s:len())
+        return getSpecials(s, true)
+    else
+        return s
+    end
+end
+
 function tableEquals(x, y)
     local equal = true
     for i, v in pairs(x) do
@@ -876,7 +906,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         if var == Players.LocalPlayer.Name then
             out = out .. 'game:GetService("Players").LocalPlayer.Name'
         else
-            out = out .. string.format("%q", var)
+            out = out .. '"' .. getSpecials(var) .. '"'
         end
     elseif type(var) == "table" then
         -- Tables
@@ -1173,7 +1203,7 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
-            if methodName == "InvokeServer" or methodName == "FireServer" then
+            if methodName == "InvokeServer" or methodName == "FireServer" and typeof(args[1]) == "Instance" then
                 local remote = args[1]
                 coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
             end
