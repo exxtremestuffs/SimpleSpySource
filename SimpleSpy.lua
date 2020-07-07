@@ -1100,6 +1100,7 @@ end
 
 --- Converts a table to a string (includes nested tables)
 function tableToString(t, level, parentTable, tableName)
+    setrawmetatable(t, {})
     local first = false
     if not tableName then
         tableName = "args"
