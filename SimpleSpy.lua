@@ -900,7 +900,11 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
     local out = ""
     if type(var) ~= "userdata" and type(var) ~= "table" and type(var) ~= "string" and type(var) ~= "function" then
         -- Number, booleans
-        out = out .. tostring(var)
+        if var == math.huge then
+            out = out .. "math.huge"
+        else
+            out = out .. tostring(var)
+        end
     elseif type(var) == "string" then
         -- Strings
         if var == Players.LocalPlayer.Name then
