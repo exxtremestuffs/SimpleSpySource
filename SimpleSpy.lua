@@ -795,31 +795,62 @@ function space(level)
     return out
 end
 
---- Adds \'s to the text as a replacement to whitespace chars and other things
-function getSpecials(s, nested)
+--- format s: string, byte encrypt (for weird symbols) | PORTED FROM V2
+function formatstr(s)
+    if not pcall(function() for _, _ in utf8.graphemes(s) do end end) then
+        return "\"" .. tobyte(s) .. "\""
+    end
+    s = handlespecials(s)
+    local returns = {}
+    local lastend = 0
+    for f, l in utf8.graphemes(s) do
+        if l > f then
+            local char = "utf8.char(" .. table.concat({utf8.codepoint(s, f, l)}, ", ") .. ")"
+            if lastend >= f then
+                table.insert(returns, char)
+            else
+                table.insert(returns, "\"" .. s:sub(lastend, f - 1) .. "\"")
+                table.insert(returns, char)
+            end
+            lastend = l + 1
+        end
+    end
+    if lastend <= #s then
+        table.insert(returns, "\"" .. s:sub(lastend, #s) .. "\"")
+    end
+    return table.concat(returns, " .. ")
+end
+
+--- Converts string to bytecodes '\1' | PORTED FROM V2
+function tobyte(s)
+    local news = ""
+    for i = 1, #s do
+        news = news .. "\\" .. s:sub(i, i):byte()
+    end
+    return news
+end
+
+--- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet | PORTED FROM V2
+function handlespecials(s, nested)
     if not nested then
         s = s:gsub("\\", "\\\\")
     end
     if s:match("\n") then
         local pos, pos2 = s:find("\n")
         s = s:sub(0, pos - 1) .. "\\n" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s, true)
+        return handlespecials(s, true)
     elseif s:match("\t") then
         local pos, pos2 = s:find("\t")
         s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s, true)
-    elseif s:match("\t") then
-        local pos, pos2 = s:find("\t")
-        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s, true)
+        return handlespecials(s, true)
     elseif s:match("\"") and (s:sub(s:find("\"") - 1, s:find("\"") - 1) ~= "\\") then
         local pos, pos2 = s:find("\"")
         s = s:sub(0, pos - 1) .. "\\\"" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s, true)
+        return handlespecials(s, true)
     elseif s:match("'") and (s:sub(s:find("'") - 1, s:find("'") - 1) ~= "\\") then
         local pos, pos2 = s:find("'")
         s = s:sub(0, pos - 1) .. "\\'" .. s:sub(pos2 + 1, s:len())
-        return getSpecials(s, true)
+        return handlespecials(s, true)
     else
         return s
     end
@@ -910,7 +941,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         if var == Players.LocalPlayer.Name then
             out = out .. 'game:GetService("Players").LocalPlayer.Name'
         else
-            out = out .. '"' .. getSpecials(var) .. '"'
+            out = out .. formatstr(var)
         end
     elseif type(var) == "table" then
         -- Tables
@@ -1037,7 +1068,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         elseif tool and (Players:GetPlayerFromCharacter(tool.Parent) or tool.Parent:IsA("Backpack")) then
             player = Players:GetPlayerFromCharacter(tool.Parent) or tool:FindFirstAncestorWhichIsA("Player")
             if parent and parent == tool then
-                out =  ':FindFirstChild("' .. getSpecials(parent.Name) .. '")' .. out
+                out =  ':FindFirstChild(' .. formatstr(parent.Name) .. ')' .. out
                 if player == Players.LocalPlayer then
                     out = 'game:GetService("Players").LocalPlayer.Character' .. out .. ' or game:GetService("Players").LocalPlayer.Backpack' .. out
                 else
@@ -1057,7 +1088,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                     end
                 else
                     if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
-                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                        out = '[' .. formatstr(parent.Name) .. ']' .. out
                     else
                         out = "." .. parent.Name .. out
                     end
@@ -1075,18 +1106,18 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                         end
                         break
                     else
-                        out = 'game["' .. getSpecials(parent.Name) .. '"]' .. out
+                        out = 'game[' .. formatstr(parent.Name) .. ']' .. out
                         break
                     end
                 elseif parent.Parent == nil then
                     getNil = true
-                    out = 'getNil("' .. getSpecials(parent.Name) .. '", "' .. parent.ClassName .. '")'
+                    out = 'getNil(' .. formatstr(parent.Name) .. ', "' .. parent.ClassName .. '")'
                     break
                 elseif parent == Players.LocalPlayer then
                     out = ".LocalPlayer" .. out
                 else
                     if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
-                        out = '["' .. getSpecials(parent.Name) .. '"]' .. out
+                        out = '[' .. formatstr(parent.Name) .. ']' .. out
                     else
                         out = "." .. parent.Name .. out
                     end
