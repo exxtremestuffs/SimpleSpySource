@@ -186,7 +186,7 @@ function render()
         end
         if v.Char == "\n" then
             textBox.Text = ""
-            game:GetService("RunService").RenderStepped:Wait()
+            game:GetService("RunService").Heartbeat:Wait()
         elseif v.Char:match("\t") then
             v.Char = "\t____"
             textBox.Text = "\t____"
