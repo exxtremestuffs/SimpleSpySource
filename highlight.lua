@@ -178,41 +178,43 @@ function render()
 
     for i = 1, #tableContents do
         local v = tableContents[i]
-        local textBox = Instance.new("TextLabel")
-        local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
-        local lineSizeX = 0
-        if not lines[v.Line] then
-            lines[v.Line] = {}
+        if #v.Line <= 500 then
+            local textBox = Instance.new("TextLabel")
+            local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
+            local lineSizeX = 0
+            if not lines[v.Line] then
+                lines[v.Line] = {}
+            end
+            if v.Char == "\n" then
+                textBox.Text = ""
+                game:GetService("RunService").Heartbeat:Wait()
+            elseif v.Char:match("\t") then
+                v.Char = "\t____"
+                textBox.Text = "\t____"
+                textBox.TextTransparency = 1
+            elseif v.Char:match(" ") then
+                v.Char = " |"
+                textBox.Text = " -"
+                textBox.TextTransparency = 1
+            else
+                textBox.Text = v.Char
+            end
+            for _, c in pairs(lines[v.Line]) do
+                lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
+            end
+            textBox.TextColor3 = v.Color
+            textBox.Size = UDim2.new(0, size.X, 0, size.Y)
+            textBox.TextXAlignment = Enum.TextXAlignment.Left
+            textBox.TextYAlignment = Enum.TextYAlignment.Top
+            textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
+            textBox.BackgroundTransparency = 1
+            if not lines[v.Line] then
+                lines[v.Line] = {}
+            end
+            v.TextBox = textBox
+            table.insert(lines[v.Line], v)
+            textBox.Parent = textFrame
         end
-        if v.Char == "\n" then
-            textBox.Text = ""
-            game:GetService("RunService").Heartbeat:Wait()
-        elseif v.Char:match("\t") then
-            v.Char = "\t____"
-            textBox.Text = "\t____"
-            textBox.TextTransparency = 1
-        elseif v.Char:match(" ") then
-            v.Char = " |"
-            textBox.Text = " -"
-            textBox.TextTransparency = 1
-        else
-            textBox.Text = v.Char
-        end
-        for _, c in pairs(lines[v.Line]) do
-            lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
-        end
-        textBox.TextColor3 = v.Color
-        textBox.Size = UDim2.new(0, size.X, 0, size.Y)
-        textBox.TextXAlignment = Enum.TextXAlignment.Left
-        textBox.TextYAlignment = Enum.TextYAlignment.Top
-        textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
-        textBox.BackgroundTransparency = 1
-        if not lines[v.Line] then
-            lines[v.Line] = {}
-        end
-        v.TextBox = textBox
-        table.insert(lines[v.Line], v)
-        textBox.Parent = textFrame
     end
     for i = 1, #lines do
         local lineNumber = Instance.new("TextLabel")
