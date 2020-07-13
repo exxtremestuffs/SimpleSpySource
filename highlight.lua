@@ -178,7 +178,7 @@ function render()
 
     for i = 1, #tableContents do
         local v = tableContents[i]
-        if #lines[v.Line] <= 500 then
+        if not lines[v.Line] or #lines[v.Line] <= 500 then
             local textBox = Instance.new("TextLabel")
             local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
             local lineSizeX = 0
