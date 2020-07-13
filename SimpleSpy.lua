@@ -335,8 +335,6 @@ local toggle = false
 local gm = getrawmetatable(game)
 local original = gm.__namecall
 setreadonly(gm, false)
---- This event is the main handler for remotes
-local remoteHandlerEvent = Instance.new("BindableEvent")
 --- used to prevent recursives
 local prevTables = {}
 --- holds logs (for deletion)
@@ -1098,7 +1096,7 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
         elseif parent ~= game then
             while true do
                 if parent and parent.Parent == game then
-                    if game:GetService(parent.ClassName) then
+                    if pcall(game.GetService, game, parent.ClassName) then
                         if parent.ClassName == "Workspace" then
                             out = "workspace" .. out
                         else
@@ -1106,7 +1104,11 @@ function typeToString(var, parentTable, level, tableName, bypassTool)
                         end
                         break
                     else
-                        out = 'game[' .. formatstr(parent.Name) .. ']' .. out
+                        if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
+                            out = 'game[' .. formatstr(parent.Name) .. ']' .. out
+                        else
+                            out = "game." .. parent.Name .. out
+                        end
                         break
                     end
                 elseif parent.Parent == nil then
@@ -1201,10 +1203,10 @@ function remoteHandler(hookfunction, methodName, remote, args, script)
     end
     if methodName == "FireServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        remoteHandlerEvent:Fire("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     elseif methodName == "InvokeServer" and not blacklisted(remote) then
         table.remove(args, 1)
-        remoteHandlerEvent:Fire("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     end
 end
 
@@ -1265,6 +1267,7 @@ end
 
 --- Handles the button creation things... Connected to `remoteHandlerEvent`
 function bindableHandler(type, ...)
+    syn.set_thread_identity(7)
     if type == "RemoteEvent" then
         newEvent(...)
     elseif type == "RemoteFunction" then
@@ -1295,7 +1298,6 @@ if not _G.SimpleSpyExecuted then
         minimize.MouseButton1Click:Connect(toggleMinimize)
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
-        remoteHandlerEvent.Event:Connect(bindableHandler)
         maximize.MouseButton1Click:Connect(toggleMaximize)
         connectResize()
         onToggleButtonClick()
