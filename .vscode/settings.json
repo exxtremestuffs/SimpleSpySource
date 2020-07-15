@@ -38,7 +38,9 @@
         "utf8",
         "getreg",
         "getcallingscript",
-        "continue"
+        "continue",
+        "setrawmetatable",
+        "getrenv"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [
