@@ -1210,10 +1210,10 @@ function remoteHandler(hookfunction, methodName, remote, args, script)
     if typeof(script) ~= "Instance" or (typeof(script) == "Instance" and not script:IsA("LuaSourceContainer")) then
         script = nil
     end
-    if methodName == "FireServer" and not blacklisted(remote) then
+    if methodName:lower() == "fireserver" and not blacklisted(remote) then
         table.remove(args, 1)
         bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
-    elseif methodName == "InvokeServer" and not blacklisted(remote) then
+    elseif methodName:lower() == "invokeserver" and not blacklisted(remote) then
         table.remove(args, 1)
         bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     end
@@ -1240,11 +1240,11 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
-            if methodName == "InvokeServer" or methodName == "FireServer" and typeof(args[1]) == "Instance" then
+            if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
                 local remote = args[1]
                 coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
             end
-            if (methodName == "InvokeServer" or methodName == "FireServer") and blocked(args[1]) then
+            if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
                 return nil
             else
                 return original(...)
