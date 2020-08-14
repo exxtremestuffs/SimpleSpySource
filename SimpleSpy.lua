@@ -1242,10 +1242,12 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
-            if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
-                local remote = args[1]
-                coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
-            end
+            coroutine.wrap(function()
+                if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
+                    local remote = args[1]
+                    coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
+                end
+            end)()
             if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
                 return nil
             else
