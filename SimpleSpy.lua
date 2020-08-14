@@ -585,7 +585,8 @@ end
 --- Checks if the given Remote is blocked; returns true if blacklisted, false if not
 function blocked(remote)
     if #blocklist > 0 then
-        for _, v in pairs(blocklist) do
+        for i = 1, #blocklist do
+            local v = blocklist[i]
             if type(v) == "string" and v == remote.Name then
                 return true
             elseif typeof(v) == "Instance" and v == remote then
