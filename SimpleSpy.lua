@@ -838,10 +838,9 @@ end
 
 --- table-to-string
 function t2s(t, l, p, n, vtv, i, pt, path)
-    setrawmetatable(t, {})
     for k, x in pairs(getrenv()) do
         local isgucci, gpath
-        if x == t then
+        if rawequal(x, t) then
             isgucci, gpath = true, ""
         elseif type(x) == "table" then
             isgucci, gpath = v2p(t, x)
@@ -865,7 +864,7 @@ function t2s(t, l, p, n, vtv, i, pt, path)
         p = t
     end
     for _, v in pairs(tables) do
-        if n and v == t then
+        if n and rawequal(v, t) then
             bottomstr = bottomstr .. "\n" .. tostring(n) .. tostring(path) .. " = " .. tostring(n) .. tostring(({v2p(v, p)})[2])
             return "{} --[[DUPLICATE]]"
         end
@@ -898,9 +897,9 @@ end
 
 --- function-to-string
 function f2s(f)
-    for k, x in pairs(getrenv()) do
+    for k, x in pairs(getgenv()) do
         local isgucci, gpath
-        if x == f then
+        if rawequal(x, f) then
             isgucci, gpath = true, ""
         elseif type(x) == "table" then
             isgucci, gpath = v2p(f, x)
@@ -909,7 +908,7 @@ function f2s(f)
             if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
                 return k .. gpath
             else
-                return "getrenv()[" .. v2s(k) .. "]" .. gpath
+                return "getgenv()[" .. v2s(k) .. "]" .. gpath
             end
         end
     end
@@ -1090,11 +1089,11 @@ function v2p(x, t, path, prev)
     if not prev then
         prev = {}
     end
-    if x == t then
+    if rawequal(x, t) then
         return true, ""
     end
     for i, v in pairs(t) do
-        if v == x then
+        if rawequal(v, x) then
             if type(i) == "string" and i:match("^[%a_]+[%w_]*$") then
                 return true, (path .. "." .. i)
             else
@@ -1103,7 +1102,7 @@ function v2p(x, t, path, prev)
         end
         if type(v) == "table" then
             for _, p in pairs(prev) do
-                if p == v then
+                if rawequal(p, v) then
                     return false, ""
                 end
             end
