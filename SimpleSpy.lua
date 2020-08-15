@@ -1184,6 +1184,9 @@ end
 
 --- the big (well tbh small now) boi task scheduler himself, handles p much anything as quicc as possible
 function taskscheduler()
+    if toggle then
+        return
+    end
     if #scheduled > 1000 then
         table.remove(scheduled, #scheduled)
     end
