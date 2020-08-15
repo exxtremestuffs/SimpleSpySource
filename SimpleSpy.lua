@@ -1236,9 +1236,10 @@ function toggleSpy()
             local args = {...}
             local methodName = getnamecallmethod()
             coroutine.wrap(function()
+                local script = getcallingscript()
                 if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
                     local remote = args[1]
-                    coroutine.wrap(schedule)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
+                    coroutine.wrap(schedule)(function() remoteHandler(false, methodName, remote, args, script) end, remote.Name)
                 end
             end)()
             if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
