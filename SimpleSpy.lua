@@ -345,27 +345,18 @@ local remoteEvent = Instance.new("RemoteEvent")
 local remoteFunction = Instance.new("RemoteFunction")
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
-local prevArgs = {}
 --- used for minimizing the side menu
 local normalSize, normalPos, minSize, minPos = side.Size, side.Position, UDim2.new(1, 0, 1, 0), UDim2.new()
 --- used for minimizing the gui
 local normalSizeM, minSizeM = main.Size, UDim2.new(0, main.Size.X.Offset, 0, 0)
---- used for determining the last cursor position
-local lastCursorPos, cursorPos = 0, 0
 --- the maximum amount of remotes allowed in logs
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
---- the current amount of tasks in the scheduler
-local tasks = {}
---- this bindable is fired whenever the task queue updates
-local tasksUpdate = Instance.new("BindableEvent")
---- string that contains things to deal with recursives, to be put after the table
-local recursiveHandlingString = ""
---- used to store index thingsss
-local returnStr = ""
---- used to check if ignored
-local ignored = false
 --- how many spaces to indent
 local indent = 4
+--- used for task scheduler
+local scheduled = {}
+--- RBXScriptConnect of the task scheduler
+local schedulerconnect
 
 -- functions
 
@@ -1186,26 +1177,23 @@ function handlespecials(s, nested)
     end
 end
 
--- --- Adds a function to the task scheduler, must run in coroutine
-function scheduleFunction(f, name)
-    if #tasks > _G.SIMPLESPYCONFIG_MaxRemotes then
-        local c = tasks[1][2]
-        table.remove(tasks, 1)
-        c:Disconnect()
+--- schedules the provided function (and calls it with any args after)
+function schedule(f, ...)
+    table.insert(scheduled, {f, ...})
+end
+
+--- the big (well tbh small now) boi task scheduler himself, handles p much anything as quicc as possible
+function taskscheduler()
+    if #scheduled > 1000 then
+        table.remove(scheduled, #scheduled)
     end
-    local id = tostring(f)
-    local connection
-    connection = tasksUpdate.Event:Connect(function(reason)
-        if tasks[1][1] == id then
-            connection.Disconnect(connection)
-            pcall(f)
-            RunService.RenderStepped.Wait(RunService.RenderStepped)
-            table.remove(tasks, 1)
-            tasksUpdate.Fire(tasksUpdate, "finished")
+    if #scheduled > 0 then
+        local currentf = scheduled[1]
+        table.remove(scheduled, 1)
+        if type(currentf) == "table" and type(currentf[1]) == "function" then
+            pcall(unpack(currentf))
         end
-    end)
-    table.insert(tasks, {id, connection})
-    tasksUpdate.Fire(tasksUpdate, "added")
+    end
 end
 
 --- Handles remote logs
@@ -1226,7 +1214,7 @@ end
 function hookRemote(methodName, remote, ...)
     local args = {...}
     if typeof(remote) == "Instance" then
-        coroutine.wrap(scheduleFunction)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
+        coroutine.wrap(schedule)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
         if blocked(remote) then
             return false
         end
@@ -1246,7 +1234,7 @@ function toggleSpy()
             coroutine.wrap(function()
                 if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
                     local remote = args[1]
-                    coroutine.wrap(scheduleFunction)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
+                    coroutine.wrap(schedule)(function() remoteHandler(false, methodName, remote, args, getcallingscript()) end, remote.Name)
                 end
             end)()
             if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
@@ -1281,6 +1269,9 @@ end
 
 --- Shuts down the remote spy
 function shutdown()
+    if schedulerconnect then
+        schedulerconnect:Disconnect()
+    end
     setreadonly(gm, false)
     ScreenguiS:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
@@ -1311,6 +1302,7 @@ if not _G.SimpleSpyExecuted then
         ScreenguiS.Enabled = true
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
         coroutine.wrap(function() wait(1) toggleSideTray(true) end)()
+        schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
