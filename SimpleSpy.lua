@@ -1260,33 +1260,47 @@ function hookRemote(methodName, remote, ...)
     return true
 end
 
+local newnamecall = newcclosure(function(...)
+    local args = {...}
+    local methodName = getnamecallmethod()
+    local script = getcallingscript()
+    coroutine.wrap(function()
+        if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
+            local remote = args[1]
+            schedule(remoteHandler, false, methodName, remote, args, script)
+        end
+    end)()
+    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
+        return nil
+    else
+        return original(...)
+    end
+end)
+
+local newFireServer = newcclosure(function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end)
+
+local newInvokeServer = newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end)
+
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
         setreadonly(gm, false)
-        originalEvent = hookfunction(remoteEvent.FireServer, newcclosure(function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end))
-        originalFunction = hookfunction(remoteFunction.InvokeServer, newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end))
-        gm.__namecall = newcclosure(function(...)
-            local args = {...}
-            local methodName = getnamecallmethod()
-            local script = getcallingscript()
-            coroutine.wrap(function()
-                if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
-                    local remote = args[1]
-                    schedule(remoteHandler, false, methodName, remote, args, script)
-                end
-            end)()
-            if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
-                return nil
-            else
-                return original(...)
+        if not original then
+            original = gm.__namecall
+            if not original then
+                rconsoleprint("SimpleSpy: namecall method not found!\n")
+                onToggleButtonClick()
+                return
             end
-        end)
+        end
+        gm.__namecall = newnamecall
+        originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
+        originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
     else
         setreadonly(gm, false)
+        gm.__namecall = original
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
-        gm.__namecall = original
     end
 end
 
@@ -1342,7 +1356,8 @@ if not _G.SimpleSpyExecuted then
         ScreenguiS.Enabled = true
         coroutine.wrap(function() wait(3) toggleSideTray(true) end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
-        schedule(onToggleButtonClick)
+        wait()
+        onToggleButtonClick()
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
