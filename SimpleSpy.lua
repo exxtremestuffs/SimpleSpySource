@@ -1323,6 +1323,8 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
+        main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
+        _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
         coroutine.wrap(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpyIntro.lua"))() end)()
         ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate, maximizeSquare})
         functionTemplate.Parent = nil
@@ -1330,19 +1332,17 @@ if not _G.SimpleSpyExecuted then
         eTemplate.Parent = nil
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
-        wait(3)
+        wait(2.5)
         topbar.InputBegan:Connect(onBarInput)
         minimize.MouseButton1Click:Connect(toggleMinimize)
         suck.MouseButton1Click:Connect(toggleSideTray)
         methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
         maximize.MouseButton1Click:Connect(toggleMaximize)
         connectResize()
-        onToggleButtonClick()
-        _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
         ScreenguiS.Enabled = true
-        main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
-        coroutine.wrap(function() wait(1) toggleSideTray(true) end)()
+        coroutine.wrap(function() wait(3) toggleSideTray(true) end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
+        schedule(onToggleButtonClick)
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
