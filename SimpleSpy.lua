@@ -1235,7 +1235,7 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, script)
-    if typeof(script) ~= "Instance" or (typeof(script) == "Instance" and not script:IsA("LuaSourceContainer")) then
+    if not typeof(script) == "Instance" then
         script = nil
     end
     if methodName:lower() == "fireserver" and not blacklisted(remote) then
@@ -1251,7 +1251,8 @@ end
 function hookRemote(methodName, remote, ...)
     local args = {...}
     if typeof(remote) == "Instance" then
-        coroutine.wrap(schedule)(function() remoteHandler(true, methodName, remote, args, getcallingscript()) end, remote.Name)
+        local script = getcallingscript()
+        schedule(remoteHandler, true, methodName, remote, args, script)
         if blocked(remote) then
             return false
         end
@@ -1268,11 +1269,11 @@ function toggleSpy()
         gm.__namecall = newcclosure(function(...)
             local args = {...}
             local methodName = getnamecallmethod()
+            local script = getcallingscript()
             coroutine.wrap(function()
-                local script = getcallingscript()
                 if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
                     local remote = args[1]
-                    coroutine.wrap(schedule)(function() remoteHandler(false, methodName, remote, args, script) end, remote.Name)
+                    schedule(remoteHandler, false, methodName, remote, args, script)
                 end
             end)()
             if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
