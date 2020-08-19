@@ -67,7 +67,7 @@ end
 ContentProvider:PreloadAsync({background})
 
 backgroundExpandTween:Play()
-wait(0.2)
+wait(0.1)
 
 for _, v in pairs(colors) do
 	newbackground.ImageColor3 = v
@@ -99,34 +99,34 @@ spyWhite.ZIndex = 0
 spyWhite.TextTransparency = 1
 spyWhite.Parent = background
 
-TweenService:Create(simpleWhite, TweenInfo.new(1), {TextTransparency = 0}):Play()
-TweenService:Create(spyWhite, TweenInfo.new(1), {TextTransparency = 0}):Play()
-
-wait(1)
-
-TweenService:Create(s, TweenInfo.new(0.5), {TextColor3 = white}):Play()
-TweenService:Create(s2, TweenInfo.new(0.5), {TextColor3 = white}):Play()
+TweenService:Create(simpleWhite, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+TweenService:Create(spyWhite, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 
 wait(0.5)
 
-TweenService:Create(s, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(s2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(simpleWhite, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(spyWhite, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+TweenService:Create(s, TweenInfo.new(0.25), {TextColor3 = white}):Play()
+TweenService:Create(s2, TweenInfo.new(0.25), {TextColor3 = white}):Play()
+
+wait(0.25)
+
+TweenService:Create(s, TweenInfo.new(0.15), {TextTransparency = 1}):Play()
+TweenService:Create(s2, TweenInfo.new(0.15), {TextTransparency = 1}):Play()
+TweenService:Create(simpleWhite, TweenInfo.new(0.15), {TextTransparency = 1}):Play()
+TweenService:Create(spyWhite, TweenInfo.new(0.15), {TextTransparency = 1}):Play()
 
 if typeof(endTweenSize) == "UDim2" and typeof(endTweenPos) == "UDim2" then
-	TweenService:Create(background, TweenInfo.new(1), {Size = endTweenSize, Position = endTweenPos}):Play()
+	TweenService:Create(background, TweenInfo.new(0.5), {Size = endTweenSize, Position = endTweenPos}):Play()
 else
-	TweenService:Create(background, TweenInfo.new(1), {Size = minSize, Position = minPos}):Play()
+	TweenService:Create(background, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
 end
 
-wait(0.3)
+wait(0.15)
 
-TweenService:Create(background, TweenInfo.new(1), {Size = endTweenSize, Position = endTweenPos}):Play()
+TweenService:Create(background, TweenInfo.new(0.5), {Size = endTweenSize, Position = endTweenPos}):Play()
 
 coroutine.wrap(function()
-	wait(1)
-	TweenService:Create(background, TweenInfo.new(1), {BackgroundTransparency = 1}):Play()
-	wait(1)
+	wait(0.5)
+	TweenService:Create(background, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+	wait(0.5)
 	intro:Destroy()
 end)()
