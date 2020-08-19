@@ -41,7 +41,12 @@
         "continue",
         "setrawmetatable",
         "getrenv",
-        "getgenv"
+        "getgenv",
+        "checkcaller",
+        "isrbxactive",
+        "getinstances",
+        "getloadedmodules",
+        "isluau"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.diagnostics.disable": [
