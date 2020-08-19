@@ -199,6 +199,9 @@ function render()
             else
                 textBox.Text = v.Char
             end
+            if not lines[v.Line] then
+                lines[v.Line] = {}
+            end
             for _, c in pairs(lines[v.Line]) do
                 lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
             end
@@ -208,9 +211,6 @@ function render()
             textBox.TextYAlignment = Enum.TextYAlignment.Top
             textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
             textBox.BackgroundTransparency = 1
-            if not lines[v.Line] then
-                lines[v.Line] = {}
-            end
             v.TextBox = textBox
             table.insert(lines[v.Line], v)
             textBox.Parent = textFrame
