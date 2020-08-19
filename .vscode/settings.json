@@ -46,9 +46,12 @@
         "isrbxactive",
         "getinstances",
         "getloadedmodules",
-        "isluau"
+        "isluau",
+        "isfile",
+        "readfile",
+        "writefile"
     ],
-    "Lua.runtime.version": "Lua 5.1",
+    "Lua.runtime.version": "Luau",
     "Lua.diagnostics.disable": [
         "lowercase-global"
     ]
