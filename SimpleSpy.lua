@@ -1330,7 +1330,7 @@ if not _G.SimpleSpyExecuted then
         eTemplate.Parent = nil
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
-        wait(2)
+        wait(3)
         topbar.InputBegan:Connect(onBarInput)
         minimize.MouseButton1Click:Connect(toggleMinimize)
         suck.MouseButton1Click:Connect(toggleSideTray)
