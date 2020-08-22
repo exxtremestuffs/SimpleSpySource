@@ -54,5 +54,8 @@
     "Lua.runtime.version": "Luau",
     "Lua.diagnostics.disable": [
         "lowercase-global"
+    ],
+    "Lua.diagnostics.ignore": [
+        "HttpGet"
     ]
 }

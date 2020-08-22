@@ -19,278 +19,577 @@ local Highlight = loadstring(game:HttpGet("https://github.com/exxtremestuffs/Sim
 
 -- Instances:
 
-local ScreenguiS = Instance.new("ScreenGui")
-local main = Instance.new("Frame")
-local topbar = Instance.new("ImageLabel")
-local methodToggle = Instance.new("ImageButton")
-local suck = Instance.new("TextButton")
-local minimize = Instance.new("TextButton")
-local minimize_vis = Instance.new("TextLabel")
-local bottombar = Instance.new("ImageLabel")
-local remotes = Instance.new("ScrollingFrame")
+local SimpleSpy2 = Instance.new("ScreenGui")
+local Background = Instance.new("Frame")
+local LeftPanel = Instance.new("Frame")
+local LogList = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
-local eTemplate = Instance.new("ImageButton")
-local name = Instance.new("TextLabel")
-local fTemplate = Instance.new("ImageButton")
-local name_2 = Instance.new("TextLabel")
-local side = Instance.new("Frame")
-local topbar_2 = Instance.new("ImageLabel")
-local bottombar_2 = Instance.new("ImageLabel")
-local maximize = Instance.new("TextButton")
-local maximizeSquare = Instance.new("ImageLabel")
-local functions = Instance.new("ScrollingFrame")
-local UIListLayout_2 = Instance.new("UIListLayout")
-local functionTemplate = Instance.new("ImageButton")
-local name_3 = Instance.new("TextLabel")
-local description = Instance.new("TextLabel")
-local code = Instance.new("Frame")
-local codebox = Highlight.new(code)
-
-syn.protect_gui(ScreenguiS)
+local ItemTemplate = Instance.new("Frame")
+local ColorBar = Instance.new("Frame")
+local Text = Instance.new("TextLabel")
+local Button = Instance.new("TextButton")
+local ColorBar_2 = Instance.new("Frame")
+local Text_2 = Instance.new("TextLabel")
+local Button_2 = Instance.new("TextButton")
+local RightPanel = Instance.new("Frame")
+local CodeBox = Instance.new("Frame")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local UIGridLayout = Instance.new("UIGridLayout")
+local ItemTemplate_3 = Instance.new("Frame")
+local ColorBar_3 = Instance.new("Frame")
+local Text_3 = Instance.new("TextLabel")
+local Button_3 = Instance.new("TextButton")
+local ItemTemplate_4 = Instance.new("Frame")
+local ColorBar_4 = Instance.new("Frame")
+local Text_4 = Instance.new("TextLabel")
+local Button_4 = Instance.new("TextButton")
+local ItemTemplate_5 = Instance.new("Frame")
+local ColorBar_5 = Instance.new("Frame")
+local Text_5 = Instance.new("TextLabel")
+local Button_5 = Instance.new("TextButton")
+local ItemTemplate_6 = Instance.new("Frame")
+local ColorBar_6 = Instance.new("Frame")
+local Text_6 = Instance.new("TextLabel")
+local Button_6 = Instance.new("TextButton")
+local ItemTemplate_7 = Instance.new("Frame")
+local ColorBar_7 = Instance.new("Frame")
+local Text_7 = Instance.new("TextLabel")
+local Button_7 = Instance.new("TextButton")
+local ItemTemplate_8 = Instance.new("Frame")
+local ColorBar_8 = Instance.new("Frame")
+local Text_8 = Instance.new("TextLabel")
+local Button_8 = Instance.new("TextButton")
+local ItemTemplate_9 = Instance.new("Frame")
+local ColorBar_9 = Instance.new("Frame")
+local Text_9 = Instance.new("TextLabel")
+local Button_9 = Instance.new("TextButton")
+local TopBar = Instance.new("Frame")
+local Simple = Instance.new("TextLabel")
+local CloseButton = Instance.new("TextButton")
+local ImageLabel = Instance.new("ImageLabel")
+local MaximizeButton = Instance.new("TextButton")
+local ImageLabel_2 = Instance.new("ImageLabel")
+local MinimizeButton = Instance.new("TextButton")
+local ImageLabel_3 = Instance.new("ImageLabel")
+local ToolTop = Instance.new("Frame")
+local TextLabel = Instance.new("TextLabel")
 
 --Properties:
 
-ScreenguiS.Name = "ScreenguiS"
-ScreenguiS.Parent = CoreGui
-ScreenguiS.Enabled = false
-ScreenguiS.DisplayOrder = 999999998
+SimpleSpy2.Name = "SimpleSpy2"
+SimpleSpy2.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-main.Name = "main"
-main.Parent = ScreenguiS
-main.BackgroundColor3 = Color3.new(0.254902, 0.25098, 0.258824)
-main.BorderSizePixel = 0
-main.Size = UDim2.new(0, 200, 0, 320)
-main.Position = UDim2.new(0.5, -main.Size.X.Offset / 2, 0.5, -main.Size.Y.Offset / 2)
-main.ZIndex = 2
+Background.Name = "Background"
+Background.Parent = SimpleSpy2
+Background.BackgroundColor3 = Color3.new(1, 1, 1)
+Background.BackgroundTransparency = 1
+Background.Position = UDim2.new(0, 500, 0, 200)
+Background.Size = UDim2.new(0, 450, 0, 268)
 
-topbar.Name = "topbar"
-topbar.Parent = main
-topbar.BackgroundColor3 = Color3.new(1, 1, 1)
-topbar.BackgroundTransparency = 1
-topbar.Position = UDim2.new(0, 0, 0, -11)
-topbar.Size = UDim2.new(1, 0, 0, 11)
-topbar.Image = "rbxassetid://4652116060"
-topbar.ZIndex = 2
+LeftPanel.Name = "LeftPanel"
+LeftPanel.Parent = Background
+LeftPanel.BackgroundColor3 = Color3.new(0.207843, 0.203922, 0.215686)
+LeftPanel.BorderSizePixel = 0
+LeftPanel.Position = UDim2.new(0, 0, 0, 19)
+LeftPanel.Size = UDim2.new(0, 131, 0, 249)
 
-methodToggle.Name = "methodToggle"
-methodToggle.Parent = topbar
-methodToggle.BackgroundColor3 = Color3.new(1, 1, 1)
-methodToggle.BackgroundTransparency = 1
-methodToggle.BorderSizePixel = 0
-methodToggle.Position = UDim2.new(0, 14, 0, 0)
-methodToggle.Size = UDim2.new(0, 11, 1, 0)
-methodToggle.Image = "rbxassetid://4807227064"
-methodToggle.ImageColor3 = Color3.fromRGB(51, 233, 81)
-methodToggle.ZIndex = 2
+LogList.Name = "LogList"
+LogList.Parent = LeftPanel
+LogList.Active = true
+LogList.BackgroundColor3 = Color3.new(1, 1, 1)
+LogList.BackgroundTransparency = 1
+LogList.BorderSizePixel = 0
+LogList.Position = UDim2.new(0, 0, 0, 9)
+LogList.Size = UDim2.new(0, 131, 0, 232)
+LogList.CanvasSize = UDim2.new(0, 0, 0, 0)
+LogList.ScrollBarThickness = 4
 
-suck.Name = "suck"
-suck.Parent = topbar
-suck.BackgroundColor3 = Color3.new(1, 1, 1)
-suck.BackgroundTransparency = 0.9
-suck.BorderColor3 = Color3.fromRGB(255, 255, 255)
-suck.BorderSizePixel = 1
-suck.Position = UDim2.new(1, -20, 0, 0)
-suck.Size = UDim2.new(0, 11, 1, 0)
-suck.Font = Enum.Font.ArialBold
-suck.Text = "<"
-suck.TextColor3 = Color3.new(0.933333, 0.933333, 0.933333)
-suck.TextSize = 14
-suck.ZIndex = 2
-
-minimize.Name = "minimize"
-minimize.Parent = topbar
-minimize.BackgroundColor3 = Color3.new(1, 1, 1)
-minimize.BackgroundTransparency = 0.9
-minimize.BorderColor3 = Color3.fromRGB(255, 255, 255)
-minimize.BorderSizePixel = 1
-minimize.Position = UDim2.new(1, -33, 0, 0)
-minimize.Size = UDim2.new(0, 11, 1, 0)
-minimize.Text = ""
-minimize.ZIndex = 2
-
-minimize_vis.Name = "minimize_vis"
-minimize_vis.Parent = minimize
-minimize_vis.BackgroundColor3 = Color3.new(1, 1, 1)
-minimize_vis.BackgroundTransparency = 1
-minimize_vis.BorderSizePixel = 0
-minimize_vis.Position = UDim2.new(0, 0, 0, -6)
-minimize_vis.Size = UDim2.new(0, 11, 1, 0)
-minimize_vis.Font = Enum.Font.SourceSansBold
-minimize_vis.Text = "_"
-minimize_vis.TextColor3 = Color3.new(0.933333, 0.933333, 0.933333)
-minimize_vis.TextSize = 14
-minimize_vis.ZIndex = 2
-
-bottombar.Name = "bottombar"
-bottombar.Parent = main
-bottombar.BackgroundColor3 = Color3.new(1, 1, 1)
-bottombar.BackgroundTransparency = 1
-bottombar.Position = UDim2.new(0, 0, 1, 0)
-bottombar.Rotation = 180
-bottombar.Size = UDim2.new(1, 0, 0, 11)
-bottombar.Image = "rbxassetid://4652116060"
-bottombar.ZIndex = 2
-
-remotes.Name = "remotes"
-remotes.Parent = main
-remotes.BackgroundColor3 = Color3.new(1, 1, 1)
-remotes.BackgroundTransparency = 1
-remotes.BorderSizePixel = 0
-remotes.Position = UDim2.new(0, 2, 0.0250000004, 0)
-remotes.Size = UDim2.new(0, 198, 0.949999988, 0)
-remotes.CanvasSize = UDim2.new(0, 0, 0, 0)
-remotes.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-remotes.ScrollBarThickness = 10
-remotes.ZIndex = 2
-remotes.ScrollingDirection = Enum.ScrollingDirection.Y
-
-UIListLayout.Parent = remotes
+UIListLayout.Parent = LogList
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 3)
 
-eTemplate.Name = "eTemplate"
-eTemplate.Parent = remotes
-eTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
-eTemplate.BackgroundTransparency = 1
-eTemplate.Size = UDim2.new(0, 187, 0, 20)
-eTemplate.Image = "rbxassetid://4652152767"
-eTemplate.ZIndex = 2
+ItemTemplate.Name = "ItemTemplate"
+ItemTemplate.Parent = LogList
+ItemTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate.BackgroundTransparency = 1
+ItemTemplate.Size = UDim2.new(0, 117, 0, 27)
 
-name.Name = "name"
-name.Parent = eTemplate
-name.BackgroundColor3 = Color3.new(1, 1, 1)
-name.BackgroundTransparency = 1
-name.Position = UDim2.new(0, 6, 0, 0)
-name.Size = UDim2.new(1, -6, 1, 0)
-name.Font = Enum.Font.SourceSansSemibold
-name.Text = "RemoteEvent"
-name.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
-name.TextSize = 14
-name.ZIndex = 3
+ColorBar.Name = "ColorBar"
+ColorBar.Parent = ItemTemplate
+ColorBar.BackgroundColor3 = Color3.new(1, 0.94902, 0)
+ColorBar.BorderSizePixel = 0
+ColorBar.Position = UDim2.new(0, 0, 0, 1)
+ColorBar.Size = UDim2.new(0, 7, 0, 18)
+ColorBar.ZIndex = 2
 
-fTemplate.Name = "fTemplate"
-fTemplate.Parent = remotes
-fTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
-fTemplate.BackgroundTransparency = 1
-fTemplate.Size = UDim2.new(0, 187, 0, 20)
-fTemplate.Image = "rbxassetid://4652182447"
-fTemplate.ZIndex = 2
+Text.Name = "Text"
+Text.Parent = ItemTemplate
+Text.BackgroundColor3 = Color3.new(1, 1, 1)
+Text.BackgroundTransparency = 1
+Text.Position = UDim2.new(0, 12, 0, 1)
+Text.Size = UDim2.new(0, 105, 0, 18)
+Text.ZIndex = 2
+Text.Font = Enum.Font.SourceSans
+Text.Text = "TEXT"
+Text.TextColor3 = Color3.new(1, 1, 1)
+Text.TextSize = 14
+Text.TextXAlignment = Enum.TextXAlignment.Left
 
-name_2.Name = "name"
-name_2.Parent = fTemplate
-name_2.BackgroundColor3 = Color3.new(1, 1, 1)
-name_2.BackgroundTransparency = 1
-name_2.Position = UDim2.new(0, 6, 0, 0)
-name_2.Size = UDim2.new(1, -6, 1, 0)
-name_2.Font = Enum.Font.SourceSansSemibold
-name_2.Text = "RemoteFunction"
-name_2.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
-name_2.TextSize = 14
-name_2.ZIndex = 3
+Button.Name = "Button"
+Button.Parent = ItemTemplate
+Button.BackgroundColor3 = Color3.new(0.360784, 0.494118, 0.898039)
+Button.BackgroundTransparency = 0.75
+Button.BorderColor3 = Color3.new(1, 1, 1)
+Button.Position = UDim2.new(0, 0, 0, 1)
+Button.Size = UDim2.new(0, 117, 0, 18)
+Button.AutoButtonColor = false
+Button.Font = Enum.Font.SourceSans
+Button.Text = ""
+Button.TextColor3 = Color3.new(0, 0, 0)
+Button.TextSize = 14
 
-side.Name = "side"
-side.Parent = main
-side.BackgroundColor3 = Color3.new(0.254902, 0.25098, 0.258824)
-side.BorderSizePixel = 0
-side.Position = UDim2.new(1, 0, 0, 0)
-side.Size = UDim2.new(0, 300, 0, 320)
-side.ZIndex = 0
+ColorBar_2.Name = "ColorBar"
+ColorBar_2.Parent = _
+ColorBar_2.BackgroundColor3 = Color3.new(1, 0.94902, 0)
+ColorBar_2.BorderSizePixel = 0
+ColorBar_2.Position = UDim2.new(0, 0, 0, 1)
+ColorBar_2.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_2.ZIndex = 2
 
-topbar_2.Name = "topbar"
-topbar_2.Parent = side
-topbar_2.BackgroundColor3 = Color3.new(1, 1, 1)
-topbar_2.BackgroundTransparency = 1
-topbar_2.Position = UDim2.new(0, 0, 0, -11)
-topbar_2.Size = UDim2.new(1, 0, 0, 11)
-topbar_2.ZIndex = 0
-topbar_2.Image = "rbxassetid://4652116060"
+Text_2.Name = "Text"
+Text_2.Parent = _
+Text_2.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_2.BackgroundTransparency = 1
+Text_2.Position = UDim2.new(0, 12, 0, 1)
+Text_2.Size = UDim2.new(0, 105, 0, 18)
+Text_2.ZIndex = 2
+Text_2.Font = Enum.Font.SourceSans
+Text_2.Text = "TEXT"
+Text_2.TextColor3 = Color3.new(1, 1, 1)
+Text_2.TextSize = 14
+Text_2.TextXAlignment = Enum.TextXAlignment.Left
 
-bottombar_2.Name = "bottombar"
-bottombar_2.Parent = side
-bottombar_2.BackgroundColor3 = Color3.new(1, 1, 1)
-bottombar_2.BackgroundTransparency = 1
-bottombar_2.Position = UDim2.new(0, 0, 1, 0)
-bottombar_2.Rotation = 180
-bottombar_2.Size = UDim2.new(1, 0, 0, 11)
-bottombar_2.ZIndex = 0
-bottombar_2.Image = "rbxassetid://4652116060"
+Button_2.Name = "Button"
+Button_2.Parent = _
+Button_2.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_2.BackgroundTransparency = 0.75
+Button_2.BorderColor3 = Color3.new(1, 1, 1)
+Button_2.Position = UDim2.new(0, 0, 0, 1)
+Button_2.Size = UDim2.new(0, 117, 0, 18)
+Button_2.AutoButtonColor = false
+Button_2.Font = Enum.Font.SourceSans
+Button_2.Text = ""
+Button_2.TextColor3 = Color3.new(0, 0, 0)
+Button_2.TextSize = 14
 
-maximize.Name = "maximize"
-maximize.Parent = topbar_2
-maximize.BackgroundColor3 = Color3.new(1, 1, 1)
-maximize.BackgroundTransparency = 0.9
-maximize.BorderColor3 = Color3.fromRGB(255, 255, 255)
-maximize.BorderSizePixel = 1
-maximize.Position = UDim2.new(1, -20, 0, 0)
-maximize.Size = UDim2.new(0, 11, 1, 0)
-maximize.Font = Enum.Font.ArialBold
-maximize.Text = ""
-maximize.ZIndex = 0
+RightPanel.Name = "RightPanel"
+RightPanel.Parent = Background
+RightPanel.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+RightPanel.BorderSizePixel = 0
+RightPanel.Position = UDim2.new(0, 131, 0, 19)
+RightPanel.Size = UDim2.new(0, 319, 0, 249)
 
-maximizeSquare.Name = "maximizeSquare"
-maximizeSquare.Parent = maximize
-maximizeSquare.BackgroundTransparency = 1
-maximizeSquare.Image = "rbxassetid://4908131920"
-maximizeSquare.Size = UDim2.new(1, 0, 1, 0)
-maximizeSquare.ZIndex = 0
+CodeBox.Name = "CodeBox"
+CodeBox.Parent = RightPanel
+CodeBox.BackgroundColor3 = Color3.new(0.0823529, 0.0745098, 0.0784314)
+CodeBox.BorderSizePixel = 0
+CodeBox.Size = UDim2.new(0, 319, 0, 119)
 
-functions.Name = "functions"
-functions.Parent = side
-functions.BackgroundColor3 = Color3.new(1, 1, 1)
-functions.BackgroundTransparency = 1
-functions.BorderSizePixel = 0
-functions.Position = UDim2.new(0, 1, 0.5, 0)
-functions.Size = UDim2.new(1, -1, 0.5, 0)
-functions.ZIndex = 0
-functions.CanvasSize = UDim2.new(0, 0, 0, 0)
-functions.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-functions.ScrollBarThickness = 10
-functions.ScrollingDirection = Enum.ScrollingDirection.Y
+ScrollingFrame.Parent = RightPanel
+ScrollingFrame.Active = true
+ScrollingFrame.BackgroundColor3 = Color3.new(1, 1, 1)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.Position = UDim2.new(0, 0, 0.476, 0)
+ScrollingFrame.Size = UDim2.new(0, 319, 0, 131)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollingFrame.ScrollBarThickness = 4
 
-UIListLayout_2.Parent = functions
-UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout_2.Padding = UDim.new(0, 3)
+UIGridLayout.Parent = ScrollingFrame
+UIGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 0)
+UIGridLayout.CellSize = UDim2.new(0, 94, 0, 27)
 
-functionTemplate.Name = "functionTemplate"
-functionTemplate.Parent = functions
-functionTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
-functionTemplate.BackgroundTransparency = 1
-functionTemplate.Size = UDim2.new(0, 288, 0, 20)
-functionTemplate.ZIndex = 0
-functionTemplate.Image = "http://www.roblox.com/asset/?id=4806096140"
-functionTemplate.ZIndex = 0
+ItemTemplate_3.Name = "ItemTemplate"
+ItemTemplate_3.Parent = ScrollingFrame
+ItemTemplate_3.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_3.BackgroundTransparency = 1
+ItemTemplate_3.Size = UDim2.new(0, 117, 0, 23)
 
-name_3.Name = "name"
-name_3.Parent = functionTemplate
-name_3.BackgroundColor3 = Color3.new(1, 1, 1)
-name_3.BackgroundTransparency = 1
-name_3.Position = UDim2.new(0, 5, 0, 0)
-name_3.Size = UDim2.new(0, 107, 1, 0)
-name_3.Font = Enum.Font.SourceSansSemibold
-name_3.Text = "FunctionName"
-name_3.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
-name_3.TextSize = 14
-name_3.ZIndex = 0
+ColorBar_3.Name = "ColorBar"
+ColorBar_3.Parent = ItemTemplate_3
+ColorBar_3.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_3.BorderSizePixel = 0
+ColorBar_3.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_3.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_3.ZIndex = 3
 
-description.Name = "description"
-description.Parent = functionTemplate
-description.BackgroundColor3 = Color3.new(1, 1, 1)
-description.BackgroundTransparency = 1
-description.Position = UDim2.new(0, 120, 0, 0)
-description.Size = UDim2.new(0, 160, 1, 0)
-description.Font = Enum.Font.SourceSansSemibold
-description.Text = "Function description..."
-description.TextScaled = true
-description.TextColor3 = Color3.new(0.917647, 0.917647, 0.917647)
-description.TextSize = 14
-description.ZIndex = 0
+Text_3.Name = "Text"
+Text_3.Parent = ItemTemplate_3
+Text_3.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_3.BackgroundTransparency = 1
+Text_3.Position = UDim2.new(0, 19, 0, 10)
+Text_3.Size = UDim2.new(0, 69, 0, 18)
+Text_3.ZIndex = 2
+Text_3.Font = Enum.Font.SourceSans
+Text_3.Text = "TEXT"
+Text_3.TextColor3 = Color3.new(1, 1, 1)
+Text_3.TextSize = 14
+Text_3.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_3.TextXAlignment = Enum.TextXAlignment.Left
 
-code.Name = "code"
-code.Parent = side
-code.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
-code.BorderSizePixel = 0
-code.Size = UDim2.new(1, 0, 0.5, 0)
-code.ZIndex = 0
+Button_3.Name = "Button"
+Button_3.Parent = ItemTemplate_3
+Button_3.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_3.BackgroundTransparency = 0.69999998807907
+Button_3.BorderColor3 = Color3.new(1, 1, 1)
+Button_3.Position = UDim2.new(0, 7, 0, 10)
+Button_3.Size = UDim2.new(0, 80, 0, 18)
+Button_3.AutoButtonColor = false
+Button_3.Font = Enum.Font.SourceSans
+Button_3.Text = ""
+Button_3.TextColor3 = Color3.new(0, 0, 0)
+Button_3.TextSize = 14
+
+ItemTemplate_4.Name = "ItemTemplate"
+ItemTemplate_4.Parent = ScrollingFrame
+ItemTemplate_4.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_4.BackgroundTransparency = 1
+ItemTemplate_4.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_4.Name = "ColorBar"
+ColorBar_4.Parent = ItemTemplate_4
+ColorBar_4.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_4.BorderSizePixel = 0
+ColorBar_4.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_4.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_4.ZIndex = 3
+
+Text_4.Name = "Text"
+Text_4.Parent = ItemTemplate_4
+Text_4.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_4.BackgroundTransparency = 1
+Text_4.Position = UDim2.new(0, 19, 0, 10)
+Text_4.Size = UDim2.new(0, 69, 0, 18)
+Text_4.ZIndex = 2
+Text_4.Font = Enum.Font.SourceSans
+Text_4.Text = "TEXT"
+Text_4.TextColor3 = Color3.new(1, 1, 1)
+Text_4.TextSize = 14
+Text_4.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_4.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_4.Name = "Button"
+Button_4.Parent = ItemTemplate_4
+Button_4.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_4.BackgroundTransparency = 0.69999998807907
+Button_4.BorderColor3 = Color3.new(1, 1, 1)
+Button_4.Position = UDim2.new(0, 7, 0, 10)
+Button_4.Size = UDim2.new(0, 80, 0, 18)
+Button_4.AutoButtonColor = false
+Button_4.Font = Enum.Font.SourceSans
+Button_4.Text = ""
+Button_4.TextColor3 = Color3.new(0, 0, 0)
+Button_4.TextSize = 14
+
+ItemTemplate_5.Name = "ItemTemplate"
+ItemTemplate_5.Parent = ScrollingFrame
+ItemTemplate_5.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_5.BackgroundTransparency = 1
+ItemTemplate_5.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_5.Name = "ColorBar"
+ColorBar_5.Parent = ItemTemplate_5
+ColorBar_5.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_5.BorderSizePixel = 0
+ColorBar_5.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_5.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_5.ZIndex = 3
+
+Text_5.Name = "Text"
+Text_5.Parent = ItemTemplate_5
+Text_5.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_5.BackgroundTransparency = 1
+Text_5.Position = UDim2.new(0, 19, 0, 10)
+Text_5.Size = UDim2.new(0, 69, 0, 18)
+Text_5.ZIndex = 2
+Text_5.Font = Enum.Font.SourceSans
+Text_5.Text = "TEXT"
+Text_5.TextColor3 = Color3.new(1, 1, 1)
+Text_5.TextSize = 14
+Text_5.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_5.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_5.Name = "Button"
+Button_5.Parent = ItemTemplate_5
+Button_5.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_5.BackgroundTransparency = 0.69999998807907
+Button_5.BorderColor3 = Color3.new(1, 1, 1)
+Button_5.Position = UDim2.new(0, 7, 0, 10)
+Button_5.Size = UDim2.new(0, 80, 0, 18)
+Button_5.AutoButtonColor = false
+Button_5.Font = Enum.Font.SourceSans
+Button_5.Text = ""
+Button_5.TextColor3 = Color3.new(0, 0, 0)
+Button_5.TextSize = 14
+
+ItemTemplate_6.Name = "ItemTemplate"
+ItemTemplate_6.Parent = ScrollingFrame
+ItemTemplate_6.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_6.BackgroundTransparency = 1
+ItemTemplate_6.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_6.Name = "ColorBar"
+ColorBar_6.Parent = ItemTemplate_6
+ColorBar_6.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_6.BorderSizePixel = 0
+ColorBar_6.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_6.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_6.ZIndex = 3
+
+Text_6.Name = "Text"
+Text_6.Parent = ItemTemplate_6
+Text_6.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_6.BackgroundTransparency = 1
+Text_6.Position = UDim2.new(0, 19, 0, 10)
+Text_6.Size = UDim2.new(0, 69, 0, 18)
+Text_6.ZIndex = 2
+Text_6.Font = Enum.Font.SourceSans
+Text_6.Text = "TEXT"
+Text_6.TextColor3 = Color3.new(1, 1, 1)
+Text_6.TextSize = 14
+Text_6.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_6.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_6.Name = "Button"
+Button_6.Parent = ItemTemplate_6
+Button_6.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_6.BackgroundTransparency = 0.69999998807907
+Button_6.BorderColor3 = Color3.new(1, 1, 1)
+Button_6.Position = UDim2.new(0, 7, 0, 10)
+Button_6.Size = UDim2.new(0, 80, 0, 18)
+Button_6.AutoButtonColor = false
+Button_6.Font = Enum.Font.SourceSans
+Button_6.Text = ""
+Button_6.TextColor3 = Color3.new(0, 0, 0)
+Button_6.TextSize = 14
+
+ItemTemplate_7.Name = "ItemTemplate"
+ItemTemplate_7.Parent = ScrollingFrame
+ItemTemplate_7.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_7.BackgroundTransparency = 1
+ItemTemplate_7.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_7.Name = "ColorBar"
+ColorBar_7.Parent = ItemTemplate_7
+ColorBar_7.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_7.BorderSizePixel = 0
+ColorBar_7.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_7.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_7.ZIndex = 3
+
+Text_7.Name = "Text"
+Text_7.Parent = ItemTemplate_7
+Text_7.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_7.BackgroundTransparency = 1
+Text_7.Position = UDim2.new(0, 19, 0, 10)
+Text_7.Size = UDim2.new(0, 69, 0, 18)
+Text_7.ZIndex = 2
+Text_7.Font = Enum.Font.SourceSans
+Text_7.Text = "TEXT"
+Text_7.TextColor3 = Color3.new(1, 1, 1)
+Text_7.TextSize = 14
+Text_7.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_7.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_7.Name = "Button"
+Button_7.Parent = ItemTemplate_7
+Button_7.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_7.BackgroundTransparency = 0.69999998807907
+Button_7.BorderColor3 = Color3.new(1, 1, 1)
+Button_7.Position = UDim2.new(0, 7, 0, 10)
+Button_7.Size = UDim2.new(0, 80, 0, 18)
+Button_7.AutoButtonColor = false
+Button_7.Font = Enum.Font.SourceSans
+Button_7.Text = ""
+Button_7.TextColor3 = Color3.new(0, 0, 0)
+Button_7.TextSize = 14
+
+ItemTemplate_8.Name = "ItemTemplate"
+ItemTemplate_8.Parent = ScrollingFrame
+ItemTemplate_8.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_8.BackgroundTransparency = 1
+ItemTemplate_8.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_8.Name = "ColorBar"
+ColorBar_8.Parent = ItemTemplate_8
+ColorBar_8.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_8.BorderSizePixel = 0
+ColorBar_8.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_8.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_8.ZIndex = 3
+
+Text_8.Name = "Text"
+Text_8.Parent = ItemTemplate_8
+Text_8.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_8.BackgroundTransparency = 1
+Text_8.Position = UDim2.new(0, 19, 0, 10)
+Text_8.Size = UDim2.new(0, 69, 0, 18)
+Text_8.ZIndex = 2
+Text_8.Font = Enum.Font.SourceSans
+Text_8.Text = "TEXT"
+Text_8.TextColor3 = Color3.new(1, 1, 1)
+Text_8.TextSize = 14
+Text_8.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_8.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_8.Name = "Button"
+Button_8.Parent = ItemTemplate_8
+Button_8.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_8.BackgroundTransparency = 0.69999998807907
+Button_8.BorderColor3 = Color3.new(1, 1, 1)
+Button_8.Position = UDim2.new(0, 7, 0, 10)
+Button_8.Size = UDim2.new(0, 80, 0, 18)
+Button_8.AutoButtonColor = false
+Button_8.Font = Enum.Font.SourceSans
+Button_8.Text = ""
+Button_8.TextColor3 = Color3.new(0, 0, 0)
+Button_8.TextSize = 14
+
+ItemTemplate_9.Name = "ItemTemplate"
+ItemTemplate_9.Parent = ScrollingFrame
+ItemTemplate_9.BackgroundColor3 = Color3.new(1, 1, 1)
+ItemTemplate_9.BackgroundTransparency = 1
+ItemTemplate_9.Size = UDim2.new(0, 117, 0, 23)
+
+ColorBar_9.Name = "ColorBar"
+ColorBar_9.Parent = ItemTemplate_9
+ColorBar_9.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_9.BorderSizePixel = 0
+ColorBar_9.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_9.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_9.ZIndex = 3
+
+Text_9.Name = "Text"
+Text_9.Parent = ItemTemplate_9
+Text_9.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_9.BackgroundTransparency = 1
+Text_9.Position = UDim2.new(0, 19, 0, 10)
+Text_9.Size = UDim2.new(0, 69, 0, 18)
+Text_9.ZIndex = 2
+Text_9.Font = Enum.Font.SourceSans
+Text_9.Text = "TEXT"
+Text_9.TextColor3 = Color3.new(1, 1, 1)
+Text_9.TextSize = 14
+Text_9.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_9.TextXAlignment = Enum.TextXAlignment.Left
+
+Button_9.Name = "Button"
+Button_9.Parent = ItemTemplate_9
+Button_9.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_9.BackgroundTransparency = 0.69999998807907
+Button_9.BorderColor3 = Color3.new(1, 1, 1)
+Button_9.Position = UDim2.new(0, 7, 0, 10)
+Button_9.Size = UDim2.new(0, 80, 0, 18)
+Button_9.AutoButtonColor = false
+Button_9.Font = Enum.Font.SourceSans
+Button_9.Text = ""
+Button_9.TextColor3 = Color3.new(0, 0, 0)
+Button_9.TextSize = 14
+
+TopBar.Name = "TopBar"
+TopBar.Parent = Background
+TopBar.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+TopBar.BorderSizePixel = 0
+TopBar.Size = UDim2.new(0, 450, 0, 19)
+
+Simple.Name = "Simple"
+Simple.Parent = TopBar
+Simple.BackgroundColor3 = Color3.new(1, 1, 1)
+Simple.BackgroundTransparency = 1
+Simple.Position = UDim2.new(0, 5, 0, 0)
+Simple.Size = UDim2.new(0, 38, 0, 18)
+Simple.Font = Enum.Font.SourceSansBold
+Simple.Text = "SimpleSpy"
+Simple.TextColor3 = Color3.new(1, 1, 1)
+Simple.TextSize = 14
+Simple.TextXAlignment = Enum.TextXAlignment.Left
+
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = TopBar
+CloseButton.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+CloseButton.BorderSizePixel = 0
+CloseButton.Position = UDim2.new(1, -19, 0, 0)
+CloseButton.Size = UDim2.new(0, 19, 0, 19)
+CloseButton.Font = Enum.Font.SourceSans
+CloseButton.Text = ""
+CloseButton.TextColor3 = Color3.new(0, 0, 0)
+CloseButton.TextSize = 14
+
+ImageLabel.Parent = CloseButton
+ImageLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageLabel.BackgroundTransparency = 1
+ImageLabel.Position = UDim2.new(0, 5, 0, 5)
+ImageLabel.Size = UDim2.new(0, 9, 0, 9)
+ImageLabel.Image = "http://www.roblox.com/asset/?id=5597086202"
+
+MaximizeButton.Name = "MaximizeButton"
+MaximizeButton.Parent = TopBar
+MaximizeButton.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+MaximizeButton.BorderSizePixel = 0
+MaximizeButton.Position = UDim2.new(1, -38, 0, 0)
+MaximizeButton.Size = UDim2.new(0, 19, 0, 19)
+MaximizeButton.Font = Enum.Font.SourceSans
+MaximizeButton.Text = ""
+MaximizeButton.TextColor3 = Color3.new(0, 0, 0)
+MaximizeButton.TextSize = 14
+
+ImageLabel_2.Parent = MaximizeButton
+ImageLabel_2.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageLabel_2.BackgroundTransparency = 1
+ImageLabel_2.Position = UDim2.new(0, 5, 0, 5)
+ImageLabel_2.Size = UDim2.new(0, 9, 0, 9)
+ImageLabel_2.Image = "http://www.roblox.com/asset/?id=5597108117"
+
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = TopBar
+MinimizeButton.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Position = UDim2.new(1, -57, 0, 0)
+MinimizeButton.Size = UDim2.new(0, 19, 0, 19)
+MinimizeButton.Font = Enum.Font.SourceSans
+MinimizeButton.Text = ""
+MinimizeButton.TextColor3 = Color3.new(0, 0, 0)
+MinimizeButton.TextSize = 14
+
+ImageLabel_3.Parent = MinimizeButton
+ImageLabel_3.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageLabel_3.BackgroundTransparency = 1
+ImageLabel_3.Position = UDim2.new(0, 5, 0, 5)
+ImageLabel_3.Size = UDim2.new(0, 9, 0, 9)
+ImageLabel_3.Image = "http://www.roblox.com/asset/?id=5597105827"
+
+ToolTop.Name = "ToolTop"
+ToolTop.Parent = SimpleSpy2
+ToolTop.BackgroundColor3 = Color3.new(0.101961, 0.101961, 0.101961)
+ToolTop.BackgroundTransparency = 0.10000000149012
+ToolTop.BorderColor3 = Color3.new(1, 1, 1)
+ToolTop.Size = UDim2.new(0, 200, 0, 50)
+ToolTop.ZIndex = 3
+
+TextLabel.Parent = ToolTop
+TextLabel.BackgroundColor3 = Color3.new(1, 1, 1)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Position = UDim2.new(0, 2, 0, 2)
+TextLabel.Size = UDim2.new(0, 196, 0, 46)
+TextLabel.ZIndex = 3
+TextLabel.Font = Enum.Font.SourceSans
+TextLabel.Text = "This is some slightly longer text."
+TextLabel.TextColor3 = Color3.new(1, 1, 1)
+TextLabel.TextSize = 14
+TextLabel.TextWrapped = true
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+TextLabel.TextYAlignment = Enum.TextYAlignment.Top
 
 -------------------------------------------------------------------------------
 -- init
@@ -298,12 +597,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
-local TextService = game:GetService("TextService")
 
---- UDim2 size of `main` while minimized
-local minSize = UDim2.new(0, 100, 0, 15)
---- UDim2 size of `main` while expanded
-local mainSize = main.Size
 local selectedColor = Color3.new(0.321569, 0.333333, 1)
 local deselectedColor = Color3.new(0.8, 0.8, 0.8)
 --- So things are descending
@@ -326,10 +620,6 @@ selected = nil
 blacklist = {}
 --- The block list (can be a string name or the Remote Instance)
 blocklist = {}
---- Whether or not to add getNil function
-local getNil = false
---- Array of remotes (and original functions) connected to
-local connectedRemotes = {}
 --- True = hookfunction, false = namecall
 local toggle = false
 local gm = getrawmetatable(game)
@@ -345,10 +635,6 @@ local remoteEvent = Instance.new("RemoteEvent")
 local remoteFunction = Instance.new("RemoteFunction")
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
---- used for minimizing the side menu
-local normalSize, normalPos, minSize, minPos = side.Size, side.Position, UDim2.new(1, 0, 1, 0), UDim2.new()
---- used for minimizing the gui
-local normalSizeM, minSizeM = main.Size, UDim2.new(0, main.Size.X.Offset, 0, 0)
 --- the maximum amount of remotes allowed in logs
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
 --- how many spaces to indent
@@ -358,6 +644,8 @@ local scheduled = {}
 --- RBXScriptConnect of the task scheduler
 local schedulerconnect
 local SimpleSpy = {}
+local remotesFadeIn
+local rightFadeIn
 
 -- functions
 
@@ -417,12 +705,26 @@ function clean()
     end
 end
 
+--- Executed when the toggle button (the SimpleSpy logo) is hovered over
+function onToggleButtonHover()
+    if not toggle then
+        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
+    else
+        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
+    end
+end
+
+--- Executed when the toggle button is unhovered over
+function onToggleButtonUnhover()
+    TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+end
+
 --- Toggles the remote spy method (when button clicked)
 function onToggleButtonClick()
     if toggle then
-        methodToggle.ImageColor3 = Color3.fromRGB(248, 39, 39)
+        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
     else
-        methodToggle.ImageColor3 = Color3.fromRGB(51, 233, 81)
+        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
     end
     toggleSpyMethod()
 end
@@ -440,8 +742,8 @@ end
 
 --- Brings gui back if it gets lost offscreen (connected to the camera viewport changing)
 function bringBackOnResize()
-    if main.Position.X.Offset > workspace.CurrentCamera.ViewportSize.X or main.Position.Y.Offset > workspace.CurrentCamera.ViewportSize.Y then
-        TweenService:Create(main, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, 0, 11)}):Play()
+    if Background.Position.X.Offset + Background.Size.X.Offset > workspace.CurrentCamera.ViewportSize.X or Background.Position.Y.Offset + Background.Size.Y.Offset > workspace.CurrentCamera.ViewportSize.Y then
+        TweenService:Create(Background, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, 0, 0)}):Play()
     end
 end
 
@@ -449,47 +751,92 @@ end
 function onBarInput(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         local lastPos = UserInputService.GetMouseLocation(UserInputService)
-        local mainPos = main.AbsolutePosition
+        local mainPos = Background.AbsolutePosition
         local offset = mainPos - lastPos
         local currentPos = offset + lastPos
-        RunService.BindToRenderStep(
-            RunService,
-            "drag",
-            1,
+        RunService.BindToRenderStep(RunService, "drag", 1,
             function()
                 local newPos = UserInputService.GetMouseLocation(UserInputService)
                 if newPos ~= lastPos then
                     local currentX = (offset + newPos).X
                     local currentY = (offset + newPos).Y
                     local viewportSize = workspace.CurrentCamera.ViewportSize
-                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - main.Size.X.Offset) and currentX > currentPos.X) then
+                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - Background.Size.X.Offset) and currentX > currentPos.X) then
                         if currentX < 0 then
                             currentX = 0
                         else
-                            currentX = viewportSize.X - main.Size.X.Offset
+                            currentX = viewportSize.X - Background.Size.X.Offset
                         end
                     end
-                    if (currentY < 11 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (main.Size.Y.Offset + 47)) and currentY > currentPos.Y) then
+                    if (currentY < 11 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (Background.Size.Y.Offset + 47)) and currentY > currentPos.Y) then
                         if currentY < 11 then
                             currentY = 11
                         else
-                            currentY = viewportSize.Y - (main.Size.Y.Offset + 47)
+                            currentY = viewportSize.Y - (Background.Size.Y.Offset + 47)
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
                     lastPos = newPos
-                    TweenService.Create(TweenService, main, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
+                    TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                 end
             end
         )
-        UserInputService.InputEnded.Connect(
-            UserInputService.InputEnded,
+        UserInputService.InputEnded.Connect(UserInputService.InputEnded,
             function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     RunService.UnbindFromRenderStep(RunService, "drag")
                 end
             end
         )
+    end
+end
+
+--- Fades out the table of elements (and makes them invisible), returns a function to make them visible again
+function fadeOut(elements)
+    local data = {}
+    for _, v in pairs(elements) do
+        if typeof(v) == "Instance" and v:IsA("GuiObject") and v.Visible then
+            coroutine.wrap(function()
+                data[v] = {
+                    BackgroundTransparency = v.BackgroundTransparency
+                }
+                TweenService:Create(v, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+                if v:IsA("TextBox") or v:IsA("TextButton") or v:IsA("TextLabel") then
+                    data[v].TextTransparency = v.TextTransparency
+                    TweenService:Create(v, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+                elseif v:IsA("ImageButton") or v:IsA("ImageLabel") then
+                    data[v].ImageTransparency = v.ImageTransparency
+                    TweenService:Create(v, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+                end
+                wait(0.5)
+                v.Visible = false
+                for i, x in pairs(data[v]) do
+                    v[i] = x
+                end
+                data[v] = true
+            end)()
+        end
+    end
+    return function()
+        for i, _ in pairs(data) do
+            coroutine.wrap(function()
+                local properties = {
+                    BackgroundTransparency = i.BackgroundTransparency
+                }
+                i.BackgroundTransparency = 1
+                TweenService:Create(i, TweenInfo.new(0.5), {BackgroundTransparency = properties.BackgroundTransparency}):Play()
+                if i:IsA("TextBox") or i:IsA("TextButton") or i:IsA("TextLabel") then
+                    properties.TextTransparency = i.TextTransparency
+                    i.TextTransparency = 1
+                    TweenService:Create(i, TweenInfo.new(0.5), {TextTransparency = properties.TextTransparency}):Play()
+                elseif i:IsA("ImageButton") or i:IsA("ImageLabel") then
+                    properties.ImageTransparency = i.ImageTransparency
+                    i.ImageTransparency = 1
+                    TweenService:Create(i, TweenInfo.new(0.5), {ImageTransparency = properties.ImageTransparency}):Play()
+                end
+                i.Visible = true
+            end)()
+        end
     end
 end
 
@@ -504,14 +851,17 @@ function toggleMinimize(override)
         if not sideClosed then
             toggleSideTray(true)
         end
-        TweenService:Create(main, TweenInfo.new(0.5), {Size = minSizeM}):Play()
-        TweenService:Create(minimize, TweenInfo.new(0.5), {Rotation = 90}):Play()
+        TweenService:Create(LeftPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 249)}):Play()
+        remotesFadeIn = fadeOut(LeftPanel:GetDescendants())
         wait(0.5)
-        remotes.Visible = false
+        LeftPanel.Visible = false
     else
-        TweenService:Create(main, TweenInfo.new(0.5), {Size = normalSizeM}):Play()
-        TweenService:Create(minimize, TweenInfo.new(0.5), {Rotation = 0}):Play()
-        remotes.Visible = true
+        LeftPanel.Visible = true
+        TweenService:Create(LeftPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 0)}):Play()
+        if remotesFadeIn then
+            remotesFadeIn()
+            remotesFadeIn = nil
+        end
         wait(0.5)
     end
     mainClosing = false
@@ -524,21 +874,20 @@ function toggleSideTray(override)
     end
     sideClosing = true
     sideClosed = not sideClosed
-    if sideClosed and side.Visible then
-        TweenService:Create(side, TweenInfo.new(0.5), {Size = minSize, Position = minPos}):Play()
-        TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 180}):Play()
+    if sideClosed then
+        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 249)}):Play()
+        rightFadeIn = fadeOut(RightPanel:GetDescendants())
         wait(0.5)
-        side.Visible = false
-        side.BackgroundTransparency = 0
-        side.Size, side.Position = normalSize, normalPos
+        RightPanel.Visible = false
     else
         if closed then
             toggleMinimize(true)
         end
-        side.Size, side.Position = minSize, minPos
-        side.Visible = true
-        TweenService:Create(side, TweenInfo.new(0.5), {Size = normalSize, Position = normalPos}):Play()
-        TweenService:Create(suck, TweenInfo.new(0.5), {Rotation = 0}):Play()
+        RightPanel.Visible = true
+        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 319, 0, 249)}):Play()
+        if rightFadeIn then
+            rightFadeIn()
+        end
         wait(0.5)
     end
     sideClosing = false
@@ -549,35 +898,32 @@ function toggleMaximize()
     if not sideClosed and not maximized then
         maximized = true
         local disable = Instance.new("TextButton")
-        local prevSize = UDim2.new(0, code.AbsoluteSize.X, 0, code.AbsoluteSize.Y)
-        local prevPos = UDim2.new(0,code.AbsolutePosition.X, 0, code.AbsolutePosition.Y)
+        local prevSize = UDim2.new(0, CodeBox.AbsoluteSize.X, 0, CodeBox.AbsoluteSize.Y)
+        local prevPos = UDim2.new(0,CodeBox.AbsolutePosition.X, 0, CodeBox.AbsolutePosition.Y)
         disable.Size = UDim2.new(1, 0, 1, 0)
         disable.BackgroundColor3 = Color3.new()
         disable.BorderSizePixel = 0
         disable.Text = 0
         disable.ZIndex = 3
         disable.BackgroundTransparency = 1
-        disable.Parent = ScreenguiS
         disable.AutoButtonColor = false
-        code.ZIndex = 4
-        code.Parent = ScreenguiS
-        code.Position = prevPos
-        code.Size = prevSize
-        TweenService:Create(code, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
+        CodeBox.ZIndex = 4
+        CodeBox.Position = prevPos
+        CodeBox.Size = prevSize
+        TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
-            if UserInputService:GetMouseLocation().Y + 36 >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
-            and UserInputService:GetMouseLocation().X >= code.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= code.AbsolutePosition.X + code.AbsoluteSize.X then
+            if UserInputService:GetMouseLocation().Y + 36 >= CodeBox.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= CodeBox.AbsolutePosition.Y + CodeBox.AbsoluteSize.Y
+            and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
                 return
             end
-            TweenService:Create(code, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
+            TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
             TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
             wait(0.5)
             disable:Destroy()
-            code.Parent = side
-            code.Size = UDim2.new(1, 0, 0.5, 0)
-            code.Position = UDim2.new(0, 0, 0, 0)
-            code.ZIndex = 0
+            CodeBox.Size = UDim2.new(1, 0, 0.5, 0)
+            CodeBox.Position = UDim2.new(0, 0, 0, 0)
+            CodeBox.ZIndex = 0
             maximized = false
         end)
     end
