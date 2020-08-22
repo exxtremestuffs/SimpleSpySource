@@ -24,45 +24,18 @@ local Background = Instance.new("Frame")
 local LeftPanel = Instance.new("Frame")
 local LogList = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
-local ItemTemplate = Instance.new("Frame")
+local RemoteTemplate = Instance.new("Frame")
 local ColorBar = Instance.new("Frame")
 local Text = Instance.new("TextLabel")
 local Button = Instance.new("TextButton")
-local ColorBar_2 = Instance.new("Frame")
-local Text_2 = Instance.new("TextLabel")
-local Button_2 = Instance.new("TextButton")
 local RightPanel = Instance.new("Frame")
 local CodeBox = Instance.new("Frame")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
-local ItemTemplate_3 = Instance.new("Frame")
-local ColorBar_3 = Instance.new("Frame")
-local Text_3 = Instance.new("TextLabel")
-local Button_3 = Instance.new("TextButton")
-local ItemTemplate_4 = Instance.new("Frame")
-local ColorBar_4 = Instance.new("Frame")
-local Text_4 = Instance.new("TextLabel")
-local Button_4 = Instance.new("TextButton")
-local ItemTemplate_5 = Instance.new("Frame")
-local ColorBar_5 = Instance.new("Frame")
-local Text_5 = Instance.new("TextLabel")
-local Button_5 = Instance.new("TextButton")
-local ItemTemplate_6 = Instance.new("Frame")
-local ColorBar_6 = Instance.new("Frame")
-local Text_6 = Instance.new("TextLabel")
-local Button_6 = Instance.new("TextButton")
-local ItemTemplate_7 = Instance.new("Frame")
-local ColorBar_7 = Instance.new("Frame")
-local Text_7 = Instance.new("TextLabel")
-local Button_7 = Instance.new("TextButton")
-local ItemTemplate_8 = Instance.new("Frame")
-local ColorBar_8 = Instance.new("Frame")
-local Text_8 = Instance.new("TextLabel")
-local Button_8 = Instance.new("TextButton")
-local ItemTemplate_9 = Instance.new("Frame")
-local ColorBar_9 = Instance.new("Frame")
-local Text_9 = Instance.new("TextLabel")
-local Button_9 = Instance.new("TextButton")
+local FunctionTemplate = Instance.new("Frame")
+local ColorBar_2 = Instance.new("Frame")
+local Text_2 = Instance.new("TextLabel")
+local Button_2 = Instance.new("TextButton")
 local TopBar = Instance.new("Frame")
 local Simple = Instance.new("TextLabel")
 local CloseButton = Instance.new("TextButton")
@@ -108,14 +81,14 @@ UIListLayout.Parent = LogList
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-ItemTemplate.Name = "ItemTemplate"
-ItemTemplate.Parent = LogList
-ItemTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate.BackgroundTransparency = 1
-ItemTemplate.Size = UDim2.new(0, 117, 0, 27)
+RemoteTemplate.Name = "RemoteTemplate"
+RemoteTemplate.Parent = LogList
+RemoteTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
+RemoteTemplate.BackgroundTransparency = 1
+RemoteTemplate.Size = UDim2.new(0, 117, 0, 27)
 
 ColorBar.Name = "ColorBar"
-ColorBar.Parent = ItemTemplate
+ColorBar.Parent = RemoteTemplate
 ColorBar.BackgroundColor3 = Color3.new(1, 0.94902, 0)
 ColorBar.BorderSizePixel = 0
 ColorBar.Position = UDim2.new(0, 0, 0, 1)
@@ -123,7 +96,7 @@ ColorBar.Size = UDim2.new(0, 7, 0, 18)
 ColorBar.ZIndex = 2
 
 Text.Name = "Text"
-Text.Parent = ItemTemplate
+Text.Parent = RemoteTemplate
 Text.BackgroundColor3 = Color3.new(1, 1, 1)
 Text.BackgroundTransparency = 1
 Text.Position = UDim2.new(0, 12, 0, 1)
@@ -136,8 +109,8 @@ Text.TextSize = 14
 Text.TextXAlignment = Enum.TextXAlignment.Left
 
 Button.Name = "Button"
-Button.Parent = ItemTemplate
-Button.BackgroundColor3 = Color3.new(0.360784, 0.494118, 0.898039)
+Button.Parent = RemoteTemplate
+Button.BackgroundColor3 = Color3.new(0, 0, 0)
 Button.BackgroundTransparency = 0.75
 Button.BorderColor3 = Color3.new(1, 1, 1)
 Button.Position = UDim2.new(0, 0, 0, 1)
@@ -147,40 +120,6 @@ Button.Font = Enum.Font.SourceSans
 Button.Text = ""
 Button.TextColor3 = Color3.new(0, 0, 0)
 Button.TextSize = 14
-
-ColorBar_2.Name = "ColorBar"
-ColorBar_2.Parent = _
-ColorBar_2.BackgroundColor3 = Color3.new(1, 0.94902, 0)
-ColorBar_2.BorderSizePixel = 0
-ColorBar_2.Position = UDim2.new(0, 0, 0, 1)
-ColorBar_2.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_2.ZIndex = 2
-
-Text_2.Name = "Text"
-Text_2.Parent = _
-Text_2.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_2.BackgroundTransparency = 1
-Text_2.Position = UDim2.new(0, 12, 0, 1)
-Text_2.Size = UDim2.new(0, 105, 0, 18)
-Text_2.ZIndex = 2
-Text_2.Font = Enum.Font.SourceSans
-Text_2.Text = "TEXT"
-Text_2.TextColor3 = Color3.new(1, 1, 1)
-Text_2.TextSize = 14
-Text_2.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_2.Name = "Button"
-Button_2.Parent = _
-Button_2.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_2.BackgroundTransparency = 0.75
-Button_2.BorderColor3 = Color3.new(1, 1, 1)
-Button_2.Position = UDim2.new(0, 0, 0, 1)
-Button_2.Size = UDim2.new(0, 117, 0, 18)
-Button_2.AutoButtonColor = false
-Button_2.Font = Enum.Font.SourceSans
-Button_2.Text = ""
-Button_2.TextColor3 = Color3.new(0, 0, 0)
-Button_2.TextSize = 14
 
 RightPanel.Name = "RightPanel"
 RightPanel.Parent = Background
@@ -199,7 +138,7 @@ ScrollingFrame.Parent = RightPanel
 ScrollingFrame.Active = true
 ScrollingFrame.BackgroundColor3 = Color3.new(1, 1, 1)
 ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.Position = UDim2.new(0, 0, 0.476, 0)
+ScrollingFrame.Position = UDim2.new(0, 0, 0.476000011, 0)
 ScrollingFrame.Size = UDim2.new(0, 319, 0, 131)
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollingFrame.ScrollBarThickness = 4
@@ -210,292 +149,46 @@ UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 0)
 UIGridLayout.CellSize = UDim2.new(0, 94, 0, 27)
 
-ItemTemplate_3.Name = "ItemTemplate"
-ItemTemplate_3.Parent = ScrollingFrame
-ItemTemplate_3.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_3.BackgroundTransparency = 1
-ItemTemplate_3.Size = UDim2.new(0, 117, 0, 23)
+FunctionTemplate.Name = "FunctionTemplate"
+FunctionTemplate.Parent = ScrollingFrame
+FunctionTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
+FunctionTemplate.BackgroundTransparency = 1
+FunctionTemplate.Size = UDim2.new(0, 117, 0, 23)
 
-ColorBar_3.Name = "ColorBar"
-ColorBar_3.Parent = ItemTemplate_3
-ColorBar_3.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_3.BorderSizePixel = 0
-ColorBar_3.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_3.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_3.ZIndex = 3
+ColorBar_2.Name = "ColorBar"
+ColorBar_2.Parent = FunctionTemplate
+ColorBar_2.BackgroundColor3 = Color3.new(1, 1, 1)
+ColorBar_2.BorderSizePixel = 0
+ColorBar_2.Position = UDim2.new(0, 7, 0, 10)
+ColorBar_2.Size = UDim2.new(0, 7, 0, 18)
+ColorBar_2.ZIndex = 3
 
-Text_3.Name = "Text"
-Text_3.Parent = ItemTemplate_3
-Text_3.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_3.BackgroundTransparency = 1
-Text_3.Position = UDim2.new(0, 19, 0, 10)
-Text_3.Size = UDim2.new(0, 69, 0, 18)
-Text_3.ZIndex = 2
-Text_3.Font = Enum.Font.SourceSans
-Text_3.Text = "TEXT"
-Text_3.TextColor3 = Color3.new(1, 1, 1)
-Text_3.TextSize = 14
-Text_3.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_3.TextXAlignment = Enum.TextXAlignment.Left
+Text_2.Name = "Text"
+Text_2.Parent = FunctionTemplate
+Text_2.BackgroundColor3 = Color3.new(1, 1, 1)
+Text_2.BackgroundTransparency = 1
+Text_2.Position = UDim2.new(0, 19, 0, 10)
+Text_2.Size = UDim2.new(0, 69, 0, 18)
+Text_2.ZIndex = 2
+Text_2.Font = Enum.Font.SourceSans
+Text_2.Text = "TEXT"
+Text_2.TextColor3 = Color3.new(1, 1, 1)
+Text_2.TextSize = 14
+Text_2.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+Text_2.TextXAlignment = Enum.TextXAlignment.Left
 
-Button_3.Name = "Button"
-Button_3.Parent = ItemTemplate_3
-Button_3.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_3.BackgroundTransparency = 0.69999998807907
-Button_3.BorderColor3 = Color3.new(1, 1, 1)
-Button_3.Position = UDim2.new(0, 7, 0, 10)
-Button_3.Size = UDim2.new(0, 80, 0, 18)
-Button_3.AutoButtonColor = false
-Button_3.Font = Enum.Font.SourceSans
-Button_3.Text = ""
-Button_3.TextColor3 = Color3.new(0, 0, 0)
-Button_3.TextSize = 14
-
-ItemTemplate_4.Name = "ItemTemplate"
-ItemTemplate_4.Parent = ScrollingFrame
-ItemTemplate_4.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_4.BackgroundTransparency = 1
-ItemTemplate_4.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_4.Name = "ColorBar"
-ColorBar_4.Parent = ItemTemplate_4
-ColorBar_4.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_4.BorderSizePixel = 0
-ColorBar_4.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_4.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_4.ZIndex = 3
-
-Text_4.Name = "Text"
-Text_4.Parent = ItemTemplate_4
-Text_4.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_4.BackgroundTransparency = 1
-Text_4.Position = UDim2.new(0, 19, 0, 10)
-Text_4.Size = UDim2.new(0, 69, 0, 18)
-Text_4.ZIndex = 2
-Text_4.Font = Enum.Font.SourceSans
-Text_4.Text = "TEXT"
-Text_4.TextColor3 = Color3.new(1, 1, 1)
-Text_4.TextSize = 14
-Text_4.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_4.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_4.Name = "Button"
-Button_4.Parent = ItemTemplate_4
-Button_4.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_4.BackgroundTransparency = 0.69999998807907
-Button_4.BorderColor3 = Color3.new(1, 1, 1)
-Button_4.Position = UDim2.new(0, 7, 0, 10)
-Button_4.Size = UDim2.new(0, 80, 0, 18)
-Button_4.AutoButtonColor = false
-Button_4.Font = Enum.Font.SourceSans
-Button_4.Text = ""
-Button_4.TextColor3 = Color3.new(0, 0, 0)
-Button_4.TextSize = 14
-
-ItemTemplate_5.Name = "ItemTemplate"
-ItemTemplate_5.Parent = ScrollingFrame
-ItemTemplate_5.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_5.BackgroundTransparency = 1
-ItemTemplate_5.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_5.Name = "ColorBar"
-ColorBar_5.Parent = ItemTemplate_5
-ColorBar_5.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_5.BorderSizePixel = 0
-ColorBar_5.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_5.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_5.ZIndex = 3
-
-Text_5.Name = "Text"
-Text_5.Parent = ItemTemplate_5
-Text_5.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_5.BackgroundTransparency = 1
-Text_5.Position = UDim2.new(0, 19, 0, 10)
-Text_5.Size = UDim2.new(0, 69, 0, 18)
-Text_5.ZIndex = 2
-Text_5.Font = Enum.Font.SourceSans
-Text_5.Text = "TEXT"
-Text_5.TextColor3 = Color3.new(1, 1, 1)
-Text_5.TextSize = 14
-Text_5.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_5.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_5.Name = "Button"
-Button_5.Parent = ItemTemplate_5
-Button_5.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_5.BackgroundTransparency = 0.69999998807907
-Button_5.BorderColor3 = Color3.new(1, 1, 1)
-Button_5.Position = UDim2.new(0, 7, 0, 10)
-Button_5.Size = UDim2.new(0, 80, 0, 18)
-Button_5.AutoButtonColor = false
-Button_5.Font = Enum.Font.SourceSans
-Button_5.Text = ""
-Button_5.TextColor3 = Color3.new(0, 0, 0)
-Button_5.TextSize = 14
-
-ItemTemplate_6.Name = "ItemTemplate"
-ItemTemplate_6.Parent = ScrollingFrame
-ItemTemplate_6.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_6.BackgroundTransparency = 1
-ItemTemplate_6.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_6.Name = "ColorBar"
-ColorBar_6.Parent = ItemTemplate_6
-ColorBar_6.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_6.BorderSizePixel = 0
-ColorBar_6.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_6.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_6.ZIndex = 3
-
-Text_6.Name = "Text"
-Text_6.Parent = ItemTemplate_6
-Text_6.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_6.BackgroundTransparency = 1
-Text_6.Position = UDim2.new(0, 19, 0, 10)
-Text_6.Size = UDim2.new(0, 69, 0, 18)
-Text_6.ZIndex = 2
-Text_6.Font = Enum.Font.SourceSans
-Text_6.Text = "TEXT"
-Text_6.TextColor3 = Color3.new(1, 1, 1)
-Text_6.TextSize = 14
-Text_6.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_6.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_6.Name = "Button"
-Button_6.Parent = ItemTemplate_6
-Button_6.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_6.BackgroundTransparency = 0.69999998807907
-Button_6.BorderColor3 = Color3.new(1, 1, 1)
-Button_6.Position = UDim2.new(0, 7, 0, 10)
-Button_6.Size = UDim2.new(0, 80, 0, 18)
-Button_6.AutoButtonColor = false
-Button_6.Font = Enum.Font.SourceSans
-Button_6.Text = ""
-Button_6.TextColor3 = Color3.new(0, 0, 0)
-Button_6.TextSize = 14
-
-ItemTemplate_7.Name = "ItemTemplate"
-ItemTemplate_7.Parent = ScrollingFrame
-ItemTemplate_7.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_7.BackgroundTransparency = 1
-ItemTemplate_7.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_7.Name = "ColorBar"
-ColorBar_7.Parent = ItemTemplate_7
-ColorBar_7.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_7.BorderSizePixel = 0
-ColorBar_7.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_7.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_7.ZIndex = 3
-
-Text_7.Name = "Text"
-Text_7.Parent = ItemTemplate_7
-Text_7.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_7.BackgroundTransparency = 1
-Text_7.Position = UDim2.new(0, 19, 0, 10)
-Text_7.Size = UDim2.new(0, 69, 0, 18)
-Text_7.ZIndex = 2
-Text_7.Font = Enum.Font.SourceSans
-Text_7.Text = "TEXT"
-Text_7.TextColor3 = Color3.new(1, 1, 1)
-Text_7.TextSize = 14
-Text_7.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_7.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_7.Name = "Button"
-Button_7.Parent = ItemTemplate_7
-Button_7.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_7.BackgroundTransparency = 0.69999998807907
-Button_7.BorderColor3 = Color3.new(1, 1, 1)
-Button_7.Position = UDim2.new(0, 7, 0, 10)
-Button_7.Size = UDim2.new(0, 80, 0, 18)
-Button_7.AutoButtonColor = false
-Button_7.Font = Enum.Font.SourceSans
-Button_7.Text = ""
-Button_7.TextColor3 = Color3.new(0, 0, 0)
-Button_7.TextSize = 14
-
-ItemTemplate_8.Name = "ItemTemplate"
-ItemTemplate_8.Parent = ScrollingFrame
-ItemTemplate_8.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_8.BackgroundTransparency = 1
-ItemTemplate_8.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_8.Name = "ColorBar"
-ColorBar_8.Parent = ItemTemplate_8
-ColorBar_8.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_8.BorderSizePixel = 0
-ColorBar_8.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_8.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_8.ZIndex = 3
-
-Text_8.Name = "Text"
-Text_8.Parent = ItemTemplate_8
-Text_8.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_8.BackgroundTransparency = 1
-Text_8.Position = UDim2.new(0, 19, 0, 10)
-Text_8.Size = UDim2.new(0, 69, 0, 18)
-Text_8.ZIndex = 2
-Text_8.Font = Enum.Font.SourceSans
-Text_8.Text = "TEXT"
-Text_8.TextColor3 = Color3.new(1, 1, 1)
-Text_8.TextSize = 14
-Text_8.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_8.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_8.Name = "Button"
-Button_8.Parent = ItemTemplate_8
-Button_8.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_8.BackgroundTransparency = 0.69999998807907
-Button_8.BorderColor3 = Color3.new(1, 1, 1)
-Button_8.Position = UDim2.new(0, 7, 0, 10)
-Button_8.Size = UDim2.new(0, 80, 0, 18)
-Button_8.AutoButtonColor = false
-Button_8.Font = Enum.Font.SourceSans
-Button_8.Text = ""
-Button_8.TextColor3 = Color3.new(0, 0, 0)
-Button_8.TextSize = 14
-
-ItemTemplate_9.Name = "ItemTemplate"
-ItemTemplate_9.Parent = ScrollingFrame
-ItemTemplate_9.BackgroundColor3 = Color3.new(1, 1, 1)
-ItemTemplate_9.BackgroundTransparency = 1
-ItemTemplate_9.Size = UDim2.new(0, 117, 0, 23)
-
-ColorBar_9.Name = "ColorBar"
-ColorBar_9.Parent = ItemTemplate_9
-ColorBar_9.BackgroundColor3 = Color3.new(1, 1, 1)
-ColorBar_9.BorderSizePixel = 0
-ColorBar_9.Position = UDim2.new(0, 7, 0, 10)
-ColorBar_9.Size = UDim2.new(0, 7, 0, 18)
-ColorBar_9.ZIndex = 3
-
-Text_9.Name = "Text"
-Text_9.Parent = ItemTemplate_9
-Text_9.BackgroundColor3 = Color3.new(1, 1, 1)
-Text_9.BackgroundTransparency = 1
-Text_9.Position = UDim2.new(0, 19, 0, 10)
-Text_9.Size = UDim2.new(0, 69, 0, 18)
-Text_9.ZIndex = 2
-Text_9.Font = Enum.Font.SourceSans
-Text_9.Text = "TEXT"
-Text_9.TextColor3 = Color3.new(1, 1, 1)
-Text_9.TextSize = 14
-Text_9.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
-Text_9.TextXAlignment = Enum.TextXAlignment.Left
-
-Button_9.Name = "Button"
-Button_9.Parent = ItemTemplate_9
-Button_9.BackgroundColor3 = Color3.new(0, 0, 0)
-Button_9.BackgroundTransparency = 0.69999998807907
-Button_9.BorderColor3 = Color3.new(1, 1, 1)
-Button_9.Position = UDim2.new(0, 7, 0, 10)
-Button_9.Size = UDim2.new(0, 80, 0, 18)
-Button_9.AutoButtonColor = false
-Button_9.Font = Enum.Font.SourceSans
-Button_9.Text = ""
-Button_9.TextColor3 = Color3.new(0, 0, 0)
-Button_9.TextSize = 14
+Button_2.Name = "Button"
+Button_2.Parent = FunctionTemplate
+Button_2.BackgroundColor3 = Color3.new(0, 0, 0)
+Button_2.BackgroundTransparency = 0.69999998807907
+Button_2.BorderColor3 = Color3.new(1, 1, 1)
+Button_2.Position = UDim2.new(0, 7, 0, 10)
+Button_2.Size = UDim2.new(0, 80, 0, 18)
+Button_2.AutoButtonColor = false
+Button_2.Font = Enum.Font.SourceSans
+Button_2.Text = ""
+Button_2.TextColor3 = Color3.new(0, 0, 0)
+Button_2.TextSize = 14
 
 TopBar.Name = "TopBar"
 TopBar.Parent = Background
@@ -571,8 +264,8 @@ ImageLabel_3.Image = "http://www.roblox.com/asset/?id=5597105827"
 
 ToolTop.Name = "ToolTop"
 ToolTop.Parent = SimpleSpy2
-ToolTop.BackgroundColor3 = Color3.new(0.101961, 0.101961, 0.101961)
-ToolTop.BackgroundTransparency = 0.10000000149012
+ToolTop.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+ToolTop.BackgroundTransparency = 0.1
 ToolTop.BorderColor3 = Color3.new(1, 1, 1)
 ToolTop.Size = UDim2.new(0, 200, 0, 50)
 ToolTop.ZIndex = 3
@@ -646,6 +339,7 @@ local schedulerconnect
 local SimpleSpy = {}
 local remotesFadeIn
 local rightFadeIn
+local codebox
 
 -- functions
 
@@ -989,29 +683,18 @@ end
 
 --- Updates the canvas size to fit the current amount of function buttons
 function updateFunctionCanvas()
-    local individualHeight = UIListLayout_2.Padding.Offset + functionTemplate.AbsoluteSize.Y
-    local canvasHeight = 0
-    for i = 1, #functions:GetChildren() - 1 do
-        canvasHeight = canvasHeight + individualHeight
-    end
-    functions.CanvasSize = UDim2.new(1, 0, 0, canvasHeight)
+    ScrollingFrame.CanvasSize = UIGridLayout.AbsoluteContentSize
 end
 
 --- Updates the canvas size to fit the amount of current remotes
 function updateRemoteCanvas()
-    local individualHeight = UIListLayout.Padding.Offset + eTemplate.AbsoluteSize.Y
-    local canvasHeight = 0
-    for i = 1, #remotes:GetChildren() - 1 do
-        canvasHeight = canvasHeight + individualHeight
-    end
-    remotes.CanvasSize = UDim2.new(1, 0, 0, canvasHeight)
+    LogList.CanvasSize = UIListLayout.AbsoluteContentSize
 end
 
 --- Creates new function button (below codebox)
-function newButton(name, defaultName, onClick)
-    local button = functionTemplate:Clone()
-    button.name.Text = name
-    button.description.Text = defaultName
+function newButton(name, description, onClick)
+    local button = FunctionTemplate:Clone()
+    button.Text.Text = name
     button.MouseButton1Click:Connect(
         function(...)
             if selected then
@@ -1019,7 +702,7 @@ function newButton(name, defaultName, onClick)
             end
         end
     )
-    button.Parent = functions
+    button.Parent = ScrollingFrame
     updateFunctionCanvas()
 end
 
@@ -1692,6 +1375,7 @@ if not _G.SimpleSpyExecuted then
         functionTemplate.Parent = nil
         fTemplate.Parent = nil
         eTemplate.Parent = nil
+        codebox = Highlight.new(CodeBox)
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
         wait(2.5)
