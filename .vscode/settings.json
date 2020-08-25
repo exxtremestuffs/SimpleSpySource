@@ -49,7 +49,8 @@
         "isluau",
         "isfile",
         "readfile",
-        "writefile"
+        "writefile",
+        "rconsolename"
     ],
     "Lua.runtime.version": "Luau",
     "Lua.diagnostics.disable": [

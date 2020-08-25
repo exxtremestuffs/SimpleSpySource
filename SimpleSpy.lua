@@ -37,7 +37,7 @@ local ColorBar_2 = Instance.new("Frame")
 local Text_2 = Instance.new("TextLabel")
 local Button_2 = Instance.new("TextButton")
 local TopBar = Instance.new("Frame")
-local Simple = Instance.new("TextLabel")
+local Simple = Instance.new("TextButton")
 local CloseButton = Instance.new("TextButton")
 local ImageLabel = Instance.new("ImageLabel")
 local MaximizeButton = Instance.new("TextButton")
@@ -199,6 +199,7 @@ TopBar.Size = UDim2.new(0, 450, 0, 19)
 Simple.Name = "Simple"
 Simple.Parent = TopBar
 Simple.BackgroundColor3 = Color3.new(1, 1, 1)
+Simple.AutoButtonColor = false
 Simple.BackgroundTransparency = 1
 Simple.Position = UDim2.new(0, 5, 0, 0)
 Simple.Size = UDim2.new(0, 38, 0, 18)
@@ -1355,7 +1356,7 @@ function shutdown()
         schedulerconnect:Disconnect()
     end
     setreadonly(gm, false)
-    ScreenguiS:Destroy()
+    SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
     gm.__namecall = original
@@ -1366,26 +1367,19 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        getfenv() -- for some reason this works, i do not know why, i do not want to know why
         onToggleButtonClick()
-        main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
-        _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
-        coroutine.wrap(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpyIntro.lua"))() end)()
-        ContentProvider:PreloadAsync({topbar, eTemplate, fTemplate, functionTemplate, maximizeSquare})
-        functionTemplate.Parent = nil
-        fTemplate.Parent = nil
-        eTemplate.Parent = nil
+        RemoteTemplate.Parent = nil
+        FunctionTemplate.Parent = nil
         codebox = Highlight.new(CodeBox)
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
-        wait(2.5)
-        topbar.InputBegan:Connect(onBarInput)
-        minimize.MouseButton1Click:Connect(toggleMinimize)
-        suck.MouseButton1Click:Connect(toggleSideTray)
-        methodToggle.MouseButton1Click:Connect(onToggleButtonClick)
-        maximize.MouseButton1Click:Connect(toggleMaximize)
+        TopBar.InputBegan:Connect(onBarInput)
+        MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
+        MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
+        Simple.MouseButton1Click:Connect(onToggleButtonClick)
+        CloseButton.MouseButton1Click:Connect(shutdown)
         connectResize()
-        ScreenguiS.Enabled = true
+        SimpleSpy2.Enabled = true
         coroutine.wrap(function() wait(3) toggleSideTray(true) end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
     end)
@@ -1393,14 +1387,14 @@ if not _G.SimpleSpyExecuted then
         _G.SimpleSpyExecuted = true
     else
         rconsoleprint("A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exx#9394:\n\n" .. tostring(err))
-        rconsolename = "SimpleSpy Error Console"
-        ScreenguiS:Destroy()
+        rconsolename("SimpleSpy Error Console")
+        SimpleSpy2:Destroy()
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
         gm.__namecall = original
     end
 else
-    ScreenguiS:Destroy()
+    SimpleSpy2:Destroy()
 end
 
 ----- ADD ONS ----- (easily add or remove additonal functionality to the RemoteSpy!)
