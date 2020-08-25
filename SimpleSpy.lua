@@ -44,7 +44,7 @@ local MaximizeButton = Instance.new("TextButton")
 local ImageLabel_2 = Instance.new("ImageLabel")
 local MinimizeButton = Instance.new("TextButton")
 local ImageLabel_3 = Instance.new("ImageLabel")
-local ToolTop = Instance.new("Frame")
+local ToolTip = Instance.new("Frame")
 local TextLabel = Instance.new("TextLabel")
 
 --Properties:
@@ -263,15 +263,15 @@ ImageLabel_3.Position = UDim2.new(0, 5, 0, 5)
 ImageLabel_3.Size = UDim2.new(0, 9, 0, 9)
 ImageLabel_3.Image = "http://www.roblox.com/asset/?id=5597105827"
 
-ToolTop.Name = "ToolTop"
-ToolTop.Parent = SimpleSpy2
-ToolTop.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
-ToolTop.BackgroundTransparency = 0.1
-ToolTop.BorderColor3 = Color3.new(1, 1, 1)
-ToolTop.Size = UDim2.new(0, 200, 0, 50)
-ToolTop.ZIndex = 3
+ToolTip.Name = "ToolTip"
+ToolTip.Parent = SimpleSpy2
+ToolTip.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+ToolTip.BackgroundTransparency = 0.1
+ToolTip.BorderColor3 = Color3.new(1, 1, 1)
+ToolTip.Size = UDim2.new(0, 200, 0, 50)
+ToolTip.ZIndex = 3
 
-TextLabel.Parent = ToolTop
+TextLabel.Parent = ToolTip
 TextLabel.BackgroundColor3 = Color3.new(1, 1, 1)
 TextLabel.BackgroundTransparency = 1
 TextLabel.Position = UDim2.new(0, 2, 0, 2)
@@ -299,7 +299,7 @@ local layoutOrderNum = 999999999
 --- Whether or not the gui is closing
 local mainClosing = false
 --- Whether or not the gui is closed (defaults to false)
-closed = false
+local closed = false
 --- Whether or not the sidebar is closing
 local sideClosing = false
 --- Whether or not the sidebar is closed (defaults to true but opens automatically on remote selection)
@@ -307,13 +307,13 @@ local sideClosed = false
 --- Whether or not the code box is maximized (defaults to false)
 local maximized = false
 --- The event logs to be read from
-logs = {}
+local logs = {}
 --- The event currently selected.Log (defaults to nil)
-selected = nil
+local selected = nil
 --- The blacklist (can be a string name or the Remote Instance)
-blacklist = {}
+local blacklist = {}
 --- The block list (can be a string name or the Remote Instance)
-blocklist = {}
+local blocklist = {}
 --- True = hookfunction, false = namecall
 local toggle = false
 local gm = getrawmetatable(game)
@@ -341,6 +341,8 @@ local SimpleSpy = {}
 local remotesFadeIn
 local rightFadeIn
 local codebox
+local p
+local getnilrequired = false
 
 -- functions
 
@@ -707,10 +709,17 @@ function newButton(name, description, onClick)
     updateFunctionCanvas()
 end
 
---- Adds new RemoteEvent to logs
-function newEvent(name, gen_script, remote, source_script, blocked)
-    local remoteFrame = eTemplate:Clone()
-    remoteFrame.name.Text = name
+--- Adds new Remote to logs
+--- @param name string The name of the remote being logged
+--- @param type string The type of the remote being logged (either 'function' or 'event')
+--- @param gen_script any
+--- @param remote any
+--- @param source_script any
+--- @param blocked any
+function newRemote(name, type, gen_script, remote, source_script, blocked)
+    local remoteFrame = RemoteTemplate:Clone()
+    remoteFrame.Text.Text = name
+    remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
     local id = Instance.new("IntValue")
     id.Name = "ID"
     id.Value = #logs + 1
@@ -726,52 +735,15 @@ function newEvent(name, gen_script, remote, source_script, blocked)
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
     end
-    local connect = remoteFrame.MouseButton1Click:Connect(
-        function(...)
-            eventSelect(remoteFrame, ...)
-        end
-    )
+    local connect = remoteFrame.MouseButton1Click:Connect(function()
+        eventSelect(remoteFrame)
+    end)
     if layoutOrderNum < 1 then
         layoutOrderNum = 999999999
     end
     remoteFrame.LayoutOrder = layoutOrderNum
     layoutOrderNum = layoutOrderNum - 1
-    remoteFrame.Parent = remotes
-    table.insert(remoteLogs, 1, {connect, remoteFrame})
-    clean()
-    updateRemoteCanvas()
-end
-
---- Adds new RemoteFunction to logs
-function newFunction(name, gen_script, remote, source_script, blocked)
-    local remoteFrame = fTemplate:Clone()
-    remoteFrame.name.Text = name
-    local id = Instance.new("IntValue")
-    id.Name = "ID"
-    id.Value = #logs + 1
-    id.Parent = remoteFrame
-    logs[#logs + 1] = {
-        Name = name,
-        GenScript = gen_script,
-        Source = source_script,
-        Remote = remote,
-        Log = remoteFrame,
-        Blocked = blocked,
-    }
-    if blocked then
-        logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
-    end
-    local connect = remoteFrame.MouseButton1Click:Connect(
-        function(...)
-            eventSelect(remoteFrame, ...)
-        end
-    )
-    if layoutOrderNum < 1 then
-        layoutOrderNum = 999999999
-    end
-    remoteFrame.LayoutOrder = layoutOrderNum
-    layoutOrderNum = layoutOrderNum - 1
-    remoteFrame.Parent = remotes
+    remoteFrame.Parent = LogList
     table.insert(remoteLogs, 1, {connect, remoteFrame})
     clean()
     updateRemoteCanvas()
@@ -1270,10 +1242,10 @@ function remoteHandler(hookfunction, methodName, remote, args, script)
     end
     if methodName:lower() == "fireserver" and not blacklisted(remote) then
         table.remove(args, 1)
-        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("event", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     elseif methodName:lower() == "invokeserver" and not blacklisted(remote) then
         table.remove(args, 1)
-        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("function", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
     end
 end
 
@@ -1341,13 +1313,9 @@ function toggleSpyMethod()
 end
 
 --- Handles the button creation things... Connected to `remoteHandlerEvent`
-function bindableHandler(type, ...)
+function bindableHandler(...)
     syn.set_thread_identity(7)
-    if type == "RemoteEvent" then
-        newEvent(...)
-    elseif type == "RemoteFunction" then
-        newFunction(...)
-    end
+    newRemote(...)
 end
 
 --- Shuts down the remote spy
@@ -1377,6 +1345,8 @@ if not _G.SimpleSpyExecuted then
         MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
         MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
         Simple.MouseButton1Click:Connect(onToggleButtonClick)
+        Simple.MouseEnter:Connect(onToggleButtonHover)
+        Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
         connectResize()
         SimpleSpy2.Enabled = true
@@ -1392,9 +1362,11 @@ if not _G.SimpleSpyExecuted then
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
         gm.__namecall = original
+        return
     end
 else
     SimpleSpy2:Destroy()
+    return
 end
 
 ----- ADD ONS ----- (easily add or remove additonal functionality to the RemoteSpy!)
