@@ -476,11 +476,7 @@ function onBarInput(input)
                     lastPos = newPos
                     TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                 end
-            end
-        )
-        UserInputService.InputEnded.Connect(UserInputService.InputEnded,
-            function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
                     RunService.UnbindFromRenderStep(RunService, "drag")
                 end
             end
