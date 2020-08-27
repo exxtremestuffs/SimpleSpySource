@@ -1246,7 +1246,7 @@ end
 function hookRemote(methodName, remote, ...)
     local args = {...}
     if typeof(remote) == "Instance" then
-        local script = getcallingscript()
+        -- local script = getcallingscript()
         schedule(remoteHandler, true, methodName, remote, args, script)
         if blocked(remote) then
             return false
@@ -1258,7 +1258,7 @@ end
 local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
-    local script = getcallingscript()
+    -- local script = getcallingscript()
     coroutine.wrap(function()
         if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
             local remote = args[1]
@@ -1332,7 +1332,6 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        getfenv() -- for some reason this works, i do not know why, i do not want to know why
         onToggleButtonClick()
         main.Position = UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y)
         _G.EndTweenSize, _G.EndTweenPos = UDim2.new(0, main.AbsoluteSize.X + side.AbsoluteSize.X, 0, main.AbsoluteSize.Y + 22), UDim2.new(0, main.AbsolutePosition.X, 0, main.AbsolutePosition.Y - 11)
@@ -1435,13 +1434,16 @@ newButton(
     "Click to decompile the source script",
     function(button)
         local orText = "Click to decompile the source script"
-        if selected.Source then
-            codebox:setRaw("-- Decompiled code from:\n-- " .. v2s(selected.Source) .. "\n\n" .. decompile(selected.Source))
-        else
-            codebox:setRaw("-- Unable to decompile source: source not found")
-        end
+        local old = codebox:getString()
+        codebox:setRaw("-- Decompiling temporarily unavailable due to crashing ;-;\n-- basically, scripts that delete themselves in ReplicatedFirst cause 'getcallingscript' to crash")
+        -- if selected.Source then
+        --     codebox:setRaw("-- Decompiled code from:\n-- " .. v2s(selected.Source) .. "\n\n" .. decompile(selected.Source))
+        -- else
+        --     codebox:setRaw("-- Unable to decompile source: source not found")
+        -- end
         button.Text = "Decompiled!"
         wait(3)
+        codebox:setRaw(old)
         button.Text = orText
     end
 )
