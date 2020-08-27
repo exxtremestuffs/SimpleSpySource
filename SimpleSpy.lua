@@ -561,7 +561,7 @@ function toggleMaximize()
         TweenService:Create(code, TweenInfo.new(0.5), {Size = UDim2.new(0.5, 0, 0.5, 0), Position = UDim2.new(0.25, 0, 0.25, 0)}):Play()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
-            if UserInputService:GetMouseLocation().Y + 36 >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
+            if UserInputService:GetMouseLocation().Y - 36 >= code.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y - 36 <= code.AbsolutePosition.Y + code.AbsoluteSize.Y
             and UserInputService:GetMouseLocation().X >= code.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= code.AbsolutePosition.X + code.AbsoluteSize.X then
                 return
             end
@@ -673,7 +673,7 @@ function newButton(name, defaultName, onClick)
 end
 
 --- Adds new RemoteEvent to logs
-function newEvent(name, gen_script, remote, source_script, blocked)
+function newEvent(name, gen_script, remote, function_info, blocked)
     local remoteFrame = eTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -683,7 +683,7 @@ function newEvent(name, gen_script, remote, source_script, blocked)
     logs[#logs + 1] = {
         Name = name,
         GenScript = gen_script,
-        Source = source_script,
+        Function = function_info,
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
@@ -708,7 +708,7 @@ function newEvent(name, gen_script, remote, source_script, blocked)
 end
 
 --- Adds new RemoteFunction to logs
-function newFunction(name, gen_script, remote, source_script, blocked)
+function newFunction(name, gen_script, remote, function_info, blocked)
     local remoteFrame = fTemplate:Clone()
     remoteFrame.name.Text = name
     local id = Instance.new("IntValue")
@@ -718,7 +718,7 @@ function newFunction(name, gen_script, remote, source_script, blocked)
     logs[#logs + 1] = {
         Name = name,
         GenScript = gen_script,
-        Source = source_script,
+        Function = function_info,
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
@@ -1229,16 +1229,21 @@ function taskscheduler()
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, script)
-    if not typeof(script) == "Instance" then
-        script = nil
+function remoteHandler(hookfunction, methodName, remote, args, func)
+    local functionInfoStr
+    if islclosure(func) then
+        local functionInfo = {}
+        pcall(function() functionInfo.info = debug.getinfo(func) end)
+        pcall(function() functionInfo.upvalues = debug.getupvalues(func) end)
+        pcall(function() functionInfo.constants = debug.getconstants(func) end)
+        pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
     end
     if methodName:lower() == "fireserver" and not blacklisted(remote) then
         table.remove(args, 1)
-        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, blocked(remote))
     elseif methodName:lower() == "invokeserver" and not blacklisted(remote) then
         table.remove(args, 1)
-        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, script, blocked(remote))
+        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, blocked(remote))
     end
 end
 
@@ -1246,8 +1251,8 @@ end
 function hookRemote(methodName, remote, ...)
     local args = {...}
     if typeof(remote) == "Instance" then
-        -- local script = getcallingscript()
-        schedule(remoteHandler, true, methodName, remote, args, script)
+        local func = debug.getinfo(4).func
+        schedule(remoteHandler, true, methodName, remote, args, func)
         if blocked(remote) then
             return false
         end
@@ -1258,11 +1263,11 @@ end
 local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
-    -- local script = getcallingscript()
+    local func = debug.getinfo(3).func
     coroutine.wrap(function()
         if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
             local remote = args[1]
-            schedule(remoteHandler, false, methodName, remote, args, script)
+            schedule(remoteHandler, false, methodName, remote, args, func)
         end
     end)()
     if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
@@ -1430,20 +1435,15 @@ newButton(
 
 --- Decompiles the script that fired the remote and puts it in the code box
 newButton(
-    "Decompile Source",
-    "Click to decompile the source script",
+    "Function Info",
+    "Click to view calling function information",
     function(button)
-        local orText = "Click to decompile the source script"
-        local old = codebox:getString()
-        codebox:setRaw("-- Decompiling temporarily unavailable due to crashing ;-;\n-- basically, scripts that delete themselves in ReplicatedFirst cause 'getcallingscript' to crash\n-- tell 3ds to fix")
-        -- if selected.Source then
-        --     codebox:setRaw("-- Decompiled code from:\n-- " .. v2s(selected.Source) .. "\n\n" .. decompile(selected.Source))
-        -- else
-        --     codebox:setRaw("-- Unable to decompile source: source not found")
-        -- end
-        button.Text = "Decompiled!"
+        local orText = "Function Info"
+        if selected.Function then
+            codebox:setRaw("-- Calling function info\n-- Generated by the SimpleSpy serializer\n\n" .. tostring(selected.Function))
+        end
+        button.Text = "Done!"
         wait(3)
-        codebox:setRaw(old)
         button.Text = orText
     end
 )
