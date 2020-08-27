@@ -1234,7 +1234,6 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
     if islclosure(func) then
         local functionInfo = {}
         pcall(function() functionInfo.info = debug.getinfo(func) end)
-        pcall(function() functionInfo.upvalues = debug.getupvalues(func) end)
         pcall(function() functionInfo.constants = debug.getconstants(func) end)
         pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
     end
