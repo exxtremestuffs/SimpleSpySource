@@ -1435,7 +1435,7 @@ newButton(
     function(button)
         local orText = "Click to decompile the source script"
         local old = codebox:getString()
-        codebox:setRaw("-- Decompiling temporarily unavailable due to crashing ;-;\n-- basically, scripts that delete themselves in ReplicatedFirst cause 'getcallingscript' to crash")
+        codebox:setRaw("-- Decompiling temporarily unavailable due to crashing ;-;\n-- basically, scripts that delete themselves in ReplicatedFirst cause 'getcallingscript' to crash\n-- tell 3ds to fix")
         -- if selected.Source then
         --     codebox:setRaw("-- Decompiled code from:\n-- " .. v2s(selected.Source) .. "\n\n" .. decompile(selected.Source))
         -- else
