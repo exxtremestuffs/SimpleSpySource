@@ -393,6 +393,16 @@ function SimpleSpy:ValueToString(value)
     return v2s(value)
 end
 
+--- Generates the simplespy function info
+--- @param func function
+--- @return string
+function SimpleSpy:GetFunctionInfo(func)
+    return v2v{functionInfo = {
+        info = debug.getinfo(func),
+        constants = debug.getconstants(func)
+    }}
+end
+
 --- Prevents remote spam from causing lag (clears logs after `_G.SIMPLESPYCONFIG_MaxRemotes` or 500 remotes)
 function clean()
     local max = _G.SIMPLESPYCONFIG_MaxRemotes
