@@ -311,7 +311,7 @@ local layoutOrderNum = 999999999
 --- Whether or not the gui is closing
 local mainClosing = false
 --- Whether or not the gui is closed (defaults to false)
-closed = false
+local closed = false
 --- Whether or not the sidebar is closing
 local sideClosing = false
 --- Whether or not the sidebar is closed (defaults to true but opens automatically on remote selection)
@@ -319,13 +319,13 @@ local sideClosed = false
 --- Whether or not the code box is maximized (defaults to false)
 local maximized = false
 --- The event logs to be read from
-logs = {}
+local logs = {}
 --- The event currently selected.Log (defaults to nil)
-selected = nil
+local selected = nil
 --- The blacklist (can be a string name or the Remote Instance)
-blacklist = {}
+local blacklist = {}
 --- The block list (can be a string name or the Remote Instance)
-blocklist = {}
+local blocklist = {}
 --- Whether or not to add getNil function
 local getNil = false
 --- Array of remotes (and original functions) connected to
@@ -358,6 +358,9 @@ local scheduled = {}
 --- RBXScriptConnect of the task scheduler
 local schedulerconnect
 local SimpleSpy = {}
+local topstr = ""
+local bottomstr = ""
+local getnilrequired = false
 
 -- functions
 
@@ -1193,6 +1196,7 @@ end
 function handlespecials(s, nested)
     if not nested then
         s = s:gsub("\\", "\\\\")
+        s = s:gsub("\"", "\\\"")
     end
     if s:match("\n") then
         local pos, pos2 = s:find("\n")
@@ -1201,14 +1205,6 @@ function handlespecials(s, nested)
     elseif s:match("\t") then
         local pos, pos2 = s:find("\t")
         s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
-        return handlespecials(s, true)
-    elseif s:match("\"") and (s:sub(s:find("\"") - 1, s:find("\"") - 1) ~= "\\") then
-        local pos, pos2 = s:find("\"")
-        s = s:sub(0, pos - 1) .. "\\\"" .. s:sub(pos2 + 1, s:len())
-        return handlespecials(s, true)
-    elseif s:match("'") and (s:sub(s:find("'") - 1, s:find("'") - 1) ~= "\\") then
-        local pos, pos2 = s:find("'")
-        s = s:sub(0, pos - 1) .. "\\'" .. s:sub(pos2 + 1, s:len())
         return handlespecials(s, true)
     else
         return s
