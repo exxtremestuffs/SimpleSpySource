@@ -1425,19 +1425,6 @@ newButton(
     end
 )
 
---- Copies the source script (that fired the remote)
-newButton(
-    "Copy Source",
-    "Click to copy the path of the source script",
-    function(button)
-        local orText = "Click to copy the path of the source script"
-        setclipboard(v2s(selected.Source))
-        button.Text = "Copied!"
-        wait(3)
-        button.Text = orText
-    end
-)
-
 --- Decompiles the script that fired the remote and puts it in the code box
 newButton(
     "Function Info",
