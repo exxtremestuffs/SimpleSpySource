@@ -1162,7 +1162,6 @@ function formatstr(s)
     if not pcall(function() for _, _ in utf8.graphemes(s) do end end) then
         return "\"" .. tobyte(s) .. "\""
     end
-    s = handlespecials(s)
     local returns = {}
     local lastend = 0
     for f, l in utf8.graphemes(s) do
@@ -1171,7 +1170,7 @@ function formatstr(s)
             if lastend >= f then
                 table.insert(returns, char)
             else
-                table.insert(returns, "\"" .. s:sub(lastend, f - 1) .. "\"")
+                table.insert(returns, "\"" .. handlespecials(s:sub(lastend, f - 1)) .. "\"")
                 table.insert(returns, char)
             end
             lastend = l + 1
