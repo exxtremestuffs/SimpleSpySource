@@ -817,7 +817,7 @@ function genScript(remote, ...)
 end
 
 --- value-to-string: value, string (out), level (indentation), parent table, var name, is from tovar
-function v2s(v, l, p, n, vtv, i, pt, path)
+function v2s(v, l, p, n, vtv, i, pt, path, tables)
     if typeof(v) == "number" then
         if v == math.huge then
             return "math.huge"
@@ -830,7 +830,7 @@ function v2s(v, l, p, n, vtv, i, pt, path)
     elseif typeof(v) == "function" then
         return f2s(v)
     elseif typeof(v) == "table" then
-        return t2s(v, l, p, n, vtv, i, pt, path)
+        return t2s(v, l, p, n, vtv, i, pt, path, tables)
     elseif typeof(v) == "Instance" then
         return i2p(v)
     elseif typeof(v) == "userdata" then
@@ -873,7 +873,7 @@ function v2v(t)
 end
 
 --- table-to-string
-function t2s(t, l, p, n, vtv, i, pt, path)
+function t2s(t, l, p, n, vtv, i, pt, path, tables)
     for k, x in pairs(getrenv()) do
         local isgucci, gpath
         if rawequal(x, t) then
@@ -920,7 +920,7 @@ function t2s(t, l, p, n, vtv, i, pt, path)
         else
             currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path) .. "]"
         end
-        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath) .. ","
+        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables) .. ","
     end
     if #s > 1 then
         s = s:sub(1, #s - 1)
