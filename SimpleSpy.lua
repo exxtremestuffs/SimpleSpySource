@@ -603,12 +603,8 @@ end
 --- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
 function blacklisted(remote)
     if #blacklist > 0 then
-        for _, v in pairs(blacklist) do
-            if type(v) == "string" and v == remote.Name then
-                return true
-            elseif typeof(v) == "Instance" and v == remote then
-                return true
-            end
+        if blacklist[remote] or blacklist[remote.Name] then
+            return true
         end
     end
     return false
@@ -1491,7 +1487,7 @@ newButton(
     "Click to exclude this Remote",
     function(button)
         local orText = "Click to exclude this Remote"
-        table.insert(blacklist, #blacklist + 1, selected.Remote)
+        blacklist[selected.Remote] = true
         button.Text = "Excluded!"
         wait(3)
         button.Text = orText
@@ -1504,7 +1500,7 @@ newButton(
     "Click to exclude all remotes with this name",
     function(button)
         local orText = "Click to exclude all remotes with this name"
-        table.insert(blacklist, #blacklist + 1, selected.Name)
+        blacklist[selected.Name] = true
         button.Text = "Excluded!"
         wait(3)
         button.Text = orText
