@@ -600,31 +600,6 @@ function getPlayerFromInstance(instance)
     end
 end
 
---- Checks if the given Remote is blacklisted; returns true if blacklisted, false if not
-function blacklisted(remote)
-    if #blacklist > 0 then
-        if blacklist[remote] or blacklist[remote.Name] then
-            return true
-        end
-    end
-    return false
-end
-
---- Checks if the given Remote is blocked; returns true if blacklisted, false if not
-function blocked(remote)
-    if #blocklist > 0 then
-        for i = 1, #blocklist do
-            local v = blocklist[i]
-            if type(v) == "string" and v == remote.Name then
-                return true
-            elseif typeof(v) == "Instance" and v == remote then
-                return true
-            end
-        end
-    end
-    return false
-end
-
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
     if selected and selected.Log and typeof(selected.Log.name) == "Instance" and selected.Log.name:IsA("TextLabel") then
@@ -1238,12 +1213,12 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         pcall(function() functionInfo.constants = debug.getconstants(func) end)
         pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
     end
-    if methodName:lower() == "fireserver" and not blacklisted(remote) then
+    if methodName:lower() == "fireserver" and not (blacklist[remote] or blacklist[remote.Name]) then
         table.remove(args, 1)
-        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, blocked(remote))
-    elseif methodName:lower() == "invokeserver" and not blacklisted(remote) then
+        bindableHandler("RemoteEvent", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
+    elseif methodName:lower() == "invokeserver" and not (blacklist[remote] or blacklist[remote.Name]) then
         table.remove(args, 1)
-        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, blocked(remote))
+        bindableHandler("RemoteFunction", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
     end
 end
 
@@ -1253,7 +1228,7 @@ function hookRemote(methodName, remote, ...)
     if typeof(remote) == "Instance" then
         local func = debug.getinfo(4).func
         schedule(remoteHandler, true, methodName, remote, args, func)
-        if blocked(remote) then
+        if (blocklist[remote] or blocklist[remote.Name]) then
             return false
         end
     end
@@ -1270,7 +1245,7 @@ local newnamecall = newcclosure(function(...)
             schedule(remoteHandler, false, methodName, remote, args, func)
         end
     end)()
-    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and blocked(args[1]) then
+    if args[1] and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[args[1]] or blocklist[args[1].Name]) then
         return nil
     else
         return original(...)
@@ -1526,7 +1501,7 @@ newButton(
     "Click to stop this remote from firing",
     function(button)
         local orText = "Click to stop this remote from firing"
-        table.insert(blocklist, #blocklist + 1, selected.Remote)
+        blocklist[selected.Remote] = true
         button.Text = "Excluded!"
         wait(3)
         button.Text = orText
@@ -1539,7 +1514,7 @@ newButton(
     "Click to stop remotes with this name from firing",
     function(button)
         local orText = "Click to stop remotes with this name from firing"
-        table.insert(blocklist, #blocklist + 1, selected.Name)
+        blocklist[selected.Name] = true
         button.Text = "Excluded!"
         wait(3)
         button.Text = orText
