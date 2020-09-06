@@ -730,7 +730,6 @@ function makeToolTip(enable, text)
         RunService:BindToRenderStep("ToolTip", 1, function()
             local topLeft = Vector2.new(Mouse.X + 20, Mouse.Y + 20)
             local bottomRight = topLeft + ToolTip.AbsoluteSize
-
             if topLeft.X < 0 then
                 topLeft = Vector2.new(0, topLeft.Y)
             elseif bottomRight.X > workspace.CurrentCamera.ViewportSize.X then
