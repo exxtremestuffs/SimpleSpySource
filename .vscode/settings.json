@@ -54,7 +54,8 @@
     ],
     "Lua.runtime.version": "Luau",
     "Lua.diagnostics.disable": [
-        "lowercase-global"
+        "lowercase-global",
+        "undefined-rbx-member"
     ],
     "Lua.diagnostics.ignore": [
         "HttpGet"

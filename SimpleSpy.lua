@@ -270,6 +270,7 @@ ToolTip.BackgroundTransparency = 0.1
 ToolTip.BorderColor3 = Color3.new(1, 1, 1)
 ToolTip.Size = UDim2.new(0, 200, 0, 50)
 ToolTip.ZIndex = 3
+ToolTip.Visible = false
 
 TextLabel.Parent = ToolTip
 TextLabel.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -405,23 +406,33 @@ end
 --- Executed when the toggle button (the SimpleSpy logo) is hovered over
 function onToggleButtonHover()
     if not toggle then
-        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
+        TweenService:Create(Simple, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
     else
-        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
+        TweenService:Create(Simple, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
     end
 end
 
 --- Executed when the toggle button is unhovered over
 function onToggleButtonUnhover()
-    TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+    TweenService:Create(Simple, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+end
+
+--- Executed when the X button is hovered over
+function onXButtonHover()
+    TweenService:Create(CloseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 60, 60)}):Play()
+end
+
+--- Executed when the X button is unhovered over
+function onXButtonUnhover()
+    TweenService:Create(CloseButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(37, 36, 38)}):Play()
 end
 
 --- Toggles the remote spy method (when button clicked)
 function onToggleButtonClick()
     if toggle then
-        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
+        TweenService:Create(Simple, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(252, 51, 51)}):Play()
     else
-        TweenService:Create(Simple, TweenInfo(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
+        TweenService:Create(Simple, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(68, 206, 91)}):Play()
     end
     toggleSpyMethod()
 end
@@ -439,9 +450,24 @@ end
 
 --- Brings gui back if it gets lost offscreen (connected to the camera viewport changing)
 function bringBackOnResize()
-    if Background.Position.X.Offset + Background.Size.X.Offset > workspace.CurrentCamera.ViewportSize.X or Background.Position.Y.Offset + Background.Size.Y.Offset > workspace.CurrentCamera.ViewportSize.Y then
-        TweenService:Create(Background, TweenInfo.new(0.5), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+    local currentX = Background.AbsolutePosition.X
+    local currentY = Background.AbsolutePosition.Y
+    local viewportSize = workspace.CurrentCamera.ViewportSize
+    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or 450))) then
+        if currentX < 0 then
+            currentX = 0
+        else
+            currentX = viewportSize.X - (sideClosed and 131 or 450)
+        end
     end
+    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35)) then
+        if currentY < 0 then
+            currentY = 0
+        else
+            currentY = viewportSize.Y - (closed and 19 or 268) - 35
+        end
+    end
+    TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentX, 0, currentY)}):Play()
 end
 
 --- Drags gui (so long as mouse is held down)
@@ -458,18 +484,18 @@ function onBarInput(input)
                     local currentX = (offset + newPos).X
                     local currentY = (offset + newPos).Y
                     local viewportSize = workspace.CurrentCamera.ViewportSize
-                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - Background.Size.X.Offset) and currentX > currentPos.X) then
+                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - (sideClosed and 131 or 450)) and currentX > currentPos.X) then
                         if currentX < 0 then
                             currentX = 0
                         else
-                            currentX = viewportSize.X - Background.Size.X.Offset
+                            currentX = viewportSize.X - (sideClosed and 131 or 450)
                         end
                     end
-                    if (currentY < 11 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (Background.Size.Y.Offset + 47)) and currentY > currentPos.Y) then
-                        if currentY < 11 then
-                            currentY = 11
+                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35) and currentY > currentPos.Y) then
+                        if currentY < 0 then
+                            currentY = 0
                         else
-                            currentY = viewportSize.Y - (Background.Size.Y.Offset + 47)
+                            currentY = viewportSize.Y - (closed and 19 or 268) - 35
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
@@ -544,18 +570,19 @@ function toggleMinimize(override)
         if not sideClosed then
             toggleSideTray(true)
         end
-        TweenService:Create(LeftPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 249)}):Play()
-        remotesFadeIn = fadeOut(LeftPanel:GetDescendants())
-        wait(0.5)
-        LeftPanel.Visible = false
-    else
         LeftPanel.Visible = true
         TweenService:Create(LeftPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 0)}):Play()
+        wait(0.5)
+        remotesFadeIn = fadeOut(LeftPanel:GetDescendants())
+        wait(0.5)
+    else
+        TweenService:Create(LeftPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 249)}):Play()
+        wait(0.5)
         if remotesFadeIn then
             remotesFadeIn()
             remotesFadeIn = nil
         end
-        wait(0.5)
+        bringBackOnResize()
     end
     mainClosing = false
 end
@@ -568,8 +595,10 @@ function toggleSideTray(override)
     sideClosing = true
     sideClosed = not sideClosed
     if sideClosed then
-        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 249)}):Play()
         rightFadeIn = fadeOut(RightPanel:GetDescendants())
+        wait(0.5)
+        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 249)}):Play()
+        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 19)}):Play()
         wait(0.5)
         RightPanel.Visible = false
     else
@@ -578,10 +607,12 @@ function toggleSideTray(override)
         end
         RightPanel.Visible = true
         TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 319, 0, 249)}):Play()
+        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 450, 0, 19)}):Play()
+        wait(0.5)
         if rightFadeIn then
             rightFadeIn()
         end
-        wait(0.5)
+        bringBackOnResize()
     end
     sideClosing = false
 end
@@ -682,22 +713,22 @@ end
 
 --- Updates the canvas size to fit the current amount of function buttons
 function updateFunctionCanvas()
-    ScrollingFrame.CanvasSize = UIGridLayout.AbsoluteContentSize
+    ScrollingFrame.CanvasSize = UDim2.fromOffset(UIGridLayout.AbsoluteContentSize.X, UIGridLayout.AbsoluteContentSize.Y)
 end
 
 --- Updates the canvas size to fit the amount of current remotes
 function updateRemoteCanvas()
-    LogList.CanvasSize = UIListLayout.AbsoluteContentSize
+    LogList.CanvasSize = UDim2.fromOffset(UIListLayout.AbsoluteContentSize.X, UIListLayout.AbsoluteContentSize.Y)
 end
 
 --- Creates new function button (below codebox)
 function newButton(name, description, onClick)
     local button = FunctionTemplate:Clone()
     button.Text.Text = name
-    button.MouseButton1Click:Connect(
+    button.Button.MouseButton1Click:Connect(
         function(...)
             if selected then
-                onClick(button.description, ...)
+                onClick(button, ...)
             end
         end
     )
@@ -1341,12 +1372,17 @@ if not _G.SimpleSpyExecuted then
         MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
         MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
         Simple.MouseButton1Click:Connect(onToggleButtonClick)
+        CloseButton.MouseEnter:Connect(onXButtonHover)
+        CloseButton.MouseLeave:Connect(onXButtonUnhover)
         Simple.MouseEnter:Connect(onToggleButtonHover)
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
         connectResize()
         SimpleSpy2.Enabled = true
-        coroutine.wrap(function() wait(3) toggleSideTray(true) end)()
+        coroutine.wrap(function()
+            wait(1)
+            onToggleButtonUnhover()
+        end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
     end)
     if succeeded then
