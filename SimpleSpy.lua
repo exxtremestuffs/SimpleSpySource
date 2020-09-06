@@ -292,6 +292,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
+local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
 local selectedColor = Color3.new(0.321569, 0.333333, 1)
 local deselectedColor = Color3.new(0.8, 0.8, 0.8)
@@ -721,17 +722,53 @@ function updateRemoteCanvas()
     LogList.CanvasSize = UDim2.fromOffset(UIListLayout.AbsoluteContentSize.X, UIListLayout.AbsoluteContentSize.Y)
 end
 
+--- Allows for toggling of the tooltip and easy setting of le description
+--- @param enable boolean
+--- @param text string
+function makeToolTip(enable, text)
+    if enable then
+        RunService:BindToRenderStep("ToolTip", 1, function()
+            local topLeft = Vector2.new(Mouse.X + 20, Mouse.Y + 20)
+            local bottomRight = topLeft + ToolTip.AbsoluteSize
+
+            if topLeft.X < 0 then
+                topLeft = Vector2.new(0, topLeft.Y)
+            elseif bottomRight.X > workspace.CurrentCamera.ViewportSize.X then
+                topLeft = Vector2.new(workspace.CurrentCamera.ViewportSize.X - ToolTip.AbsoluteSize.X, topLeft.Y)
+            end
+            if topLeft.Y < 0 then
+                topLeft = Vector2.new(topLeft.X, 0)
+            elseif bottomRight.Y > workspace.CurrentCamera.ViewportSize.Y - 35 then
+                topLeft = Vector2.new(topLeft.X, workspace.CurrentCamera.ViewportSize.Y - ToolTip.AbsoluteSize.Y - 35)
+            end
+            if topLeft.X <= Mouse.X and topLeft.Y <= Mouse.Y then
+                topLeft = Vector2.new(Mouse.X - ToolTip.AbsoluteSize.X - 2, Mouse.Y - ToolTip.AbsoluteSize.Y - 2)
+            end
+            ToolTip.Position = UDim2.fromOffset(topLeft.X, topLeft.Y)
+        end)
+        TextLabel.Text = text
+        ToolTip.Visible = true
+    else
+        ToolTip.Visible = false
+        RunService:UnbindFromRenderStep("ToolTip")
+    end
+end
+
 --- Creates new function button (below codebox)
 function newButton(name, description, onClick)
     local button = FunctionTemplate:Clone()
     button.Text.Text = name
-    button.Button.MouseButton1Click:Connect(
-        function(...)
-            if selected then
-                onClick(button, ...)
-            end
+    button.Button.MouseEnter:Connect(function()
+        makeToolTip(true, description)
+    end)
+    button.Button.MouseLeave:Connect(function()
+        makeToolTip(false)
+    end)
+    button.Button.MouseButton1Click:Connect(function(...)
+        if selected then
+            onClick(button, ...)
         end
-    )
+    end)
     button.Parent = ScrollingFrame
     updateFunctionCanvas()
 end
