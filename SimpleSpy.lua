@@ -694,8 +694,8 @@ end
 
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
-    if selected and selected.Log and typeof(selected.Log.name) == "Instance" and selected.Log.name:IsA("TextLabel") then
-        TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+    if selected and selected.Log then
+        TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(0, 0, 0)}):Play()
         selected = nil
     end
     for _, v in pairs(logs) do
@@ -703,8 +703,8 @@ function eventSelect(frame)
             selected = v
         end
     end
-    if selected and selected.Log and selected.Log.name then
-        TweenService:Create(selected.Log.name, TweenInfo.new(0.5), {TextColor3 = Color3.fromRGB(0, 195, 255)}):Play()
+    if selected and selected.Log then
+        TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
         codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
@@ -749,7 +749,7 @@ function makeToolTip(enable, text)
         ToolTip.Visible = true
     else
         ToolTip.Visible = false
-        RunService:UnbindFromRenderStep("ToolTip")
+        pcall(function() RunService:UnbindFromRenderStep("ToolTip") end)
     end
 end
 
@@ -798,7 +798,7 @@ function newRemote(name, type, gen_script, remote, source_script, blocked)
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
     end
-    local connect = remoteFrame.MouseButton1Click:Connect(function()
+    local connect = remoteFrame.Button.MouseButton1Click:Connect(function()
         eventSelect(remoteFrame)
     end)
     if layoutOrderNum < 1 then
@@ -1485,36 +1485,6 @@ newButton(
     end
 )
 
---- Copies the source script (that fired the remote)
-newButton(
-    "Copy Source",
-    "Click to copy the path of the source script",
-    function(button)
-        local orText = "Click to copy the path of the source script"
-        setclipboard(v2s(selected.Source))
-        button.Text = "Copied!"
-        wait(3)
-        button.Text = orText
-    end
-)
-
---- Decompiles the script that fired the remote and puts it in the code box
-newButton(
-    "Decompile Source",
-    "Click to decompile the source script",
-    function(button)
-        local orText = "Click to decompile the source script"
-        if selected.Source then
-            codebox:setRaw("-- Decompiled code from:\n-- " .. v2s(selected.Source) .. "\n\n" .. decompile(selected.Source))
-        else
-            codebox:setRaw("-- Unable to decompile source: source not found")
-        end
-        button.Text = "Decompiled!"
-        wait(3)
-        button.Text = orText
-    end
-)
-
 -- Executes the contents of the codebox through loadstring
 newButton(
     "Run Code",
@@ -1542,7 +1512,7 @@ newButton(
 
 --- Clears the Remote logs
 newButton(
-    "Clear Logs",
+    "Clr Logs",
     "Click to clear logs",
     function(button)
         local orText = "Click to clear logs"
@@ -1563,7 +1533,7 @@ newButton(
 
 --- Excludes the selected.Log Remote from the RemoteSpy
 newButton(
-    "Exclude (single)",
+    "Exclude (i)",
     "Click to exclude this Remote",
     function(button)
         local orText = "Click to exclude this Remote"
@@ -1576,7 +1546,7 @@ newButton(
 
 --- Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
 newButton(
-    "Exclude (by name)",
+    "Exclude (n)",
     "Click to exclude all remotes with this name",
     function(button)
         local orText = "Click to exclude all remotes with this name"
@@ -1589,7 +1559,7 @@ newButton(
 
 --- clears blacklist
 newButton(
-    "Clear Blacklist",
+    "Clr Blacklist",
     "Click to clear the blacklist",
     function(button)
         local orText = "Click to clear the blacklist"
@@ -1602,7 +1572,7 @@ newButton(
 
 --- Prevents the selected.Log Remote from firing the server (still logged)
 newButton(
-    "Block (single)",
+    "Block (i)",
     "Click to stop this remote from firing",
     function(button)
         local orText = "Click to stop this remote from firing"
@@ -1615,7 +1585,7 @@ newButton(
 
 --- Prevents all remotes from firing that share the same name as the selected.Log remote from the RemoteSpy (still logged)
 newButton(
-    "Block (by name)",
+    "Block (n)",
     "Click to stop remotes with this name from firing",
     function(button)
         local orText = "Click to stop remotes with this name from firing"
@@ -1628,7 +1598,7 @@ newButton(
 
 --- clears blacklist
 newButton(
-    "Clear Blocklist",
+    "Clr Blocklist",
     "Click to stop blocking remotes",
     function(button)
         local orText = "Click to stop blocking remotes"
