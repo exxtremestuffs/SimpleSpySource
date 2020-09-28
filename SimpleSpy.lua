@@ -51,6 +51,7 @@ local TextLabel = Instance.new("TextLabel")
 
 SimpleSpy2.Name = "SimpleSpy2"
 SimpleSpy2.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+SimpleSpy2.ResetOnSpawn = false
 
 Background.Name = "Background"
 Background.Parent = SimpleSpy2
