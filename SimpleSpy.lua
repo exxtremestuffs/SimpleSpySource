@@ -1354,7 +1354,7 @@ function toggleSpy()
         if not original then
             original = gm.__namecall
             if not original then
-                rconsoleprint("SimpleSpy: namecall method not found!\n")
+                warn("SimpleSpy: namecall method not found!\n")
                 onToggleButtonClick()
                 return
             end
@@ -1425,8 +1425,7 @@ if not _G.SimpleSpyExecuted then
     if succeeded then
         _G.SimpleSpyExecuted = true
     else
-        rconsoleprint("A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exx#9394:\n\n" .. tostring(err))
-        rconsolename("SimpleSpy Error Console")
+        warn("A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exx#9394:\n\n" .. tostring(err))
         SimpleSpy2:Destroy()
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
