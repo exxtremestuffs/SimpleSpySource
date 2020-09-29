@@ -50,6 +50,7 @@ local TextLabel = Instance.new("TextLabel")
 --Properties:
 
 SimpleSpy2.Name = "SimpleSpy2"
+if syn.protect_gui then syn.protect_gui(SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
 SimpleSpy2.Parent = CoreGui
 SimpleSpy2.ResetOnSpawn = false
 
