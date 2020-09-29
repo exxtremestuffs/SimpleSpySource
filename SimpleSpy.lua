@@ -1070,7 +1070,7 @@ function i2p(i)
                 end
             elseif parent.Parent == nil then
                 getnilrequired = true
-                return 'getNil(' .. formatstr(parent.Name) .. ', "' .. parent.ClassName .. '")'
+                return 'getNil(' .. formatstr(parent.Name) .. ', "' .. parent.ClassName .. '")' .. out
             elseif parent == Players.LocalPlayer then
                 out = ".LocalPlayer" .. out
             else
