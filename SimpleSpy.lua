@@ -1055,17 +1055,17 @@ function i2p(i)
     elseif parent ~= game then
         while true do
             if parent and parent.Parent == game then
-                if pcall(game.GetService, game, parent.ClassName) then
+                if game:GetService(parent.ClassName) then
                     if parent.ClassName == "Workspace" then
                         return "workspace" .. out
                     else
                         return 'game:GetService("' .. parent.ClassName .. '")' .. out
                     end
                 else
-                    if parent.Name:match("[%a_]+[%w_]*") ~= parent.Name then
-                        out = 'game[' .. formatstr(parent.Name) .. ']' .. out
+                    if parent.Name:match("[%a_]+[%w_]*") then
+                        return "game." .. parent.Name .. out
                     else
-                        out = "game." .. parent.Name .. out
+                        return 'game[' .. formatstr(parent.Name) .. ']' .. out
                     end
                 end
             elseif parent.Parent == nil then
