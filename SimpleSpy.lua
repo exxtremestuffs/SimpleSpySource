@@ -1377,7 +1377,7 @@ end
 
 --- Handles the button creation things... Connected to `remoteHandlerEvent`
 function bindableHandler(...)
-    syn.set_thread_identity(7)
+    -- syn.set_thread_identity(7)
     newRemote(...)
 end
 
