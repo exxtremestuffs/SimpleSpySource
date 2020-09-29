@@ -204,7 +204,7 @@ Simple.BackgroundColor3 = Color3.new(1, 1, 1)
 Simple.AutoButtonColor = false
 Simple.BackgroundTransparency = 1
 Simple.Position = UDim2.new(0, 5, 0, 0)
-Simple.Size = UDim2.new(0, 38, 0, 18)
+Simple.Size = UDim2.new(0, 57, 0, 18)
 Simple.Font = Enum.Font.SourceSansBold
 Simple.Text = "SimpleSpy"
 Simple.TextColor3 = Color3.new(1, 1, 1)
@@ -684,7 +684,7 @@ end
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
     if selected and selected.Log  then
-        TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(0, 0, 0)}):Play()
+        TweenService:Create(frame.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(0, 0, 0)}):Play()
         selected = nil
     end
     for _, v in pairs(logs) do
@@ -692,8 +692,8 @@ function eventSelect(frame)
             selected = v
         end
     end
-    if selected and selected.Log and selected.Log.Button then
-        TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
+    if selected and selected.Log then
+        TweenService:Create(frame.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
         codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
