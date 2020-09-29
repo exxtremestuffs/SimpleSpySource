@@ -684,7 +684,6 @@ end
 function eventSelect(frame)
     if selected and selected.Log and selected.Log.Button then
         TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(0, 0, 0)}):Play()
-    elseif selected then
         selected = nil
     end
     for _, v in pairs(logs) do
@@ -694,7 +693,6 @@ function eventSelect(frame)
     end
     if selected and selected.Log and selected.Log.Button then
         TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
-    elseif selected and selected.GenScript then
         codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
