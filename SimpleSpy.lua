@@ -294,6 +294,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
+local TextService = game:GetService("TextService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
 local selectedColor = Color3.new(0.321569, 0.333333, 1)
@@ -425,6 +426,13 @@ function clean()
         end
         remoteLogs = newLogs
     end
+end
+
+--- Scales the ToolTip to fit containing text
+function scaleToolTip()
+    local size = TextService:GetTextSize(TextLabel.Text, TextLabel.TextSize, TextLabel.Font, Vector2.new(196, math.huge))
+    TextLabel.Size = UDim2.new(0, size.X, 0, size.Y)
+    ToolTip.Size = UDim2.new(0, size.X + 4, 0, size.Y + 4)
 end
 
 --- Executed when the toggle button (the SimpleSpy logo) is hovered over
@@ -721,6 +729,7 @@ end
 --- @param text string
 function makeToolTip(enable, text)
     if enable then
+        local first = true
         RunService:BindToRenderStep("ToolTip", 1, function()
             local topLeft = Vector2.new(Mouse.X + 20, Mouse.Y + 20)
             local bottomRight = topLeft + ToolTip.AbsoluteSize
@@ -737,7 +746,12 @@ function makeToolTip(enable, text)
             if topLeft.X <= Mouse.X and topLeft.Y <= Mouse.Y then
                 topLeft = Vector2.new(Mouse.X - ToolTip.AbsoluteSize.X - 2, Mouse.Y - ToolTip.AbsoluteSize.Y - 2)
             end
-            ToolTip.Position = UDim2.fromOffset(topLeft.X, topLeft.Y)
+            if first then
+                ToolTip.Position = UDim2.fromOffset(topLeft.X, topLeft.Y)
+                first = false
+            else
+                ToolTip:TweenPosition(UDim2.fromOffset(topLeft.X, topLeft.Y), "Out", "Linear", 0.1)
+            end
         end)
         TextLabel.Text = text
         ToolTip.Visible = true
@@ -1427,6 +1441,7 @@ if not _G.SimpleSpyExecuted then
         codebox = Highlight.new(CodeBox)
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
+        TextLabel:GetPropertyChangedSignal("Text"):Connect(scaleToolTip)
         TopBar.InputBegan:Connect(onBarInput)
         MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
         MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
