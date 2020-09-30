@@ -354,6 +354,11 @@ local codebox
 local p
 local getnilrequired = false
 
+-- autoblock variables
+local autoblock = false
+local history = {}
+local excluding = {}
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -1297,6 +1302,24 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, func)
+    if autoblock then
+        if excluding[remote] then
+            return
+        end
+        if not history[remote] then
+            history[remote] = {badOccurances = 0, lastCall = tick()}
+        end
+        if tick() - history[remote].lastCall < 2 then
+            history[remote].badOccurances += 1
+            return
+        else
+            history[remote].badOccurances = 0
+        end
+        if history[remote].badOccurances > 5 then
+            excluding[remote] = true
+            return
+        end
+    end
     local functionInfoStr
     if islclosure(func) then
         local functionInfo = {}
@@ -1620,5 +1643,16 @@ newButton(
         TextLabel.Text = "Blocklist cleared!"
         wait(3)
         TextLabel.Text = orText
+    end
+)
+
+newButton(
+    "Autoblock",
+    "[BETA] Intelligently detects and excludes spammy remote calls from logs\nDISABLED",
+    function()
+        autoblock = not autoblock
+        TextLabel.Text = "[BETA] Intelligently detects and excludes spammy remote calls from logs\n" .. (autoblock and "ENABLED" or "DISABLED")
+        history = {}
+        excluding = {}
     end
 )
