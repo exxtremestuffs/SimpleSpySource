@@ -698,7 +698,7 @@ function eventSelect(frame)
         end
     end
     if selected and selected.Log then
-        TweenService:Create(frame.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
+        TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(92, 126, 229)}):Play()
         codebox:setRaw(selected.GenScript)
     end
     if sideClosed then
