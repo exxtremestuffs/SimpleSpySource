@@ -1307,7 +1307,7 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         if not history[remote] then
             history[remote] = {badOccurances = 0, lastCall = tick()}
         end
-        if tick() - history[remote].lastCall < 5 then
+        if tick() - history[remote].lastCall < 1 then
             history[remote].badOccurances += 1
             return
         else
