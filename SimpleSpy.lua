@@ -1313,7 +1313,7 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         else
             history[remote].badOccurances = 0
         end
-        if history[remote].badOccurances > 5 then
+        if history[remote].badOccurances > 3 then
             excluding[remote] = true
             return
         end
