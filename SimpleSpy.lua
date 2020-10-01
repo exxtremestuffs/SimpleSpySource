@@ -360,6 +360,9 @@ local autoblock = false
 local history = {}
 local excluding = {}
 
+-- function info variables
+local funcEnabled = true
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -1334,7 +1337,7 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         history[remote].lastCall = tick()
     end
     local functionInfoStr
-    if islclosure(func) then
+    if func and islclosure(func) then
         local functionInfo = {}
         pcall(function() functionInfo.info = debug.getinfo(func) end)
         pcall(function() functionInfo.constants = debug.getconstants(func) end)
@@ -1365,13 +1368,13 @@ end
 local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
-    local func = debug.getinfo(3).func
-    coroutine.wrap(function()
-        if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
+    if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
+        local func = funcEnabled and debug.getinfo(3).func or nil
+        coroutine.wrap(function()
             local remote = args[1]
             schedule(remoteHandler, false, methodName, remote, args, func)
-        end
-    end)()
+        end)()
+    end
     if args[1] and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[args[1]] or blocklist[args[1].Name]) then
         return nil
     else
@@ -1671,11 +1674,19 @@ newButton(
 )
 
 newButton(
+    "Disable Info",
+    "Toggle function info (because it can cause lag in some games)",
+    function()
+        funcEnabled = not funcEnabled
+        TextLabel.Text = "Toggle function info (because it can cause lag in some games) - " .. (funcEnabled and "ENABLED" or "DISABLED")
+    end
+)
+
+newButton(
     "Autoblock",
     "[BETA] Intelligently detects and excludes spammy remote calls from logs",
     function()
         autoblock = not autoblock
-        print(autoblock)
         TextLabel.Text = "[BETA] Intelligently detects and excludes spammy remote calls from logs - " .. (autoblock and "ENABLED" or "DISABLED")
         history = {}
         excluding = {}
