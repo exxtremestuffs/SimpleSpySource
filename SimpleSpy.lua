@@ -1517,9 +1517,7 @@ newButton(
         if selected then
             local orText = "Click to copy the path of the remote"
             setclipboard(v2s(selected.Remote))
-            button.Text = "Copied!"
-            wait(3)
-            button.Text = orText
+            TextLabel.Text = "Copied!"
         end
     end
 )
