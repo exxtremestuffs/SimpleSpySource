@@ -1408,28 +1408,28 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
 end
 
 --- Used for hookfunction
-function hookRemote(remoteType, methodName, remote, ...)
+function hookRemote(remoteType, remote, ...)
     local args = {...}
     if remoteHooks[remote] then
         args = remoteHooks[remote](args)
     end
     if typeof(remote) == "Instance" then
         local func = funcEnabled and debug.getinfo(4).func or nil
-        schedule(remoteHandler, true, methodName, remote, args, func)
+        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func)
         if (blocklist[remote] or blocklist[remote.Name]) then
             return
         end
     end
     if remoteType == "RemoteEvent" then
         if remoteHooks[remote] then
-            return originalEvent(methodName, remote, unpack(args))
+            return originalEvent(remote, unpack(args))
         end
-        return originalEvent(methodName, remote, ...)
+        return originalEvent(remote, ...)
     else
         if remoteHooks[remote] then
-            return originalFunction(methodName, remote, unpack(args))
+            return originalFunction(remote, unpack(args))
         end
-        return originalFunction(methodName, remote, ...)
+        return originalFunction(remote, ...)
     end
 end
 
