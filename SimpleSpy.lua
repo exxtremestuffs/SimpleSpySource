@@ -1417,12 +1417,18 @@ function hookRemote(remoteType, methodName, remote, ...)
         local func = funcEnabled and debug.getinfo(4).func or nil
         schedule(remoteHandler, true, methodName, remote, args, func)
         if (blocklist[remote] or blocklist[remote.Name]) then
-            return false
+            return
         end
     end
     if remoteType == "RemoteEvent" then
+        if remoteHooks[remote] then
+            return originalEvent(methodName, remote, unpack(args))
+        end
         return originalEvent(methodName, remote, ...)
     else
+        if remoteHooks[remote] then
+            return originalFunction(methodName, remote, unpack(args))
+        end
         return originalFunction(methodName, remote, ...)
     end
 end
@@ -1443,6 +1449,8 @@ local newnamecall = newcclosure(function(...)
     end
     if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
         return nil
+    elseif (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and remoteHooks[remote] then
+        return original(unpack(args))
     else
         return original(...)
     end
