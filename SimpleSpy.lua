@@ -363,6 +363,10 @@ local excluding = {}
 -- function info variables
 local funcEnabled = true
 
+-- remote hooking/connecting api variables
+local remoteSignals = {}
+local remoteHooks = {}
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -405,6 +409,54 @@ function SimpleSpy:GetFunctionInfo(func)
         info = debug.getinfo(func),
         constants = debug.getconstants(func)
     }}
+end
+
+--- Gets the ScriptSignal for a specified remote being fired
+--- @param remote Instance
+function SimpleSpy:GetRemoteFiredSignal(remote)
+    if not remoteSignals[remote] then
+        remoteSignals[remote] = newSignal()
+    end
+    return remoteSignals[remote]
+end
+
+--- Allows for direct hooking of remotes **THIS CAN BE VERY DANGEROUS**
+--- @param remote Instance
+--- @param f function
+function SimpleSpy:HookRemote(remote, f)
+    remoteHooks[remote] = f
+end
+
+--- Creates a new ScriptSignal that can be connected to and fired
+--- @return table
+function newSignal()
+    local connected = {}
+    return {
+        Connect = function(self, f)
+            assert(connected, "Signal is closed")
+            connected[tostring(f)] = f
+            return setmetatable({
+                Disconnect = function()
+                    if not connected then
+                        warn("Signal is already closed")
+                    end
+                    connected[tostring(f)] = nil
+                end
+            },
+            {
+                __index = function(self, i)
+                    if i == "Connected" then
+                        return not not connected[tostring(f)]
+                    end
+                end
+            })
+        end,
+        Fire = function(self, ...)
+            for _, f in pairs(connected) do
+                coroutine.wrap(f)(...)
+            end
+        end
+    }
 end
 
 --- Prevents remote spam from causing lag (clears logs after `_G.SIMPLESPYCONFIG_MaxRemotes` or 500 remotes)
@@ -1317,6 +1369,11 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, func)
+    coroutine.wrap(function()
+        if remoteSignals[remote] then
+            remoteSignals[remote]:Fire(args)
+        end
+    end)()
     if autoblock then
         if excluding[remote] then
             return
@@ -1344,17 +1401,18 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
     end
     if methodName:lower() == "fireserver" and not (blacklist[remote] or blacklist[remote.Name]) then
-        table.remove(args, 1)
-        bindableHandler("event", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
+        bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
     elseif methodName:lower() == "invokeserver" and not (blacklist[remote] or blacklist[remote.Name]) then
-        table.remove(args, 1)
-        bindableHandler("function", remote.Name, genScript(remote, unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
+        bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]))
     end
 end
 
 --- Used for hookfunction
-function hookRemote(methodName, remote, ...)
+function hookRemote(remoteType, methodName, remote, ...)
     local args = {...}
+    if remoteHooks[remote] then
+        args = remoteHooks[remote](args)
+    end
     if typeof(remote) == "Instance" then
         local func = debug.getinfo(4).func
         schedule(remoteHandler, true, methodName, remote, args, func)
@@ -1362,29 +1420,37 @@ function hookRemote(methodName, remote, ...)
             return false
         end
     end
-    return true
+    if remoteType == "RemoteEvent" then
+        return originalEvent(methodName, remote, unpack(args))
+    else
+        return originalFunction(methodName, remote, unpack(args))
+    end
 end
 
 local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
-    if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" and typeof(args[1]) == "Instance" then
+    local remote = args[1]
+    if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" then
+        if remoteHooks[remote] then
+            args = remoteHooks[remote]({unpack(args, 2)})
+            table.insert(args, 1, remote)
+        end
         local func = funcEnabled and debug.getinfo(3).func or nil
         coroutine.wrap(function()
-            local remote = args[1]
-            schedule(remoteHandler, false, methodName, remote, args, func)
+            schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func)
         end)()
     end
-    if args[1] and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[args[1]] or blocklist[args[1].Name]) then
+    if remote and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
         return nil
     else
-        return original(...)
+        return original(unpack(args))
     end
 end)
 
-local newFireServer = newcclosure(function(...) if hookRemote("FireServer", ...) then return originalEvent(...) end end)
+local newFireServer = newcclosure(function(...) return hookRemote("FireServer", ...) end)
 
-local newInvokeServer = newcclosure(function(...) if hookRemote("InvokeServer", ...) then return originalFunction(...) end end)
+local newInvokeServer = newcclosure(function(...) return hookRemote("InvokeServer", ...) end)
 
 --- Toggles on and off the remote spy
 function toggleSpy()
