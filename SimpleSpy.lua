@@ -1421,9 +1421,9 @@ function hookRemote(remoteType, methodName, remote, ...)
         end
     end
     if remoteType == "RemoteEvent" then
-        return originalEvent(methodName, remote, unpack(args))
+        return originalEvent(methodName, remote, ...)
     else
-        return originalFunction(methodName, remote, unpack(args))
+        return originalFunction(methodName, remote, ...)
     end
 end
 
@@ -1441,10 +1441,10 @@ local newnamecall = newcclosure(function(...)
             schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func)
         end)()
     end
-    if remote and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
+    if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
         return nil
     else
-        return original(unpack(args))
+        return original(...)
     end
 end)
 
