@@ -1414,7 +1414,7 @@ function hookRemote(remoteType, methodName, remote, ...)
         args = remoteHooks[remote](args)
     end
     if typeof(remote) == "Instance" then
-        local func = debug.getinfo(4).func
+        local func = funcEnabled and debug.getinfo(4).func or nil
         schedule(remoteHandler, true, methodName, remote, args, func)
         if (blocklist[remote] or blocklist[remote.Name]) then
             return false
