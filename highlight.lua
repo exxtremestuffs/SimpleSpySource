@@ -36,7 +36,7 @@ local line = 0
 local largestX = 0
 
 local lineSpace = 15
-local font = Enum.Font.Arial
+local font = Enum.Font.Ubuntu
 local textSize = 14
 
 local backgroundColor = Color3.fromRGB(40, 44, 52)
