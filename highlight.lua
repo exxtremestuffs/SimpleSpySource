@@ -199,7 +199,7 @@ function render()
     for i = 1, #tableContents + 1 do
         local char = tableContents[i]
         if i == #tableContents + 1 or char.Char == "\n" then
-            lineStr = lineStr .. lastColor and "</font>" or ""
+            lineStr = lineStr .. (lastColor and "</font>" or "")
 
             local lineText = Instance.new("TextLabel")
             local x = TextService:GetTextSize(rawStr, textSize, font, Vector2.new(math.huge, math.huge)).X + 60
