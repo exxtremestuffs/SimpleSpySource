@@ -381,7 +381,6 @@ function Highlight:getRaw()
     for _, char in pairs(tableContents) do
         result = result .. char.Char
     end
-    print(result)
     return result
 end
 
