@@ -32,6 +32,9 @@ local lines = {}
 --- Contents of the table- array of char objects
 local tableContents = {}
 
+local line = 0
+local largestX = 0
+
 local lineSpace = 15
 local font = Enum.Font.Arial
 local textSize = 14
@@ -189,7 +192,9 @@ function render()
 
     local lastColor
     local lineStr = ""
-    local line = 1
+    local rawStr = ""
+    largestX = 0
+    line = 1
 
     for i = 1, #tableContents + 1 do
         local char = tableContents[i]
@@ -197,11 +202,16 @@ function render()
             lineStr ..= lastColor and "</font>" or ""
 
             local lineText = Instance.new("TextLabel")
+            local x = TextService:GetTextSize(rawStr, textSize, font, Vector2.new(math.huge, math.huge)).X + 60
+
+            if x > largestX then
+                largestX = x
+            end
 
             lineText.TextXAlignment = Enum.TextXAlignment.Left
             lineText.TextYAlignment = Enum.TextYAlignment.Top
             lineText.Position = UDim2.new(0, 0, 0, line * lineSpace - lineSpace / 2)
-            lineText.Size = UDim2.new(0, TextService:GetTextSize(lineStr, textSize, font, Vector2.new(math.huge, math.huge)).X, 0, textSize)
+            lineText.Size = UDim2.new(0, x, 0, textSize)
             lineText.RichText = true
             lineText.Font = font
             lineText.TextSize = textSize
@@ -221,6 +231,7 @@ function render()
             lineNumber.Parent = lineNumbersFrame
 
             lineStr = ""
+            rawStr = ""
             lastColor = nil
             line += 1
             updateZIndex()
@@ -228,8 +239,10 @@ function render()
             RunService.Heartbeat:Wait()
         elseif char.Char == " " then
             lineStr ..= char.Char
+            rawStr ..= char.Char
         elseif char.Char == "\t" then
             lineStr ..= string.rep(" ", 4)
+            rawStr ..= char.Char
         else
             if char.Color == lastColor then
                 lineStr ..= autoEscape(char.Char)
@@ -238,6 +251,7 @@ function render()
                 lineStr ..= autoEscape(char.Char)
                 lastColor = char.Color
             end
+            rawStr ..= char.Char
         end
 
         -- local v = tableContents[i]
@@ -289,8 +303,8 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), textSize, font, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
-    scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
+    -- local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), textSize, font, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
+    scrollingFrame.CanvasSize = UDim2.new(0, largestX, 0, line * lineSpace)
 end
 
 function updateZIndex()
@@ -351,7 +365,7 @@ function Highlight:setRaw(raw)
         table.insert(tableContents, {
             Char = raw:sub(i, i),
             Color = defaultColor,
-            Line = line
+            -- Line = line
         })
         -- if raw:sub(i, i) == "\n" then
         --     line = line + 1
@@ -367,6 +381,7 @@ function Highlight:getRaw()
     for _, char in pairs(tableContents) do
         result = result .. char.Char
     end
+    print(result)
     return result
 end
 
