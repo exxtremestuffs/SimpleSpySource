@@ -199,7 +199,7 @@ function render()
     for i = 1, #tableContents + 1 do
         local char = tableContents[i]
         if i == #tableContents + 1 or char.Char == "\n" then
-            lineStr ..= lastColor and "</font>" or ""
+            lineStr = lineStr .. lastColor and "</font>" or ""
 
             local lineText = Instance.new("TextLabel")
             local x = TextService:GetTextSize(rawStr, textSize, font, Vector2.new(math.huge, math.huge)).X + 60
@@ -238,20 +238,20 @@ function render()
             updateCanvasSize()
             RunService.Heartbeat:Wait()
         elseif char.Char == " " then
-            lineStr ..= char.Char
-            rawStr ..= char.Char
+            lineStr = lineStr .. char.Char
+            rawStr = rawStr .. char.Char
         elseif char.Char == "\t" then
-            lineStr ..= string.rep(" ", 4)
-            rawStr ..= char.Char
+            lineStr = lineStr .. string.rep(" ", 4)
+            rawStr = rawStr .. char.Char
         else
             if char.Color == lastColor then
-                lineStr ..= autoEscape(char.Char)
+                lineStr = lineStr .. autoEscape(char.Char)
             else
-                lineStr ..= string.format('%s<font color="rgb(%d,%d,%d)">', lastColor and "</font>" or "", char.Color.R * 255, char.Color.G * 255, char.Color.B * 255)
-                lineStr ..= autoEscape(char.Char)
+                lineStr = lineStr .. string.format('%s<font color="rgb(%d,%d,%d)">', lastColor and "</font>" or "", char.Color.R * 255, char.Color.G * 255, char.Color.B * 255)
+                lineStr = lineStr .. autoEscape(char.Char)
                 lastColor = char.Color
             end
-            rawStr ..= char.Char
+            rawStr = rawStr .. char.Char
         end
 
         -- local v = tableContents[i]
