@@ -219,16 +219,18 @@ function render()
             lineText.Text = lineStr
             lineText.Parent = textFrame
 
-            local lineNumber = Instance.new("TextLabel")
-            lineNumber.Text = line
-            lineNumber.Font = font
-            lineNumber.TextSize = textSize
-            lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
-            lineNumber.TextXAlignment = Enum.TextXAlignment.Right
-            lineNumber.TextColor3 = lineNumberColor
-            lineNumber.Position = UDim2.new(0, 0, 0, line * lineSpace - lineSpace / 2)
-            lineNumber.BackgroundTransparency = 1
-            lineNumber.Parent = lineNumbersFrame
+            if i ~= #tableContents + 1 then
+                local lineNumber = Instance.new("TextLabel")
+                lineNumber.Text = line
+                lineNumber.Font = font
+                lineNumber.TextSize = textSize
+                lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
+                lineNumber.TextXAlignment = Enum.TextXAlignment.Right
+                lineNumber.TextColor3 = lineNumberColor
+                lineNumber.Position = UDim2.new(0, 0, 0, line * lineSpace - lineSpace / 2)
+                lineNumber.BackgroundTransparency = 1
+                lineNumber.Parent = lineNumbersFrame
+            end
 
             lineStr = ""
             rawStr = ""
