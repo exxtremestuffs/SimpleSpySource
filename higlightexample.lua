@@ -13,7 +13,6 @@ myHighlight:getRaw()
 --[[
     char = {
         Char: string -- The single character that the object represents
-        Line: number -- The line that the character is on
         Color: Color3 -- The color of the character
     }
 ]]

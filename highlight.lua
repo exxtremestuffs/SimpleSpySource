@@ -7,6 +7,7 @@
 ]]
 
 local TextService = game:GetService("TextService")
+local RunService = game:GetService("RunService")
 --- The Highlight class
 --- @class Highlight
 local Highlight = {}
@@ -31,10 +32,9 @@ local lines = {}
 --- Contents of the table- array of char objects
 local tableContents = {}
 
---- Whether or not the previous line had an unfinished string
-local continuingString = false
-
 local lineSpace = 15
+local font = Enum.Font.Arial
+local textSize = 14
 
 local backgroundColor = Color3.fromRGB(40, 44, 52)
 local operatorColor = Color3.fromRGB(187, 85, 255)
@@ -160,6 +160,17 @@ function highlightPattern(patternArray, color)
     end
 end
 
+--- Automatically replaces reserved chars with escape chars
+--- @param s string
+function autoEscape(s)
+    s:gsub("<", "&lt;")
+    s:gsub(">", "&gt;")
+    s:gsub('"', "&quot;")
+    s:gsub("'", "&apos;")
+    s:gsub("&", "&amp;")
+    return s
+end
+
 --- Main function for syntax highlighting tableContents
 function render()
     offLimits = {}
@@ -176,57 +187,98 @@ function render()
     renderComments()
     renderStrings()
 
-    for i = 1, #tableContents do
-        local v = tableContents[i]
-        if not lines[v.Line] or #lines[v.Line] <= 200 then
-            local textBox = Instance.new("TextLabel")
-            local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
-            local lineSizeX = 0
-            if not lines[v.Line] then
-                lines[v.Line] = {}
-            end
-            if v.Char == "\n" then
-                textBox.Text = ""
-                game:GetService("RunService").Heartbeat:Wait()
-            elseif v.Char:match("\t") then
-                v.Char = "\t____"
-                textBox.Text = "\t____"
-                textBox.TextTransparency = 1
-            elseif v.Char:match(" ") then
-                v.Char = " |"
-                textBox.Text = " -"
-                textBox.TextTransparency = 1
-            else
-                textBox.Text = v.Char
-            end
-            if not lines[v.Line] then
-                lines[v.Line] = {}
-            end
-            for _, c in pairs(lines[v.Line]) do
-                lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
-            end
-            textBox.TextColor3 = v.Color
-            textBox.Size = UDim2.new(0, size.X, 0, size.Y)
-            textBox.TextXAlignment = Enum.TextXAlignment.Left
-            textBox.TextYAlignment = Enum.TextYAlignment.Top
-            textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
-            textBox.BackgroundTransparency = 1
-            v.TextBox = textBox
-            table.insert(lines[v.Line], v)
-            textBox.Parent = textFrame
-        end
-    end
-    for i = 1, #lines do
-        local lineNumber = Instance.new("TextLabel")
-        lineNumber.Text = i
-        lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
-        lineNumber.TextXAlignment = Enum.TextXAlignment.Right
-        lineNumber.TextColor3 = lineNumberColor
-        lineNumber.Position = UDim2.new(0, 0, 0, i * lineSpace - lineSpace / 2)
-        lineNumber.BackgroundTransparency = 1
-        lineNumber.Parent = lineNumbersFrame
-    end
+    local lastColor
+    local lineStr = ""
+    local line = 1
 
+    for i = 1, #tableContents + 1 do
+        local char = tableContents[i]
+        if i == #tableContents + 1 or char.Char == "\n" then
+            lineStr ..= lastColor and "</font>" or ""
+
+            local lineText = Instance.new("TextLabel")
+
+            lineText.TextXAlignment = Enum.TextXAlignment.Left
+            lineText.TextYAlignment = Enum.TextYAlignment.Top
+            lineText.Position = UDim2.new(0, 0, 0, line * lineSpace - lineSpace / 2)
+            lineText.Size = UDim2.new(0, TextService:GetTextSize(lineStr, textSize, font, Vector2.new(math.huge, math.huge)).X, 0, textSize)
+            lineText.RichText = true
+            lineText.Font = font
+            lineText.TextSize = textSize
+            lineText.BackgroundTransparency = 1
+            lineText.Text = lineStr
+            lineText.Parent = textFrame
+
+            local lineNumber = Instance.new("TextLabel")
+            lineNumber.Text = line
+            lineNumber.Font = font
+            lineNumber.TextSize = textSize
+            lineNumber.Size = UDim2.new(1, 0, 0, lineSpace)
+            lineNumber.TextXAlignment = Enum.TextXAlignment.Right
+            lineNumber.TextColor3 = lineNumberColor
+            lineNumber.Position = UDim2.new(0, 0, 0, line * lineSpace - lineSpace / 2)
+            lineNumber.BackgroundTransparency = 1
+            lineNumber.Parent = lineNumbersFrame
+
+            lineStr = ""
+            lastColor = nil
+            line += 1
+            updateZIndex()
+            updateCanvasSize()
+            RunService.Heartbeat:Wait()
+        elseif char.Char == " " then
+            lineStr ..= char.Char
+        elseif char.Char == "\t" then
+            lineStr ..= string.rep(" ", 4)
+        else
+            if char.Color == lastColor then
+                lineStr ..= autoEscape(char.Char)
+            else
+                lineStr ..= string.format('%s<font color="rgb(%d,%d,%d)">', lastColor and "</font>" or "", char.Color.R * 255, char.Color.G * 255, char.Color.B * 255)
+                lineStr ..= autoEscape(char.Char)
+                lastColor = char.Color
+            end
+        end
+
+        -- local v = tableContents[i]
+        -- if not lines[v.Line] or #lines[v.Line] <= 200 then
+        --     local textBox = Instance.new("TextLabel")
+        --     local size = TextService:GetTextSize(v.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge))
+        --     local lineSizeX = 0
+        --     if not lines[v.Line] then
+        --         lines[v.Line] = {}
+        --     end
+        --     if v.Char == "\n" then
+        --         textBox.Text = ""
+        --         game:GetService("RunService").Heartbeat:Wait()
+        --     elseif v.Char:match("\t") then
+        --         v.Char = "\t____"
+        --         textBox.Text = "\t____"
+        --         textBox.TextTransparency = 1
+        --     elseif v.Char:match(" ") then
+        --         v.Char = " |"
+        --         textBox.Text = " -"
+        --         textBox.TextTransparency = 1
+        --     else
+        --         textBox.Text = v.Char
+        --     end
+        --     if not lines[v.Line] then
+        --         lines[v.Line] = {}
+        --     end
+        --     for _, c in pairs(lines[v.Line]) do
+        --         lineSizeX = lineSizeX + TextService:GetTextSize(c.Char, 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X
+        --     end
+        --     textBox.TextColor3 = v.Color
+        --     textBox.Size = UDim2.new(0, size.X, 0, size.Y)
+        --     textBox.TextXAlignment = Enum.TextXAlignment.Left
+        --     textBox.TextYAlignment = Enum.TextYAlignment.Top
+        --     textBox.Position = UDim2.new(0, lineSizeX, 0, v.Line * lineSpace - lineSpace / 2)
+        --     textBox.BackgroundTransparency = 1
+        --     v.TextBox = textBox
+        --     table.insert(lines[v.Line], v)
+        --     textBox.Parent = textFrame
+        -- end
+    end
     updateZIndex()
     updateCanvasSize()
 end
@@ -237,7 +289,7 @@ function onFrameSizeChange()
 end
 
 function updateCanvasSize()
-    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), 14, Enum.Font.Arial, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
+    local codeSize = Vector2.new(TextService:GetTextSize(Highlight:getRaw(), textSize, font, Vector2.new(math.huge, math.huge)).X + 60, #lines * lineSpace + 60)
     scrollingFrame.CanvasSize = UDim2.new(0, codeSize.X, 0, codeSize.Y)
 end
 
@@ -301,9 +353,9 @@ function Highlight:setRaw(raw)
             Color = defaultColor,
             Line = line
         })
-        if raw:sub(i, i) == "\n" then
-            line = line + 1
-        end
+        -- if raw:sub(i, i) == "\n" then
+        --     line = line + 1
+        -- end
     end
     render()
 end
