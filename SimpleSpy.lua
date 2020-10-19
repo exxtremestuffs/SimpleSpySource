@@ -904,9 +904,9 @@ function genScript(remote, ...)
     local gen = ""
     local args = {...}
     if #args > 0 then
-        if not print(pcall(function()
+        if not pcall(function()
                 gen = v2v({args = args}) .. "\n"
-            end))
+            end)
         then
             gen = gen .. "-- TableToString failure! Reverting to legacy functionality (results may vary)\nlocal args = {"
             if
