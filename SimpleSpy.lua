@@ -904,9 +904,9 @@ function genScript(remote, ...)
     local gen = ""
     local args = {...}
     if #args > 0 then
-        if not pcall(function()
+        if not print(pcall(function()
                 gen = v2v({args = args}) .. "\n"
-            end)
+            end))
         then
             gen = gen .. "-- TableToString failure! Reverting to legacy functionality (results may vary)\nlocal args = {"
             if
@@ -1063,7 +1063,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
     l = l + indent
     for k, v in pairs(t) do
         size = size + 1
-        if size > _G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000 then
+        if size > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
             break
         end
         local currentPath = ""
