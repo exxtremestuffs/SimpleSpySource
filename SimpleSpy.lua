@@ -1331,7 +1331,8 @@ function handlespecials(s)
                 s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\\" then
-                s = s:sub(0, i - 1) .. "\\" .. s:sub(i + 1, -1)
+                s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
+                i = i + 1
             elseif char == '"' then
                 s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
                 i = i + 1
