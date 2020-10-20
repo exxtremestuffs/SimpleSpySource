@@ -1314,36 +1314,7 @@ end
 
 --- format s: string, byte encrypt (for weird symbols)
 function formatstr(s)
-    if not pcall(function() for _, _ in utf8.graphemes(s) do end end) then
-        return "\"" .. tobyte(s) .. "\""
-    end
-    local returns = {}
-    local lastend = 0
-    for f, l in utf8.graphemes(s) do
-        if l > f then
-            local char = "utf8.char(" .. table.concat({utf8.codepoint(s, f, l)}, ", ") .. ")"
-            if lastend >= f then
-                table.insert(returns, char)
-            else
-                table.insert(returns, "\"" .. handlespecials(s:sub(lastend, f - 1)) .. "\"")
-                table.insert(returns, char)
-            end
-            lastend = l + 1
-        end
-    end
-    if lastend <= #s then
-        table.insert(returns, "\"" .. handlespecials(s:sub(lastend, #s)) .. "\"")
-    end
-    return table.concat(returns, " .. ")
-end
-
---- Converts string to bytecodes '\1'
-function tobyte(s)
-    local news = ""
-    for i = 1, #s do
-        news = news .. "\\" .. s:sub(i, i):byte()
-    end
-    return news
+    return '"' .. handlespecials(s) .. '"'
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
@@ -1352,21 +1323,29 @@ function handlespecials(s, nested)
         s = s:gsub("\\", "\\\\")
         s = s:gsub("\"", "\\\"")
     end
-    if s:match("\n") then
-        local pos, pos2 = s:find("\n")
-        s = s:sub(0, pos - 1) .. "\\n" .. s:sub(pos2 + 1, s:len())
-        return handlespecials(s, true)
-    elseif s:match("\t") then
-        local pos, pos2 = s:find("\t")
-        s = s:sub(0, pos - 1) .. "\\t" .. s:sub(pos2 + 1, s:len())
-        return handlespecials(s, true)
-    elseif s:match("\0") then
-        local pos, pos2 = s:find("\0")
-        s = s:sub(0, pos - 1) .. "\\0" .. s:sub(pos2 + 1, s:len())
-        return handlespecials(s, true)
-    else
-        return s
-    end
+    local i = 1
+    repeat
+        local char = s:sub(i)
+        if string.byte(char) then
+            if char == "\0" then
+                local old = s
+                s = s:sub(0, i - 1) .. "\0"
+                s = s .. old:sub(i + 1, -1)
+            elseif char == "\n" then
+                s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
+            elseif char == "\t" then
+                s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
+            elseif char == "\\" then
+                s = s:sub(0, i - 1) .. "\\" .. s:sub(i + 1, -1)
+            elseif char == "\"" then
+                s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
+            elseif string.byte(char) > 126 or string.byte(char) < 32 then
+                s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
+            end
+        end
+        i = i + 1
+    until char == ""
+    return s
 end
 
 --- schedules the provided function (and calls it with any args after)
