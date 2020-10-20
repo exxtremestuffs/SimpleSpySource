@@ -1318,32 +1318,28 @@ function formatstr(s)
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
-function handlespecials(s, nested)
-    if not nested then
-        s = s:gsub("\\", "\\\\")
-        s = s:gsub("\"", "\\\"")
-    end
-    local i = 1
+function handlespecials(s)
+    local i = 0
     repeat
-        local char = s:sub(i)
+        i = i + 1
+        local char = s:sub(i, i)
         if string.byte(char) then
-            if char == "\0" then
-                local old = s
-                s = s:sub(0, i - 1) .. "\0"
-                s = s .. old:sub(i + 1, -1)
-            elseif char == "\n" then
+            if char == "\n" then
                 s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
+                i = i + 1
             elseif char == "\t" then
                 s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
+                i = i + 1
             elseif char == "\\" then
                 s = s:sub(0, i - 1) .. "\\" .. s:sub(i + 1, -1)
-            elseif char == "\"" then
+            elseif char == '"' then
                 s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
+                i = i + 1
             elseif string.byte(char) > 126 or string.byte(char) < 32 then
                 s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
+                i = i + #tostring(string.byte(char))
             end
         end
-        i = i + 1
     until char == ""
     return s
 end
