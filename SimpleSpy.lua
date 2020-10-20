@@ -1254,7 +1254,7 @@ function u2s(u)
     elseif typeof(u) == "Enums" then
         return "Enum"
     elseif typeof(u) == "Enum" then
-        return "Enum"
+        return "Enum." .. tostring(u)
     elseif typeof(u) == "RBXScriptSignal" then
         return "nil --[[RBXScriptSignal]]"
     elseif typeof(u) == "RBXScriptConnection" then
