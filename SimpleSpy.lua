@@ -964,6 +964,8 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables)
     if typeof(v) == "number" then
         if v == math.huge then
             return "math.huge"
+        elseif tostring(v):match("nan") then
+            return "0/0 --[[NaN]]"
         end
         return tostring(v)
     elseif typeof(v) == "boolean" then
