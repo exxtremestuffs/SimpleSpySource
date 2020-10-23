@@ -1462,9 +1462,9 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
         pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
     end
-    if methodName:lower() == "fireserver" and not (blacklist[remote] or blacklist[remote.Name]) then
+    if methodName:lower() == "fireserver" then
         bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
-    elseif methodName:lower() == "invokeserver" and not (blacklist[remote] or blacklist[remote.Name]) then
+    elseif methodName:lower() == "invokeserver" then
         bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
     end
 end
@@ -1475,7 +1475,7 @@ function hookRemote(remoteType, remote, ...)
     if remoteHooks[remote] then
         args = remoteHooks[remote](args)
     end
-    if typeof(remote) == "Instance" then
+    if typeof(remote) == "Instance" and (not blacklist[remote] or not blacklist[remote.Name]) then
         local func = funcEnabled and debug.getinfo(4).func or nil
         schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func)
         if (blocklist[remote] or blocklist[remote.Name]) then
@@ -1499,7 +1499,7 @@ local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
     local remote = args[1]
-    if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" then
+    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (not blacklist[remote] or not blacklist[remote.Name]) then
         if remoteHooks[remote] then
             args = remoteHooks[remote]({args, unpack(args, 2)})
         end
