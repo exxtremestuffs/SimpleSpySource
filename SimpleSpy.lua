@@ -1446,8 +1446,7 @@ local newnamecall = newcclosure(function(...)
     local remote = args[1]
     if methodName:lower() == "invokeserver" or methodName:lower() == "fireserver" then
         if remoteHooks[remote] then
-            args = remoteHooks[remote]({unpack(args, 2)})
-            table.insert(args, 1, remote)
+            args = remoteHooks[remote]({args, unpack(args, 2)})
         end
         local func = funcEnabled and debug.getinfo(3).func or nil
         coroutine.wrap(function()
