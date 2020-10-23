@@ -1460,7 +1460,7 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
         pcall(function() functionInfo.info = debug.getinfo(func) end)
         pcall(function() functionInfo.constants = debug.getconstants(func) end)
         pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
-        print(pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end))
+        pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
     end
     if methodName:lower() == "fireserver" and not (blacklist[remote] or blacklist[remote.Name]) then
         bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
