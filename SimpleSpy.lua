@@ -1475,7 +1475,7 @@ function hookRemote(remoteType, remote, ...)
     if remoteHooks[remote] then
         args = remoteHooks[remote](args)
     end
-    if typeof(remote) == "Instance" and (not blacklist[remote] or not blacklist[remote.Name]) then
+    if typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remote.Name]) then
         local func = funcEnabled and debug.getinfo(4).func or nil
         schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func)
         if (blocklist[remote] or blocklist[remote.Name]) then
@@ -1499,7 +1499,7 @@ local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
     local remote = args[1]
-    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (not blacklist[remote] or not blacklist[remote.Name]) then
+    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and not (blacklist[remote] or blacklist[remote.Name]) then
         if remoteHooks[remote] then
             args = remoteHooks[remote]({args, unpack(args, 2)})
         end
