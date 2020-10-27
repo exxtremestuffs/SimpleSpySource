@@ -1178,6 +1178,10 @@ function u2s(u)
         return "Enum"
     elseif typeof(u) == "RBXScriptSignal" then
         return "nil --[[RBXScriptSignal]]"
+    elseif typeof(u) == "Vector3" then
+        return string.format("Vector3.new(%s, %s, %s)", v2s(u.X), v2s(u.Y), v2s(u.Z))
+    elseif typeof(u) == "CFrame" then
+        return string.format("CFrame.new(%s, %s)", v2s(u.Position), v2s(u.LookVector))
     else
         return typeof(u) .. ".new(" .. tostring(u) .. ")"
     end
