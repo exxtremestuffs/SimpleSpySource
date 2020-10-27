@@ -1266,7 +1266,7 @@ function u2s(u)
         return "nil --[[RBXScriptSignal]]"
     elseif typeof(u) == "RBXScriptConnection" then
         return "nil --[[RBXScriptConnection]]"
-    elseif typeof(u) == "PathWayoint" then
+    elseif typeof(u) == "PathWaypoint" then
         return string.format("PathWaypoint.new(%s, %s)", v2s(u.Position), v2s(u.Action))
     else
         return typeof(u) .. ".new(" .. tostring(u) .. ")"
