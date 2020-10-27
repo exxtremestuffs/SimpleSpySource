@@ -50,8 +50,6 @@ local TextLabel = Instance.new("TextLabel")
 --Properties:
 
 SimpleSpy2.Name = "SimpleSpy2"
-if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
-SimpleSpy2.Parent = CoreGui
 SimpleSpy2.ResetOnSpawn = false
 
 Background.Name = "Background"
@@ -1596,6 +1594,8 @@ if not _G.SimpleSpyExecuted then
             onToggleButtonUnhover()
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
+        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
+        SimpleSpy2.Parent = CoreGui
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
