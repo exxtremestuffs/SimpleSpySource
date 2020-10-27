@@ -1182,6 +1182,8 @@ function u2s(u)
         return string.format("Vector3.new(%s, %s, %s)", v2s(u.X), v2s(u.Y), v2s(u.Z))
     elseif typeof(u) == "CFrame" then
         return string.format("CFrame.new(%s, %s)", v2s(u.Position), v2s(u.LookVector))
+    elseif typeof(u) == "DockWidgetPluginGuiInfo" then
+        return string.format("DockWidgetPluginGuiInfo(%s, %s, %s, %s, %s, %s, %s)", "Enum.InitialDockState.Right", v2s(u.InitialEnabled), v2s(u.InitialEnabledShouldOverrideRestore), v2s(u.FloatingXSize), v2s(u.FloatingYSize), v2s(u.MinWidth), v2s(u.MinHeight))
     else
         return typeof(u) .. ".new(" .. tostring(u) .. ")"
     end
