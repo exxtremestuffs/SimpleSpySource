@@ -1813,8 +1813,12 @@ newButton(
     "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find",
     function(button)
         if selected then
-            codebox:setRaw(decompile(selected.SourceI))
-            TextLabel.Text = "Done!"
+            if selected.SourceI then
+                codebox:setRaw(decompile(selected.SourceI))
+                TextLabel.Text = "Done!"
+            else
+                TextLabel.Text = "Source not found!"
+            end
         end
     end
 )
