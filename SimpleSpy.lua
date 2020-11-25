@@ -1440,43 +1440,45 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, func)
-    coroutine.wrap(function()
-        if remoteSignals[remote] then
-            remoteSignals[remote]:Fire(args)
+    if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+        coroutine.wrap(function()
+            if remoteSignals[remote] then
+                remoteSignals[remote]:Fire(args)
+            end
+        end)()
+        if autoblock then
+            if excluding[remote] then
+                return
+            end
+            if not history[remote] then
+                history[remote] = {badOccurances = 0, lastCall = tick()}
+            end
+            if tick() - history[remote].lastCall < 1 then
+                history[remote].badOccurances += 1
+                return
+            else
+                history[remote].badOccurances = 0
+            end
+            if history[remote].badOccurances > 3 then
+                excluding[remote] = true
+                return
+            end
+            history[remote].lastCall = tick()
         end
-    end)()
-    if autoblock then
-        if excluding[remote] then
-            return
+        local functionInfoStr
+        local src, srci
+        if func and islclosure(func) then
+            local functionInfo = {}
+            pcall(function() functionInfo.info = debug.getinfo(func) end)
+            pcall(function() functionInfo.constants = debug.getconstants(func) end)
+            pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
+            pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
         end
-        if not history[remote] then
-            history[remote] = {badOccurances = 0, lastCall = tick()}
+        if methodName:lower() == "fireserver" then
+            bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+        elseif methodName:lower() == "invokeserver" then
+            bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
         end
-        if tick() - history[remote].lastCall < 1 then
-            history[remote].badOccurances += 1
-            return
-        else
-            history[remote].badOccurances = 0
-        end
-        if history[remote].badOccurances > 3 then
-            excluding[remote] = true
-            return
-        end
-        history[remote].lastCall = tick()
-    end
-    local functionInfoStr
-    local src, srci
-    if func and islclosure(func) then
-        local functionInfo = {}
-        pcall(function() functionInfo.info = debug.getinfo(func) end)
-        pcall(function() functionInfo.constants = debug.getconstants(func) end)
-        pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
-        pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
-    end
-    if methodName:lower() == "fireserver" then
-        bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
-    elseif methodName:lower() == "invokeserver" then
-        bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
     end
 end
 
