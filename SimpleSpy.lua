@@ -809,6 +809,7 @@ function mouseEntered()
     end)
 end
 
+--- Called when mouse moves
 function mouseMoved()
     local mousePos = UserInputService:GetMouseLocation()
     if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X - Background.AbsolutePosition.X
@@ -1698,8 +1699,8 @@ if not _G.SimpleSpyExecuted then
             onToggleButtonUnhover()
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
-        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse X for this features") end
-        SimpleSpy2.Parent = CoreGui
+        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
+        SimpleSpy2.Parent = gethui and gethui() or CoreGui
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
