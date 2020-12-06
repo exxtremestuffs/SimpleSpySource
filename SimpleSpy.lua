@@ -365,6 +365,9 @@ local funcEnabled = true
 local remoteSignals = {}
 local remoteHooks = {}
 
+-- original mouse icon
+local oldIcon = Mouse.Icon
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -760,6 +763,66 @@ function toggleMaximize()
     end
 end
 
+--- Checks if cursor is within resize range
+--- @param p Vector2
+function isInResizeRange(p)
+    local relativeP = p - Background.AbsolutePosition
+    local range = 5
+    if relativeP.X >= Background.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
+    and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
+        return true, 'B'
+    elseif relativeP.X >= Background.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
+        return true, 'X'
+    elseif relativeP.Y >= Background.AbsoluteSize.Y - range and relativeP.Y <= Background.AbsoluteSize.Y then
+        return true, 'Y'
+    end
+    return false
+end
+
+--- Called when mouse enters SimpleSpy
+function mouseEntered()
+    local customCursor = Instance.new("ImageLabel")
+    customCursor.Size = UDim2.fromScale(120, 120)
+    customCursor.ZIndex = math.huge
+    customCursor.BackgroundTransparency = 1
+    customCursor.Image = ""
+    customCursor.Parent = SimpleSpy2
+    RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
+        local mouseLocation = UserInputService:GetMouseLocation()
+        local relLocation = mouseLocation - Background.AbsolutePosition
+        if relLocation.X >= 0 and relLocation.Y >= 0
+        and relLocation.X <= Background.AbsoluteSize.X and relLocation.Y <= Background.AbsoluteSize.Y then
+            customCursor.Position = UDim2.fromScale
+            UserInputService.MouseIconEnabled = false
+            local inRange, type = isInResizeRange(mouseLocation)
+            if inRange then
+                customCursor.Image = type == 'B' and "rbxasset://SystemCursors/SizeNWSE" or type == 'X' and "rbxasset://SystemCursors/SizeEW" or type == 'Y' and "rbxasset://SystemCursors/SizeNS"
+            else
+                customCursor.Image = ""
+            end
+        end
+    end)
+end
+
+--- Called on user input while mouse in 'Background' frame
+--- @param input InputObject
+function backgroundUserInput(input)
+    local inRange, type = isInResizeRange(UserInputService:GetMouseLocation())
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
+        local lastPos = UserInputService:GetMouseLocation()
+        RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
+            if input.UserInputState == Enum.UserInputState.End or input.UserInputState == Enum.UserInputState.Cancel then
+                RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
+            end
+            local currentPos = UserInputService:GetMouseLocation()
+            if currentPos ~= lastPos then
+                Background.Size = UDim2.fromScale(type == "Y" and Background.AbsoluteSize.X or (currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (currentPos - lastPos).Y)
+                lastPos = currentPos
+            end
+        end)
+    end
+end
+
 --- Gets the player an instance is descended from
 function getPlayerFromInstance(instance)
     for _, v in pairs(Players:GetPlayers()) do
@@ -804,6 +867,10 @@ end
 --- @param text string
 function makeToolTip(enable, text)
     if enable then
+        if ToolTip.Visible then
+            ToolTip.Visible = false
+            RunService:UnbindFromRenderStep("ToolTip")
+        end
         local first = true
         RunService:BindToRenderStep("ToolTip", 1, function()
             local topLeft = Vector2.new(Mouse.X + 20, Mouse.Y + 20)
@@ -831,8 +898,10 @@ function makeToolTip(enable, text)
         TextLabel.Text = text
         ToolTip.Visible = true
     else
-        ToolTip.Visible = false
-        pcall(function() RunService:UnbindFromRenderStep("ToolTip") end)
+        if ToolTip.Visible then
+            ToolTip.Visible = false
+            RunService:UnbindFromRenderStep("ToolTip")
+        end
     end
 end
 
@@ -1586,6 +1655,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
+        ContentProvider:PreloadAsync({ImageLabel, ImageLabel_2, ImageLabel_3})
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
@@ -1602,6 +1672,12 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseEnter:Connect(onToggleButtonHover)
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
+        Background.MouseMoved:Connect(backgroundMouseMoved)
+        Background.InputBegan:Connect(backgroundUserInput)
+        LeftPanel.MouseMoved:Connect(backgroundMouseMoved)
+        LeftPanel.InputBegan:Connect(backgroundUserInput)
+        RightPanel.MouseMoved:Connect(backgroundMouseMoved)
+        RightPanel.InputBegan:Connect(backgroundUserInput)
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
@@ -1609,7 +1685,7 @@ if not _G.SimpleSpyExecuted then
             onToggleButtonUnhover()
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
-        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
+        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse X for this features") end
         SimpleSpy2.Parent = CoreGui
     end)
     if succeeded then
