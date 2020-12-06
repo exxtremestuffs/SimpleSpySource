@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v1 SOURCE 
+    SimpleSpy v2.2 SOURCE 
 
     Credits: 
         exx - basically everything
@@ -367,6 +367,9 @@ local remoteHooks = {}
 
 -- original mouse icon
 local oldIcon = Mouse.Icon
+
+-- if mouse inside gui
+local mouseInGui = false
 
 -- functions
 
@@ -789,16 +792,14 @@ function mouseEntered()
     customCursor.Parent = SimpleSpy2
     RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
         local mouseLocation = UserInputService:GetMouseLocation()
-        local relLocation = mouseLocation - Background.AbsolutePosition
-        if relLocation.X >= 0 and relLocation.Y >= 0
-        and relLocation.X <= Background.AbsoluteSize.X and relLocation.Y <= Background.AbsoluteSize.Y then
+        if mouseInGui then
             customCursor.Position = UDim2.fromScale
             UserInputService.MouseIconEnabled = false
             local inRange, type = isInResizeRange(mouseLocation)
             if inRange then
-                customCursor.Image = type == 'B' and "rbxasset://SystemCursors/SizeNWSE" or type == 'X' and "rbxasset://SystemCursors/SizeEW" or type == 'Y' and "rbxasset://SystemCursors/SizeNS"
+                customCursor.Image = type == 'B' and "rbxassetid://6048322739" or type == 'X' and "rbxassetid://6048322222" or type == 'Y' and "rbxassetid://6048322468"
             else
-                customCursor.Image = ""
+                customCursor.Image = "rbxassetid://6049075260"
             end
         else
             UserInputService.MouseIconEnabled = true
@@ -806,6 +807,18 @@ function mouseEntered()
             RunService:UnbindFromRenderStep("SIMPLESPY_CURSOR")
         end
     end)
+end
+
+function mouseMoved()
+    local mousePos = UserInputService:GetMouseLocation()
+    if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X - Background.AbsolutePosition.X
+    and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
+    not mouseInGui then
+        mouseInGui = true
+        mouseEntered()
+    else
+        mouseInGui = false
+    end
 end
 
 --- Called on user input while mouse in 'Background' frame
@@ -1192,14 +1205,14 @@ function f2s(f)
     --         end
     --     end
     -- end
-    local isgucci, gpath = v2p(f, getgc())
-    if isgucci then
-        return "getgc()" .. gpath
-    end
-    if debug.getinfo(f).name:match("%w") then
+    -- local isgucci, gpath = v2p(f, getgc())
+    -- if isgucci then
+    --     return "getgc()" .. gpath
+    -- end
+    if debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
         return "function()end --[[" .. debug.getinfo(f).name .. "]]"
     end
-    return "function()end"
+    return "function()end --[[" .. tostring(f) .. "]]"
 end
 
 --- instance-to-path
@@ -1676,12 +1689,8 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseEnter:Connect(onToggleButtonHover)
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
-        Background.MouseMoved:Connect(backgroundMouseMoved)
-        Background.InputBegan:Connect(backgroundUserInput)
-        LeftPanel.MouseMoved:Connect(backgroundMouseMoved)
-        LeftPanel.InputBegan:Connect(backgroundUserInput)
-        RightPanel.MouseMoved:Connect(backgroundMouseMoved)
-        RightPanel.InputBegan:Connect(backgroundUserInput)
+        UserInputService.InputBegan:Connect(backgroundUserInput)
+        Mouse.Move:Connect(mouseMoved())
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
@@ -1733,7 +1742,7 @@ end
 newButton(
     "Copy Code",
     "Click to copy code",
-    function(button)
+    function()
         local orText = "Click to copy code"
         setclipboard(codebox:getString())
         TextLabel.Text = "Copied successfully!"
@@ -1746,7 +1755,7 @@ newButton(
 newButton(
     "Copy Remote",
     "Click to copy the path of the remote",
-    function(button)
+    function()
         if selected then
             local orText = "Click to copy the path of the remote"
             setclipboard(v2s(selected.Remote))
@@ -1759,7 +1768,7 @@ newButton(
 newButton(
     "Run Code",
     "Click to execute code",
-    function(button)
+    function()
         local orText = "Click to execute code"
         TextLabel.Text = "Executing..."
         local execute = {
@@ -1784,7 +1793,7 @@ newButton(
 newButton(
     "Get Script",
     "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find",
-    function(button)
+    function()
         if selected then
             setclipboard(tostring(selected.Source))
             TextLabel.Text = "Done!"
@@ -1796,7 +1805,7 @@ newButton(
 newButton(
     "Function Info",
     "Click to view calling function information",
-    function(button)
+    function()
         if selected then
             local orText = "Click to view calling function information"
             if selected.Function then
@@ -1811,7 +1820,7 @@ newButton(
 newButton(
     "Clr Logs",
     "Click to clear logs",
-    function(button)
+    function()
         local orText = "Click to clear logs"
         TextLabel.Text = "Clearing..."
         logs = {}
@@ -1830,7 +1839,7 @@ newButton(
 newButton(
     "Exclude (i)",
     "Click to exclude this Remote",
-    function(button)
+    function()
         if selected then
             local orText = "Click to exclude this Remote"
             blacklist[selected.Remote] = true
@@ -1843,7 +1852,7 @@ newButton(
 newButton(
     "Exclude (n)",
     "Click to exclude all remotes with this name",
-    function(button)
+    function()
         if selected then
             local orText = "Click to exclude all remotes with this name"
             blacklist[selected.Name] = true
@@ -1856,7 +1865,7 @@ newButton(
 newButton(
     "Clr Blacklist",
     "Click to clear the blacklist",
-    function(button)
+    function()
         local orText = "Click to clear the blacklist"
         blacklist = {}
         TextLabel.Text = "Blacklist cleared!"
@@ -1867,7 +1876,7 @@ newButton(
 newButton(
     "Block (i)",
     "Click to stop this remote from firing",
-    function(button)
+    function()
         if selected then
             local orText = "Click to stop this remote from firing"
             blocklist[selected.Remote] = true
@@ -1880,7 +1889,7 @@ newButton(
 newButton(
     "Block (n)",
     "Click to stop remotes with this name from firing",
-    function(button)
+    function()
         if selected then
             local orText = "Click to stop remotes with this name from firing"
             blocklist[selected.Name] = true
@@ -1893,7 +1902,7 @@ newButton(
 newButton(
     "Clr Blocklist",
     "Click to stop blocking remotes",
-    function(button)
+    function()
         local orText = "Click to stop blocking remotes"
         blocklist = {}
         TextLabel.Text = "Blocklist cleared!"
@@ -1904,7 +1913,7 @@ newButton(
 newButton(
     "Decompile",
     "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find",
-    function(button)
+    function()
         if selected then
             if selected.SourceI then
                 codebox:setRaw(decompile(selected.SourceI))
