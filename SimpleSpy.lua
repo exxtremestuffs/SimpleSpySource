@@ -800,6 +800,10 @@ function mouseEntered()
             else
                 customCursor.Image = ""
             end
+        else
+            UserInputService.MouseIconEnabled = true
+            customCursor:Destroy()
+            RunService:UnbindFromRenderStep("SIMPLESPY_CURSOR")
         end
     end)
 end
