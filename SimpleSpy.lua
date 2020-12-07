@@ -751,7 +751,7 @@ function toggleMaximize()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
             if UserInputService:GetMouseLocation().Y + 36 >= CodeBox.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= CodeBox.AbsolutePosition.Y + CodeBox.AbsoluteSize.Y
-            and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
+                and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
                 return
             end
             TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
@@ -772,7 +772,7 @@ function isInResizeRange(p)
     local relativeP = p - Background.AbsolutePosition
     local range = 5
     if relativeP.X >= Background.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
-    and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
+        and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
         return true, 'B'
     elseif relativeP.X >= Background.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
         return true, 'X'
@@ -813,8 +813,8 @@ end
 function mouseMoved()
     local mousePos = UserInputService:GetMouseLocation()
     if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X - Background.AbsolutePosition.X
-    and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
-    not mouseInGui then
+        and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
+        not mouseInGui then
         mouseInGui = true
         mouseEntered()
     else
@@ -1459,6 +1459,7 @@ end
 function getScriptFromSrc(src)
     local realPath
     local runningTest
+    --- @type number
     local s, e
     local match = false
     if src:sub(1, 1) == "=" then
