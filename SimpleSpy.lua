@@ -371,6 +371,9 @@ local oldIcon = Mouse.Icon
 -- if mouse inside gui
 local mouseInGui = false
 
+-- handy array of RBXScriptConnections to disconnect on shutdown
+local connections = {}
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -790,15 +793,15 @@ function mouseEntered()
     customCursor.BackgroundTransparency = 1
     customCursor.Image = ""
     customCursor.Parent = SimpleSpy2
+    UserInputService.MouseIconEnabled = false
     RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
-        local mouseLocation = UserInputService:GetMouseLocation()
+        local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
         if mouseInGui then
-            customCursor.Position = UDim2.fromScale
-            UserInputService.MouseIconEnabled = false
+            customCursor.Position = UDim2.fromScale(mouseLocation.X, mouseLocation.Y)
             local inRange, type = isInResizeRange(mouseLocation)
             if inRange then
                 customCursor.Image = type == 'B' and "rbxassetid://6048322739" or type == 'X' and "rbxassetid://6048322222" or type == 'Y' and "rbxassetid://6048322468"
-            else
+            elseif customCursor.Image ~= "rbxassetid://6049075260" then
                 customCursor.Image = "rbxassetid://6049075260"
             end
         else
@@ -811,12 +814,13 @@ end
 
 --- Called when mouse moves
 function mouseMoved()
-    local mousePos = UserInputService:GetMouseLocation()
-    if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X - Background.AbsolutePosition.X
-        and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
-        not mouseInGui then
-        mouseInGui = true
-        mouseEntered()
+    local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+    if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X + Background.AbsoluteSize.X
+        and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y + Background.AbsoluteSize.Y then
+        if not mouseInGui then
+            mouseInGui = true
+            mouseEntered()
+        end
     else
         mouseInGui = false
     end
@@ -1665,6 +1669,11 @@ function shutdown()
     if schedulerconnect then
         schedulerconnect:Disconnect()
     end
+    for _, connection in pairs(connections) do
+        coroutine.wrap(function()
+            connection:Disconnect()
+        end)()
+    end
     setreadonly(gm, false)
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
@@ -1694,8 +1703,8 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseEnter:Connect(onToggleButtonHover)
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
-        UserInputService.InputBegan:Connect(backgroundUserInput)
-        Mouse.Move:Connect(mouseMoved)
+        table.insert(connections, UserInputService.InputBegan:Connect(backgroundUserInput))
+        table.insert(connections, Mouse.Move:Connect(mouseMoved))
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
