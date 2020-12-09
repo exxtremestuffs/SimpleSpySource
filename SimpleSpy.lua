@@ -1691,7 +1691,7 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
         UserInputService.InputBegan:Connect(backgroundUserInput)
-        Mouse.Move:Connect(mouseMoved())
+        Mouse.Move:Connect(mouseMoved)
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
