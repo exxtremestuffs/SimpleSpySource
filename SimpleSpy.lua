@@ -751,7 +751,7 @@ function toggleMaximize()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
             if UserInputService:GetMouseLocation().Y + 36 >= CodeBox.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= CodeBox.AbsolutePosition.Y + CodeBox.AbsoluteSize.Y
-            and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
+                and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
                 return
             end
             TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
@@ -772,7 +772,7 @@ function isInResizeRange(p)
     local relativeP = p - Background.AbsolutePosition
     local range = 5
     if relativeP.X >= Background.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
-    and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
+        and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
         return true, 'B'
     elseif relativeP.X >= Background.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
         return true, 'X'
@@ -813,8 +813,8 @@ end
 function mouseMoved()
     local mousePos = UserInputService:GetMouseLocation()
     if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X - Background.AbsolutePosition.X
-    and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
-    not mouseInGui then
+        and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y - Background.AbsolutePosition.Y and
+        not mouseInGui then
         mouseInGui = true
         mouseEntered()
     else
@@ -924,11 +924,14 @@ function makeToolTip(enable, text)
 end
 
 --- Creates new function button (below codebox)
+--- @param name string
+---@param description function
+---@param onClick function
 function newButton(name, description, onClick)
     local button = FunctionTemplate:Clone()
     button.Text.Text = name
     button.Button.MouseEnter:Connect(function()
-        makeToolTip(true, description)
+        makeToolTip(true, description())
     end)
     button.Button.MouseLeave:Connect(function()
         makeToolTip(false)
@@ -1456,6 +1459,7 @@ end
 function getScriptFromSrc(src)
     local realPath
     local runningTest
+    --- @type number
     local s, e
     local match = false
     if src:sub(1, 1) == "=" then
@@ -1742,23 +1746,19 @@ end
 -- Copies the contents of the codebox
 newButton(
     "Copy Code",
-    "Click to copy code",
+    function() return "Click to copy code" end,
     function()
-        local orText = "Click to copy code"
         setclipboard(codebox:getString())
         TextLabel.Text = "Copied successfully!"
-        wait(2)
-        TextLabel.Text = orText
     end
 )
 
 --- Copies the source script (that fired the remote)
 newButton(
     "Copy Remote",
-    "Click to copy the path of the remote",
+    function() return "Click to copy the path of the remote" end,
     function()
         if selected then
-            local orText = "Click to copy the path of the remote"
             setclipboard(v2s(selected.Remote))
             TextLabel.Text = "Copied!"
         end
@@ -1768,32 +1768,23 @@ newButton(
 -- Executes the contents of the codebox through loadstring
 newButton(
     "Run Code",
-    "Click to execute code",
+    function() return "Click to execute code" end,
     function()
         local orText = "Click to execute code"
         TextLabel.Text = "Executing..."
-        local execute = {
-            pcall(
-                function()
-                    return loadstring(codebox:getString())()
-                end
-            )
-        }
-        if execute[1] then
+        local succeeded = pcall(function() return loadstring(codebox:getString())() end)
+        if succeeded then
             TextLabel.Text = "Executed successfully!"
         else
-            warn(execute[2], execute[3])
             TextLabel.Text = "Execution error!"
         end
-        wait(3)
-        TextLabel.Text = orText
     end
 )
 
 --- Gets the calling script (not super reliable but w/e)
 newButton(
     "Get Script",
-    "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find",
+    function() return "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find" end,
     function()
         if selected then
             setclipboard(tostring(selected.Source))
@@ -1805,14 +1796,13 @@ newButton(
 --- Decompiles the script that fired the remote and puts it in the code box
 newButton(
     "Function Info",
-    "Click to view calling function information",
+    function() return "Click to view calling function information" end,
     function()
         if selected then
-            local orText = "Click to view calling function information"
             if selected.Function then
                 codebox:setRaw("-- Calling function info\n-- Generated by the SimpleSpy serializer\n\n" .. tostring(selected.Function))
             end
-            TextLabel.Text = "Done!"
+            TextLabel.Text = "Done! Function info generated by the SimpleSpy Serializer."
         end
     end
 )
@@ -1820,9 +1810,8 @@ newButton(
 --- Clears the Remote logs
 newButton(
     "Clr Logs",
-    "Click to clear logs",
+    function() return "Click to clear logs" end,
     function()
-        local orText = "Click to clear logs"
         TextLabel.Text = "Clearing..."
         logs = {}
         for _, v in pairs(LogList:GetChildren()) do
@@ -1839,10 +1828,9 @@ newButton(
 --- Excludes the selected.Log Remote from the RemoteSpy
 newButton(
     "Exclude (i)",
-    "Click to exclude this Remote",
+    function() return "Click to exclude this Remote" end,
     function()
         if selected then
-            local orText = "Click to exclude this Remote"
             blacklist[selected.Remote] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1852,10 +1840,9 @@ newButton(
 --- Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
 newButton(
     "Exclude (n)",
-    "Click to exclude all remotes with this name",
+    function() return "Click to exclude all remotes with this name" end,
     function()
         if selected then
-            local orText = "Click to exclude all remotes with this name"
             blacklist[selected.Name] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1865,9 +1852,8 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blacklist",
-    "Click to clear the blacklist",
+    function() return "Click to clear the blacklist" end,
     function()
-        local orText = "Click to clear the blacklist"
         blacklist = {}
         TextLabel.Text = "Blacklist cleared!"
     end
@@ -1876,10 +1862,9 @@ newButton(
 --- Prevents the selected.Log Remote from firing the server (still logged)
 newButton(
     "Block (i)",
-    "Click to stop this remote from firing",
+    function() return "Click to stop this remote from firing" end,
     function()
         if selected then
-            local orText = "Click to stop this remote from firing"
             blocklist[selected.Remote] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1889,10 +1874,9 @@ newButton(
 --- Prevents all remotes from firing that share the same name as the selected.Log remote from the RemoteSpy (still logged)
 newButton(
     "Block (n)",
-    "Click to stop remotes with this name from firing",
+    function() return "Click to stop remotes with this name from firing" end,
     function()
         if selected then
-            local orText = "Click to stop remotes with this name from firing"
             blocklist[selected.Name] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1902,9 +1886,8 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blocklist",
-    "Click to stop blocking remotes",
+    function() return "Click to stop blocking remotes" end,
     function()
-        local orText = "Click to stop blocking remotes"
         blocklist = {}
         TextLabel.Text = "Blocklist cleared!"
     end
@@ -1913,7 +1896,7 @@ newButton(
 --- Attempts to decompile the source script
 newButton(
     "Decompile",
-    "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find",
+    function() return "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find" end,
     function()
         if selected then
             if selected.SourceI then
@@ -1928,19 +1911,19 @@ newButton(
 
 newButton(
     "Disable Info",
-    "Toggle function info (because it can cause lag in some games)",
+    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = "Toggle function info (because it can cause lag in some games) - " .. (funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
 newButton(
     "Autoblock",
-    "[BETA] Intelligently detects and excludes spammy remote calls from logs",
+    function() return string.format("[%s] [BETA] Intelligently detects and excludes spammy remote calls from logs", autoblock and "ENABLED" or "DISABLED") end,
     function()
         autoblock = not autoblock
-        TextLabel.Text = "[BETA] Intelligently detects and excludes spammy remote calls from logs - " .. (autoblock and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("[%s] [BETA] Intelligently detects and excludes spammy remote calls from logs", autoblock and "ENABLED" or "DISABLED")
         history = {}
         excluding = {}
     end
