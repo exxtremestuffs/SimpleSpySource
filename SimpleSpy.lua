@@ -793,8 +793,7 @@ function mouseEntered()
     customCursor.BackgroundTransparency = 1
     customCursor.Image = ""
     customCursor.Parent = SimpleSpy2
-    local prevMouseIconEnabled = UserInputService.MouseIconEnabled
-    UserInputService.MouseIconEnabled = false
+    UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.ForceHide
     RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
         if mouseInGui then
             local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
@@ -806,7 +805,7 @@ function mouseEntered()
                 customCursor.Image = "rbxassetid://6065775281"
             end
         else
-            UserInputService.MouseIconEnabled = prevMouseIconEnabled
+            UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.None
             customCursor:Destroy()
             RunService:UnbindFromRenderStep("SIMPLESPY_CURSOR")
         end
@@ -817,7 +816,7 @@ end
 function mouseMoved()
     local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
     if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X + Background.AbsoluteSize.X
-        and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y + Background.AbsoluteSize.Y then
+    and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y + Background.AbsoluteSize.Y then
         if not mouseInGui then
             mouseInGui = true
             mouseEntered()
@@ -834,12 +833,15 @@ function backgroundUserInput(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
         local lastPos = UserInputService:GetMouseLocation()
         RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
-            if input.UserInputState == Enum.UserInputState.End or input.UserInputState == Enum.UserInputState.Cancel then
-                RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
-            end
+            table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
+                if input == inputE then
+                    RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
+                end
+            end))
             local currentPos = UserInputService:GetMouseLocation()
+            print(currentPos - lastPos)
             if currentPos ~= lastPos then
-                Background.Size = UDim2.fromOffset(type == "Y" and Background.AbsoluteSize.X or (currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (currentPos - lastPos).Y)
+                Background.Size = UDim2.fromOffset(type == "Y" and Background.AbsoluteSize.X or (Background.AbsoluteSize.X + currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (Background.AbsoluteSize.Y + currentPos - lastPos).Y)
                 lastPos = currentPos
             end
         end)
