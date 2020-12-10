@@ -788,24 +788,25 @@ end
 --- Called when mouse enters SimpleSpy
 function mouseEntered()
     local customCursor = Instance.new("ImageLabel")
-    customCursor.Size = UDim2.fromScale(120, 120)
-    customCursor.ZIndex = math.huge
+    customCursor.Size = UDim2.fromOffset(200, 200)
+    customCursor.ZIndex = 1e5
     customCursor.BackgroundTransparency = 1
     customCursor.Image = ""
     customCursor.Parent = SimpleSpy2
+    local prevMouseIconEnabled = UserInputService.MouseIconEnabled
     UserInputService.MouseIconEnabled = false
     RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
-        local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
         if mouseInGui then
-            customCursor.Position = UDim2.fromScale(mouseLocation.X, mouseLocation.Y)
+            local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+            customCursor.Position = UDim2.fromOffset(mouseLocation.X - customCursor.AbsoluteSize.X / 2, mouseLocation.Y - customCursor.AbsoluteSize.Y / 2)
             local inRange, type = isInResizeRange(mouseLocation)
             if inRange then
-                customCursor.Image = type == 'B' and "rbxassetid://6048322739" or type == 'X' and "rbxassetid://6048322222" or type == 'Y' and "rbxassetid://6048322468"
-            elseif customCursor.Image ~= "rbxassetid://6049075260" then
-                customCursor.Image = "rbxassetid://6049075260"
+                customCursor.Image = type == 'B' and "rbxassetid://6065821980" or type == 'X' and "rbxassetid://6065821086" or type == 'Y' and "rbxassetid://6065821596"
+            elseif customCursor.Image ~= "rbxassetid://6065775281" then
+                customCursor.Image = "rbxassetid://6065775281"
             end
         else
-            UserInputService.MouseIconEnabled = true
+            UserInputService.MouseIconEnabled = prevMouseIconEnabled
             customCursor:Destroy()
             RunService:UnbindFromRenderStep("SIMPLESPY_CURSOR")
         end
@@ -838,7 +839,7 @@ function backgroundUserInput(input)
             end
             local currentPos = UserInputService:GetMouseLocation()
             if currentPos ~= lastPos then
-                Background.Size = UDim2.fromScale(type == "Y" and Background.AbsoluteSize.X or (currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (currentPos - lastPos).Y)
+                Background.Size = UDim2.fromOffset(type == "Y" and Background.AbsoluteSize.X or (currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (currentPos - lastPos).Y)
                 lastPos = currentPos
             end
         end)
@@ -1686,7 +1687,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        ContentProvider:PreloadAsync({ImageLabel, ImageLabel_2, ImageLabel_3})
+        ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
