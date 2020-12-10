@@ -1573,9 +1573,9 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
             pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
         end
         if methodName:lower() == "fireserver" then
-            bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
         elseif methodName:lower() == "invokeserver" then
-            bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
         end
     end
 end
@@ -1659,12 +1659,6 @@ end
 function toggleSpyMethod()
     toggleSpy()
     toggle = not toggle
-end
-
---- Handles the button creation things... Connected to `remoteHandlerEvent`
-function bindableHandler(...)
-    -- syn.set_thread_identity(7)
-    newRemote(...)
 end
 
 --- Shuts down the remote spy
