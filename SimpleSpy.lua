@@ -465,10 +465,12 @@ function newSignal()
             assert(connected, "Signal is closed")
             connected[tostring(f)] = f
             return setmetatable({
-                Disconnect = function()
+                Connected = true,
+                Disconnect = function(self)
                     if not connected then
                         warn("Signal is already closed")
                     end
+                    self.Connected = false
                     connected[tostring(f)] = nil
                 end
             },
