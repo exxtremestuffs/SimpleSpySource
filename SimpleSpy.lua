@@ -831,22 +831,35 @@ end
 --- Called on user input while mouse in 'Background' frame
 --- @param input InputObject
 function backgroundUserInput(input)
-    local inRange, type = isInResizeRange(UserInputService:GetMouseLocation())
+    local inRange, type = isInResizeRange(UserInputService:GetMouseLocation() - Vector2.new(0, 36))
     if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
         local lastPos = UserInputService:GetMouseLocation()
+        print("beginning resizzling")
+        -- local lPanelSize = LeftPanel.Size
+        -- local rPanelSize = RightPanel.Size
+        -- local tBarSize = TopBar.Size
         RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
-            table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
-                if input == inputE then
-                    RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
-                end
-            end))
             local currentPos = UserInputService:GetMouseLocation()
-            print(currentPos - lastPos)
-            if currentPos ~= lastPos then
-                Background.Size = UDim2.fromOffset(type == "Y" and Background.AbsoluteSize.X or (Background.AbsoluteSize.X + currentPos - lastPos).X, type == "X" and Background.AbsoluteSize.Y or (Background.AbsoluteSize.Y + currentPos - lastPos).Y)
+            -- print(currentPos - lastPos)
+            if currentPos ~= lastPos and sideClosed and not closed then
+
+            elseif currentPos ~= lastPos then
+                -- print((type == "Y" or type == "B"))
+                Background.Size = UDim2.fromOffset((type == "X" or type == "B") and (Background.AbsoluteSize + currentPos - lastPos).X or Background.AbsoluteSize.X, (type == "Y" or type == "B") and (Background.AbsoluteSize + currentPos - lastPos).Y or Background.AbsoluteSize.Y)
+                -- lPanelSize = UDim2.fromOffset(lPanelSize.X.Offset, (type == "Y" or type == "B") and (lPanelSize.Y.Offset + currentPos.Y - lastPos.Y) or lPanelSize.Y.Offset)
+                -- rPanelSize = UDim2.fromOffset((type == "X" or type == "B") and (rPanelSize.X.Offset + currentPos.X - lastPos.X) or rPanelSize.X.Offset, (type == "Y" or type == "B") and (rPanelSize.Y.Offset + currentPos.Y - lastPos.Y) or rPanelSize.Y.Offset)
+                -- tBarSize = UDim2.fromOffset((type == "X" or type == "B") and (tBarSize.X.Offset + currentPos.X - lastPos.X) or tBarSize.X.Offset, tBarSize.Y.Offset)
+                TweenService:Create(LeftPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+                TweenService:Create(RightPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+                TweenService:Create(TopBar, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
                 lastPos = currentPos
             end
         end)
+        table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
+            if input == inputE then
+                RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
+            end
+        end))
     end
 end
 
