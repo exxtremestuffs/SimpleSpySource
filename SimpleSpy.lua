@@ -983,7 +983,7 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables)
     elseif type(v) == "userdata" then
         return u2s(v)
     else
-        return "nil --[[" .. tostring(v) .. "]]"
+        return "nil" -- --[[" .. tostring(v) .. "]]"
     end
 end
 
@@ -1068,7 +1068,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
         if size > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
             break
         end
-        if k == t then
+        if rawequal(k, t) then
             bottomstr = bottomstr .. "\n" .. tostring(n) .. tostring(path) .. "[" .. tostring(n) .. tostring(path) .. "]" .. " = " .. (v == k and tostring(n) .. tostring(path) or v2s(v, l, p, n, vtv, k, t, path .. "[" .. tostring(n) .. tostring(path) .. "]", tables))
             size -= 1
             continue
@@ -1079,7 +1079,9 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
         else
             currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path) .. "]"
         end
+        -- rconsoleprint("[" .. v2s(k) .. "]" .. "=" .. v2s(v) .. "\n")
         s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables) .. ","
+        break
     end
     if #s > 1 then
         s = s:sub(1, #s - 1)
@@ -1586,7 +1588,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        onToggleButtonClick()
+        -- onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
         codebox = Highlight.new(CodeBox)
@@ -1604,10 +1606,10 @@ if not _G.SimpleSpyExecuted then
         CloseButton.MouseButton1Click:Connect(shutdown)
         connectResize()
         SimpleSpy2.Enabled = true
-        coroutine.wrap(function()
-            wait(1)
-            onToggleButtonUnhover()
-        end)()
+        -- coroutine.wrap(function()
+        --     wait(1)
+        --     onToggleButtonUnhover()
+        -- end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
         SimpleSpy2.Parent = CoreGui
