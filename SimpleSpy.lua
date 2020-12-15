@@ -833,7 +833,7 @@ function maximizeSize()
     TweenService:Create(LeftPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(RightPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(TopBar, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y / 2 - TopBar.AbsoluteSize.Y), Position = UDim2.fromOffset(Background.AbsoluteSize.X, Background.AbsoluteSize.Y / 2) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y / 2 - TopBar.AbsoluteSize.Y), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y / 2) }):Play()
     TweenService:Create(CodeBox, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y / 2 - TopBar.AbsoluteSize.Y) }):Play()
 end
 
@@ -846,14 +846,15 @@ function backgroundUserInput(input)
         print("beginning resizzling")
         RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
             local currentPos = UserInputService:GetMouseLocation()
-            -- if Background.AbsolutePosition.X + currentPos.X - lastPos.X < 450 then
-            --     currentPos = Vector2.new(450, currentPos.Y)
-            -- end
-            -- if Background.AbsolutePosition.Y + currentPos.Y - lastPos.Y < 268 then
-            --     currentPos = Vector2.new(currentPos.X, 268)
-            -- end
             if currentPos ~= lastPos then
-                Background.Size = UDim2.fromOffset((not sideClosed and (type == "X" or type == "B")) and (Background.AbsoluteSize + currentPos - lastPos).X or Background.AbsoluteSize.X, (not closed and (type == "Y" or type == "B")) and (Background.AbsoluteSize + currentPos - lastPos).Y or Background.AbsoluteSize.Y)
+                local newPos = Background.AbsoluteSize + currentPos - lastPos
+                if newPos.X < 450 then
+                    newPos = Vector2.new(450, newPos.Y)
+                end
+                if newPos.Y < 268 then
+                    newPos = Vector2.new(newPos.X, 268)
+                end
+                Background.Size = UDim2.fromOffset((not sideClosed and (type == "X" or type == "B")) and newPos.X or Background.AbsoluteSize.X, (not closed and (type == "Y" or type == "B")) and newPos.Y or Background.AbsoluteSize.Y)
                 maximizeSize()
                 lastPos = currentPos
             end
