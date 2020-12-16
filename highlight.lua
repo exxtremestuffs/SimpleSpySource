@@ -335,6 +335,7 @@ function Highlight:init(frame)
         scrollingFrame.Size = UDim2.new(0, parentSize.X, 0, parentSize.Y)
         scrollingFrame.BackgroundColor3 = backgroundColor
         scrollingFrame.BorderSizePixel = 0
+        scrollingFrame.ScrollBarThickness = 4
 
         textFrame.Name = ""
         textFrame.Size = UDim2.new(1, -40, 1, 0)
