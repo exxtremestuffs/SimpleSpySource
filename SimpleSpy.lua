@@ -138,8 +138,8 @@ ScrollingFrame.Parent = RightPanel
 ScrollingFrame.Active = true
 ScrollingFrame.BackgroundColor3 = Color3.new(1, 1, 1)
 ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.Position = UDim2.new(0, 0, 0.476000011, 0)
-ScrollingFrame.Size = UDim2.new(1, 0, 0.5, 0)
+ScrollingFrame.Position = UDim2.new(0, 0, 0.5, 0)
+ScrollingFrame.Size = UDim2.new(1, 0, 0.5, -9)
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollingFrame.ScrollBarThickness = 4
 
@@ -578,11 +578,11 @@ function bringBackOnResize()
             currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
         end
     end
-    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35)) then
+    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36)) then
         if currentY < 0 then
             currentY = 0
         else
-            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35
+            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36
         end
     end
     TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentX, 0, currentY)}):Play()
@@ -609,11 +609,11 @@ function onBarInput(input)
                             currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
                         end
                     end
-                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35) and currentY > currentPos.Y) then
+                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36) and currentY > currentPos.Y) then
                         if currentY < 0 then
                             currentY = 0
                         else
-                            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35
+                            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
@@ -837,7 +837,7 @@ function maximizeSize(speed)
     TweenService:Create(LeftPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(RightPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(TopBar, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 110), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(CodeBox, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
 end
@@ -861,23 +861,27 @@ function backgroundUserInput(input)
     local inRange, type = isInResizeRange(UserInputService:GetMouseLocation() - Vector2.new(0, 36))
     if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
         local lastPos = UserInputService:GetMouseLocation()
+        local offset = Background.AbsoluteSize - lastPos
+        local currentPos = lastPos + offset
         RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
-            local currentPos = UserInputService:GetMouseLocation()
-            if currentPos ~= lastPos then
-                local newPos = Background.AbsoluteSize + currentPos - lastPos
-                if newPos.X < 450 then
-                    newPos = Vector2.new(450, newPos.Y)
+            local newPos = UserInputService:GetMouseLocation()
+            if newPos ~= lastPos then
+                local currentX = (newPos + offset).X
+                local currentY = (newPos + offset).Y
+                if currentX < 450 then
+                    currentX = 450
                 end
-                if newPos.Y < 268 then
-                    newPos = Vector2.new(newPos.X, 268)
+                if currentY < 268 then
+                    currentY = 268
                 end
-                Background.Size = UDim2.fromOffset((not sideClosed and not closed and (type == "X" or type == "B")) and newPos.X or Background.AbsoluteSize.X, (--[[(not sideClosed or currentPos.X <= LeftPanel.AbsolutePosition.X + LeftPanel.AbsoluteSize.X) and]] not closed and (type == "Y" or type == "B")) and newPos.Y or Background.AbsoluteSize.Y)
+                currentPos = Vector2.new(currentX, currentY)
+                Background.Size = UDim2.fromOffset((not sideClosed and not closed and (type == "X" or type == "B")) and currentPos.X or Background.AbsoluteSize.X, (--[[(not sideClosed or currentPos.X <= LeftPanel.AbsolutePosition.X + LeftPanel.AbsoluteSize.X) and]] not closed and (type == "Y" or type == "B")) and currentPos.Y or Background.AbsoluteSize.Y)
                 if sideClosed then
                     minimizeSize()
                 else
                     maximizeSize()
                 end
-                lastPos = currentPos
+                lastPos = newPos
             end
         end)
         table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
