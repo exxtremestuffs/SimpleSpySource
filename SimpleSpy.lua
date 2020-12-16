@@ -571,18 +571,18 @@ function bringBackOnResize()
     local currentX = Background.AbsolutePosition.X
     local currentY = Background.AbsolutePosition.Y
     local viewportSize = workspace.CurrentCamera.ViewportSize
-    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or 450))) then
+    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X))) then
         if currentX < 0 then
             currentX = 0
         else
-            currentX = viewportSize.X - (sideClosed and 131 or 450)
+            currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
         end
     end
-    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35)) then
+    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35)) then
         if currentY < 0 then
             currentY = 0
         else
-            currentY = viewportSize.Y - (closed and 19 or 268) - 35
+            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35
         end
     end
     TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentX, 0, currentY)}):Play()
@@ -602,18 +602,18 @@ function onBarInput(input)
                     local currentX = (offset + newPos).X
                     local currentY = (offset + newPos).Y
                     local viewportSize = workspace.CurrentCamera.ViewportSize
-                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - (sideClosed and 131 or 450)) and currentX > currentPos.X) then
+                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)) and currentX > currentPos.X) then
                         if currentX < 0 then
                             currentX = 0
                         else
-                            currentX = viewportSize.X - (sideClosed and 131 or 450)
+                            currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
                         end
                     end
-                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35) and currentY > currentPos.Y) then
+                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35) and currentY > currentPos.Y) then
                         if currentY < 0 then
                             currentY = 0
                         else
-                            currentY = viewportSize.Y - (closed and 19 or 268) - 35
+                            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 35
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
@@ -715,8 +715,7 @@ function toggleSideTray(override)
     if sideClosed then
         rightFadeIn = fadeOut(RightPanel:GetDescendants())
         wait(0.5)
-        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 249)}):Play()
-        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 19)}):Play()
+        minimizeSize(0.5)
         wait(0.5)
         RightPanel.Visible = false
     else
@@ -724,8 +723,7 @@ function toggleSideTray(override)
             toggleMinimize(true)
         end
         RightPanel.Visible = true
-        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 319, 0, 249)}):Play()
-        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 450, 0, 19)}):Play()
+        maximizeSize(0.5)
         wait(0.5)
         if rightFadeIn then
             rightFadeIn()
@@ -776,10 +774,10 @@ end
 function isInResizeRange(p)
     local relativeP = p - Background.AbsolutePosition
     local range = 5
-    if relativeP.X >= Background.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
-        and relativeP.X <= Background.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
+    if relativeP.X >= TopBar.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
+        and relativeP.X <= TopBar.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
         return true, 'B'
-    elseif relativeP.X >= Background.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
+    elseif relativeP.X >= TopBar.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
         return true, 'X'
     elseif relativeP.Y >= Background.AbsoluteSize.Y - range and relativeP.Y <= Background.AbsoluteSize.Y then
         return true, 'Y'
@@ -801,8 +799,10 @@ function mouseEntered()
             local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
             customCursor.Position = UDim2.fromOffset(mouseLocation.X - customCursor.AbsoluteSize.X / 2, mouseLocation.Y - customCursor.AbsoluteSize.Y / 2)
             local inRange, type = isInResizeRange(mouseLocation)
-            if inRange then
+            if inRange and not sideClosed and not closed then
                 customCursor.Image = type == 'B' and "rbxassetid://6065821980" or type == 'X' and "rbxassetid://6065821086" or type == 'Y' and "rbxassetid://6065821596"
+            elseif inRange and not closed and type == 'Y' or type == 'B' then
+                customCursor.Image = "rbxassetid://6065821596"
             elseif customCursor.Image ~= "rbxassetid://6065775281" then
                 customCursor.Image = "rbxassetid://6065775281"
             end
@@ -817,7 +817,8 @@ end
 --- Called when mouse moves
 function mouseMoved()
     local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
-    if mousePos.X >= Background.AbsolutePosition.X and mousePos.X <= Background.AbsolutePosition.X + Background.AbsoluteSize.X
+    if not closed
+    and mousePos.X >= TopBar.AbsolutePosition.X and mousePos.X <= TopBar.AbsolutePosition.X + TopBar.AbsoluteSize.X
     and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y + Background.AbsoluteSize.Y then
         if not mouseInGui then
             mouseInGui = true
@@ -829,13 +830,29 @@ function mouseMoved()
 end
 
 --- Adjusts the ui elements to the 'Maximized' size
-function maximizeSize()
-    TweenService:Create(LeftPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(RightPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(TopBar, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(CodeBox, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(LogList, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
+function maximizeSize(speed)
+    if not speed then
+        speed = 0.05
+    end
+    TweenService:Create(LeftPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(RightPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(TopBar, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(CodeBox, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
+end
+
+--- Adjusts the ui elements to close the side
+function minimizeSize(speed)
+    if not speed then
+        speed = 0.05
+    end
+    TweenService:Create(LeftPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(RightPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(TopBar, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(CodeBox, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
 end
 
 --- Called on user input while mouse in 'Background' frame
@@ -844,7 +861,6 @@ function backgroundUserInput(input)
     local inRange, type = isInResizeRange(UserInputService:GetMouseLocation() - Vector2.new(0, 36))
     if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
         local lastPos = UserInputService:GetMouseLocation()
-        print("beginning resizzling")
         RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
             local currentPos = UserInputService:GetMouseLocation()
             if currentPos ~= lastPos then
@@ -855,8 +871,12 @@ function backgroundUserInput(input)
                 if newPos.Y < 268 then
                     newPos = Vector2.new(newPos.X, 268)
                 end
-                Background.Size = UDim2.fromOffset((not sideClosed and (type == "X" or type == "B")) and newPos.X or Background.AbsoluteSize.X, (not closed and (type == "Y" or type == "B")) and newPos.Y or Background.AbsoluteSize.Y)
-                maximizeSize()
+                Background.Size = UDim2.fromOffset((not sideClosed and not closed and (type == "X" or type == "B")) and newPos.X or Background.AbsoluteSize.X, (--[[(not sideClosed or currentPos.X <= LeftPanel.AbsolutePosition.X + LeftPanel.AbsoluteSize.X) and]] not closed and (type == "Y" or type == "B")) and newPos.Y or Background.AbsoluteSize.Y)
+                if sideClosed then
+                    minimizeSize()
+                else
+                    maximizeSize()
+                end
                 lastPos = currentPos
             end
         end)
