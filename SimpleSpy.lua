@@ -13,7 +13,7 @@ end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-local Highlight = loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/highlight.lua"))()
+local Highlight = loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/resizable_beta/highlight.lua"))()
 
 ---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
@@ -833,8 +833,8 @@ function maximizeSize()
     TweenService:Create(LeftPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(RightPanel, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(TopBar, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
-    TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y / 2 - TopBar.AbsoluteSize.Y), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y / 2) }):Play()
-    TweenService:Create(CodeBox, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y / 2 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(CodeBox, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
 end
 
 --- Called on user input while mouse in 'Background' frame
@@ -979,7 +979,7 @@ end
 --- @param remote any
 --- @param function_info string
 --- @param blocked any
-function newRemote(type, name, gen_script, remote, function_info, blocked, src, srci)
+function newRemote(type, name, gen_script, remote, function_info, blocked, src)
     local remoteFrame = RemoteTemplate:Clone()
     remoteFrame.Text.Text = name
     remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
@@ -994,8 +994,7 @@ function newRemote(type, name, gen_script, remote, function_info, blocked, src, 
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
-        Source = src,
-        SourceI = srci
+        Source = src
     }
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
@@ -1508,14 +1507,14 @@ function getScriptFromSrc(src)
             i += 1
             if not e then
                 runningTest = src:sub(s, -1)
-                local test = realPath:FindFirstChild(runningTest)
+                local test = realPath.FindFirstChild(realPath, runningTest)
                 if test then
                     realPath = test
                 end
                 match = true
             else
                 runningTest = src:sub(s, e)
-                local test = realPath:FindFirstChild(runningTest)
+                local test = realPath.FindFirstChild(realPath, runningTest)
                 local yeOld = e
                 if test then
                     realPath = test
@@ -1556,7 +1555,7 @@ function taskscheduler()
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, func)
+function remoteHandler(hookfunction, methodName, remote, args, func, calling)
     if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
         coroutine.wrap(function()
             if remoteSignals[remote] then
@@ -1583,18 +1582,18 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
             history[remote].lastCall = tick()
         end
         local functionInfoStr
-        local src, srci
+        local src
         if func and islclosure(func) then
             local functionInfo = {}
             pcall(function() functionInfo.info = debug.getinfo(func) end)
             pcall(function() functionInfo.constants = debug.getconstants(func) end)
             pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
-            pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
+            pcall(function() if type(calling) == "userdata" then src = calling end end)
         end
         if methodName:lower() == "fireserver" then
-            newRemote("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         elseif methodName:lower() == "invokeserver" then
-            newRemote("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         end
     end
 end
@@ -1607,7 +1606,11 @@ function hookRemote(remoteType, remote, ...)
     end
     if typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remote.Name]) then
         local func = funcEnabled and debug.getinfo(4).func or nil
-        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func)
+        local calling
+        if funcEnabled then
+           _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        end
+        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
         if (blocklist[remote] or blocklist[remote.Name]) then
             return
         end
@@ -1625,7 +1628,7 @@ function hookRemote(remoteType, remote, ...)
     end
 end
 
-local newnamecall = newcclosure(function(...)
+local newnamecall = (function(...)
     local args = {...}
     local methodName = getnamecallmethod()
     local remote = args[1]
@@ -1634,8 +1637,12 @@ local newnamecall = newcclosure(function(...)
             args = remoteHooks[remote]({args, unpack(args, 2)})
         end
         local func = funcEnabled and debug.getinfo(3).func or nil
+        local calling
+        if funcEnabled then
+           _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        end
         coroutine.wrap(function()
-            schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func)
+            schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func, calling)
         end)()
     end
     if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
@@ -1812,7 +1819,7 @@ newButton(
     function() return "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find" end,
     function()
         if selected then
-            setclipboard(tostring(selected.Source))
+            setclipboard(SimpleSpy:ValueToString(selected.Source))
             TextLabel.Text = "Done!"
         end
     end
@@ -1924,8 +1931,8 @@ newButton(
     function() return "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find" end,
     function()
         if selected then
-            if selected.SourceI then
-                codebox:setRaw(decompile(selected.SourceI))
+            if selected.Source then
+                codebox:setRaw(decompile(selected.Source))
                 TextLabel.Text = "Done!"
             else
                 TextLabel.Text = "Source not found!"
