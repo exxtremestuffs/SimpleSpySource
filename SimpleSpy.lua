@@ -1588,7 +1588,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
-        -- onToggleButtonClick()
+        onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
         codebox = Highlight.new(CodeBox)
@@ -1606,10 +1606,10 @@ if not _G.SimpleSpyExecuted then
         CloseButton.MouseButton1Click:Connect(shutdown)
         connectResize()
         SimpleSpy2.Enabled = true
-        -- coroutine.wrap(function()
-        --     wait(1)
-        --     onToggleButtonUnhover()
-        -- end)()
+        coroutine.wrap(function()
+            wait(1)
+            onToggleButtonUnhover()
+        end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
         SimpleSpy2.Parent = CoreGui
