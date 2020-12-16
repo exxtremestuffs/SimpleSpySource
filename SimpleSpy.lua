@@ -835,6 +835,7 @@ function maximizeSize()
     TweenService:Create(TopBar, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(ScrollingFrame, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
     TweenService:Create(CodeBox, TweenInfo.new(0.2), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(LogList, TweenInfo.new(0.2), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
 end
 
 --- Called on user input while mouse in 'Background' frame
@@ -1605,10 +1606,11 @@ function hookRemote(remoteType, remote, ...)
         args = remoteHooks[remote](args)
     end
     if typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remote.Name]) then
-        local func = funcEnabled and debug.getinfo(4).func or nil
+        local func
         local calling
         if funcEnabled then
-           _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+            func = debug.getinfo(4).func
+            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
         end
         schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
         if (blocklist[remote] or blocklist[remote.Name]) then
@@ -1636,10 +1638,11 @@ local newnamecall = (function(...)
         if remoteHooks[remote] then
             args = remoteHooks[remote]({args, unpack(args, 2)})
         end
-        local func = funcEnabled and debug.getinfo(3).func or nil
+        local func
         local calling
         if funcEnabled then
-           _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+            func = debug.getinfo(3).func
+            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
         end
         coroutine.wrap(function()
             schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func, calling)
