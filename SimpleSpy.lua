@@ -1,7 +1,7 @@
 --[[
-    SimpleSpy v2.2 SOURCE 
+    SimpleSpy v2.2 SOURCE
 
-    Credits: 
+    Credits:
         exx - basically everything
         Frosty - GUI to Lua
 ]]
