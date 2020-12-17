@@ -46,7 +46,7 @@ local stringColor = Color3.fromRGB(152, 195, 121)
 local numberColor = Color3.fromRGB(209, 154, 102)
 local booleanColor = numberColor
 local objectColor = Color3.fromRGB(229, 192, 123)
-local defaultColor = Color3.fromRGB(159, 178, 191)
+local defaultColor = Color3.fromRGB(224, 108, 117)
 local commentColor = Color3.fromRGB(148, 148, 148)
 local lineNumberColor = commentColor
 local genericColor = Color3.fromRGB(240, 240, 240)
@@ -335,6 +335,7 @@ function Highlight:init(frame)
         scrollingFrame.Size = UDim2.new(0, parentSize.X, 0, parentSize.Y)
         scrollingFrame.BackgroundColor3 = backgroundColor
         scrollingFrame.BorderSizePixel = 0
+        scrollingFrame.ScrollBarThickness = 4
 
         textFrame.Name = ""
         textFrame.Size = UDim2.new(1, -40, 1, 0)

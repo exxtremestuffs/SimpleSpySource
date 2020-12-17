@@ -1,5 +1,5 @@
 --[[
-    SimpleSpy v1 SOURCE 
+    SimpleSpy v2.2 SOURCE 
 
     Credits: 
         exx - basically everything
@@ -13,7 +13,7 @@ end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-local Highlight = loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/highlight.lua"))()
+local Highlight = loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/resizable_beta/highlight.lua"))()
 
 ---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
@@ -138,8 +138,8 @@ ScrollingFrame.Parent = RightPanel
 ScrollingFrame.Active = true
 ScrollingFrame.BackgroundColor3 = Color3.new(1, 1, 1)
 ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.Position = UDim2.new(0, 0, 0.476000011, 0)
-ScrollingFrame.Size = UDim2.new(0, 319, 0, 131)
+ScrollingFrame.Position = UDim2.new(0, 0, 0.5, 0)
+ScrollingFrame.Size = UDim2.new(1, 0, 0.5, -9)
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollingFrame.ScrollBarThickness = 4
 
@@ -365,6 +365,15 @@ local funcEnabled = true
 local remoteSignals = {}
 local remoteHooks = {}
 
+-- original mouse icon
+local oldIcon = Mouse.Icon
+
+-- if mouse inside gui
+local mouseInGui = false
+
+-- handy array of RBXScriptConnections to disconnect on shutdown
+local connections = {}
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -456,10 +465,12 @@ function newSignal()
             assert(connected, "Signal is closed")
             connected[tostring(f)] = f
             return setmetatable({
-                Disconnect = function()
+                Connected = true,
+                Disconnect = function(self)
                     if not connected then
                         warn("Signal is already closed")
                     end
+                    self.Connected = false
                     connected[tostring(f)] = nil
                 end
             },
@@ -560,18 +571,18 @@ function bringBackOnResize()
     local currentX = Background.AbsolutePosition.X
     local currentY = Background.AbsolutePosition.Y
     local viewportSize = workspace.CurrentCamera.ViewportSize
-    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or 450))) then
+    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X))) then
         if currentX < 0 then
             currentX = 0
         else
-            currentX = viewportSize.X - (sideClosed and 131 or 450)
+            currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
         end
     end
-    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35)) then
+    if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36)) then
         if currentY < 0 then
             currentY = 0
         else
-            currentY = viewportSize.Y - (closed and 19 or 268) - 35
+            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36
         end
     end
     TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentX, 0, currentY)}):Play()
@@ -591,18 +602,18 @@ function onBarInput(input)
                     local currentX = (offset + newPos).X
                     local currentY = (offset + newPos).Y
                     local viewportSize = workspace.CurrentCamera.ViewportSize
-                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - (sideClosed and 131 or 450)) and currentX > currentPos.X) then
+                    if (currentX < 0 and currentX < currentPos.X) or (currentX > (viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)) and currentX > currentPos.X) then
                         if currentX < 0 then
                             currentX = 0
                         else
-                            currentX = viewportSize.X - (sideClosed and 131 or 450)
+                            currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
                         end
                     end
-                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or 268) - 35) and currentY > currentPos.Y) then
+                    if (currentY < 0 and currentY < currentPos.Y) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36) and currentY > currentPos.Y) then
                         if currentY < 0 then
                             currentY = 0
                         else
-                            currentY = viewportSize.Y - (closed and 19 or 268) - 35
+                            currentY = viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36
                         end
                     end
                     currentPos = Vector2.new(currentX, currentY)
@@ -704,8 +715,7 @@ function toggleSideTray(override)
     if sideClosed then
         rightFadeIn = fadeOut(RightPanel:GetDescendants())
         wait(0.5)
-        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 249)}):Play()
-        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 131, 0, 19)}):Play()
+        minimizeSize(0.5)
         wait(0.5)
         RightPanel.Visible = false
     else
@@ -713,8 +723,7 @@ function toggleSideTray(override)
             toggleMinimize(true)
         end
         RightPanel.Visible = true
-        TweenService:Create(RightPanel, TweenInfo.new(0.5), {Size = UDim2.new(0, 319, 0, 249)}):Play()
-        TweenService:Create(TopBar, TweenInfo.new(0.5), {Size = UDim2.new(0, 450, 0, 19)}):Play()
+        maximizeSize(0.5)
         wait(0.5)
         if rightFadeIn then
             rightFadeIn()
@@ -745,7 +754,7 @@ function toggleMaximize()
         TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 0.5}):Play()
         disable.MouseButton1Click:Connect(function()
             if UserInputService:GetMouseLocation().Y + 36 >= CodeBox.AbsolutePosition.Y and UserInputService:GetMouseLocation().Y + 36 <= CodeBox.AbsolutePosition.Y + CodeBox.AbsoluteSize.Y
-            and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
+                and UserInputService:GetMouseLocation().X >= CodeBox.AbsolutePosition.X and UserInputService:GetMouseLocation().X <= CodeBox.AbsolutePosition.X + CodeBox.AbsoluteSize.X then
                 return
             end
             TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
@@ -757,6 +766,129 @@ function toggleMaximize()
             CodeBox.ZIndex = 0
             maximized = false
         end)
+    end
+end
+
+--- Checks if cursor is within resize range
+--- @param p Vector2
+function isInResizeRange(p)
+    local relativeP = p - Background.AbsolutePosition
+    local range = 5
+    if relativeP.X >= TopBar.AbsoluteSize.X - range and relativeP.Y >= Background.AbsoluteSize.Y - range
+        and relativeP.X <= TopBar.AbsoluteSize.X and relativeP.Y <= Background.AbsoluteSize.Y then
+        return true, 'B'
+    elseif relativeP.X >= TopBar.AbsoluteSize.X - range and relativeP.X <= Background.AbsoluteSize.X then
+        return true, 'X'
+    elseif relativeP.Y >= Background.AbsoluteSize.Y - range and relativeP.Y <= Background.AbsoluteSize.Y then
+        return true, 'Y'
+    end
+    return false
+end
+
+--- Called when mouse enters SimpleSpy
+function mouseEntered()
+    local customCursor = Instance.new("ImageLabel")
+    customCursor.Size = UDim2.fromOffset(200, 200)
+    customCursor.ZIndex = 1e5
+    customCursor.BackgroundTransparency = 1
+    customCursor.Image = ""
+    customCursor.Parent = SimpleSpy2
+    UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.ForceHide
+    RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
+        if mouseInGui and _G.SimpleSpyExecuted then
+            local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+            customCursor.Position = UDim2.fromOffset(mouseLocation.X - customCursor.AbsoluteSize.X / 2, mouseLocation.Y - customCursor.AbsoluteSize.Y / 2)
+            local inRange, type = isInResizeRange(mouseLocation)
+            if inRange and not sideClosed and not closed then
+                customCursor.Image = type == 'B' and "rbxassetid://6065821980" or type == 'X' and "rbxassetid://6065821086" or type == 'Y' and "rbxassetid://6065821596"
+            elseif inRange and not closed and type == 'Y' or type == 'B' then
+                customCursor.Image = "rbxassetid://6065821596"
+            elseif customCursor.Image ~= "rbxassetid://6065775281" then
+                customCursor.Image = "rbxassetid://6065775281"
+            end
+        else
+            UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.None
+            customCursor:Destroy()
+            RunService:UnbindFromRenderStep("SIMPLESPY_CURSOR")
+        end
+    end)
+end
+
+--- Called when mouse moves
+function mouseMoved()
+    local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+    if not closed
+    and mousePos.X >= TopBar.AbsolutePosition.X and mousePos.X <= TopBar.AbsolutePosition.X + TopBar.AbsoluteSize.X
+    and mousePos.Y >= Background.AbsolutePosition.Y and mousePos.Y <= Background.AbsolutePosition.Y + Background.AbsoluteSize.Y then
+        if not mouseInGui then
+            mouseInGui = true
+            mouseEntered()
+        end
+    else
+        mouseInGui = false
+    end
+end
+
+--- Adjusts the ui elements to the 'Maximized' size
+function maximizeSize(speed)
+    if not speed then
+        speed = 0.05
+    end
+    TweenService:Create(LeftPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(RightPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(TopBar, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 110), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(CodeBox, TweenInfo.new(speed), { Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
+end
+
+--- Adjusts the ui elements to close the side
+function minimizeSize(speed)
+    if not speed then
+        speed = 0.05
+    end
+    TweenService:Create(LeftPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(RightPanel, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(TopBar, TweenInfo.new(speed), { Size = UDim2.fromOffset(LeftPanel.AbsoluteSize.X, TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(ScrollingFrame, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, 119), Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(CodeBox, TweenInfo.new(speed), { Size = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y) }):Play()
+    TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
+end
+
+--- Called on user input while mouse in 'Background' frame
+--- @param input InputObject
+function backgroundUserInput(input)
+    local inRange, type = isInResizeRange(UserInputService:GetMouseLocation() - Vector2.new(0, 36))
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
+        local lastPos = UserInputService:GetMouseLocation()
+        local offset = Background.AbsoluteSize - lastPos
+        local currentPos = lastPos + offset
+        RunService:BindToRenderStep("SIMPLESPY_RESIZE", 1, function()
+            local newPos = UserInputService:GetMouseLocation()
+            if newPos ~= lastPos then
+                local currentX = (newPos + offset).X
+                local currentY = (newPos + offset).Y
+                if currentX < 450 then
+                    currentX = 450
+                end
+                if currentY < 268 then
+                    currentY = 268
+                end
+                currentPos = Vector2.new(currentX, currentY)
+                Background.Size = UDim2.fromOffset((not sideClosed and not closed and (type == "X" or type == "B")) and currentPos.X or Background.AbsoluteSize.X, (--[[(not sideClosed or currentPos.X <= LeftPanel.AbsolutePosition.X + LeftPanel.AbsoluteSize.X) and]] not closed and (type == "Y" or type == "B")) and currentPos.Y or Background.AbsoluteSize.Y)
+                if sideClosed then
+                    minimizeSize()
+                else
+                    maximizeSize()
+                end
+                lastPos = newPos
+            end
+        end)
+        table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
+            if input == inputE then
+                RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
+            end
+        end))
     end
 end
 
@@ -804,6 +936,10 @@ end
 --- @param text string
 function makeToolTip(enable, text)
     if enable then
+        if ToolTip.Visible then
+            ToolTip.Visible = false
+            RunService:UnbindFromRenderStep("ToolTip")
+        end
         local first = true
         RunService:BindToRenderStep("ToolTip", 1, function()
             local topLeft = Vector2.new(Mouse.X + 20, Mouse.Y + 20)
@@ -831,17 +967,22 @@ function makeToolTip(enable, text)
         TextLabel.Text = text
         ToolTip.Visible = true
     else
-        ToolTip.Visible = false
-        pcall(function() RunService:UnbindFromRenderStep("ToolTip") end)
+        if ToolTip.Visible then
+            ToolTip.Visible = false
+            RunService:UnbindFromRenderStep("ToolTip")
+        end
     end
 end
 
 --- Creates new function button (below codebox)
+--- @param name string
+---@param description function
+---@param onClick function
 function newButton(name, description, onClick)
     local button = FunctionTemplate:Clone()
     button.Text.Text = name
     button.Button.MouseEnter:Connect(function()
-        makeToolTip(true, description)
+        makeToolTip(true, description())
     end)
     button.Button.MouseLeave:Connect(function()
         makeToolTip(false)
@@ -863,7 +1004,7 @@ end
 --- @param remote any
 --- @param function_info string
 --- @param blocked any
-function newRemote(type, name, gen_script, remote, function_info, blocked, src, srci)
+function newRemote(type, name, gen_script, remote, function_info, blocked, src)
     local remoteFrame = RemoteTemplate:Clone()
     remoteFrame.Text.Text = name
     remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
@@ -878,8 +1019,7 @@ function newRemote(type, name, gen_script, remote, function_info, blocked, src, 
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
-        Source = src,
-        SourceI = srci
+        Source = src
     }
     if blocked then
         logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
@@ -1121,14 +1261,14 @@ function f2s(f)
     --         end
     --     end
     -- end
-    local isgucci, gpath = v2p(f, getgc())
-    if isgucci then
-        return "getgc()" .. gpath
-    end
-    if debug.getinfo(f).name:match("%w") then
+    -- local isgucci, gpath = v2p(f, getgc())
+    -- if isgucci then
+    --     return "getgc()" .. gpath
+    -- end
+    if debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
         return "function()end --[[" .. debug.getinfo(f).name .. "]]"
     end
-    return "function()end"
+    return "function()end --[[" .. tostring(f) .. "]]"
 end
 
 --- instance-to-path
@@ -1371,6 +1511,7 @@ end
 function getScriptFromSrc(src)
     local realPath
     local runningTest
+    --- @type number
     local s, e
     local match = false
     if src:sub(1, 1) == "=" then
@@ -1393,14 +1534,14 @@ function getScriptFromSrc(src)
             i += 1
             if not e then
                 runningTest = src:sub(s, -1)
-                local test = realPath:FindFirstChild(runningTest)
+                local test = realPath.FindFirstChild(realPath, runningTest)
                 if test then
                     realPath = test
                 end
                 match = true
             else
                 runningTest = src:sub(s, e)
-                local test = realPath:FindFirstChild(runningTest)
+                local test = realPath.FindFirstChild(realPath, runningTest)
                 local yeOld = e
                 if test then
                     realPath = test
@@ -1441,7 +1582,7 @@ function taskscheduler()
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, func)
+function remoteHandler(hookfunction, methodName, remote, args, func, calling)
     if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
         coroutine.wrap(function()
             if remoteSignals[remote] then
@@ -1468,18 +1609,18 @@ function remoteHandler(hookfunction, methodName, remote, args, func)
             history[remote].lastCall = tick()
         end
         local functionInfoStr
-        local src, srci
+        local src
         if func and islclosure(func) then
             local functionInfo = {}
             pcall(function() functionInfo.info = debug.getinfo(func) end)
             pcall(function() functionInfo.constants = debug.getconstants(func) end)
             pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
-            pcall(function() if functionInfo.info then srci = getScriptFromSrc(functionInfo.info.source) src = v2s(srci) end end)
+            pcall(function() if type(calling) == "userdata" then src = calling end end)
         end
         if methodName:lower() == "fireserver" then
-            bindableHandler("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         elseif methodName:lower() == "invokeserver" then
-            bindableHandler("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src, srci)
+            newRemote("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         end
     end
 end
@@ -1491,8 +1632,13 @@ function hookRemote(remoteType, remote, ...)
         args = remoteHooks[remote](args)
     end
     if typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remote.Name]) then
-        local func = funcEnabled and debug.getinfo(4).func or nil
-        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func)
+        local func
+        local calling
+        if funcEnabled then
+            func = debug.getinfo(4).func
+            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        end
+        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
         if (blocklist[remote] or blocklist[remote.Name]) then
             return
         end
@@ -1510,7 +1656,7 @@ function hookRemote(remoteType, remote, ...)
     end
 end
 
-local newnamecall = newcclosure(function(...)
+local newnamecall = (function(...)
     local args = {...}
     local methodName = getnamecallmethod()
     local remote = args[1]
@@ -1518,9 +1664,14 @@ local newnamecall = newcclosure(function(...)
         if remoteHooks[remote] then
             args = remoteHooks[remote]({args, unpack(args, 2)})
         end
-        local func = funcEnabled and debug.getinfo(3).func or nil
+        local func
+        local calling
+        if funcEnabled then
+            func = debug.getinfo(3).func
+            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        end
         coroutine.wrap(function()
-            schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func)
+            schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func, calling)
         end)()
     end
     if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
@@ -1565,16 +1716,15 @@ function toggleSpyMethod()
     toggle = not toggle
 end
 
---- Handles the button creation things... Connected to `remoteHandlerEvent`
-function bindableHandler(...)
-    -- syn.set_thread_identity(7)
-    newRemote(...)
-end
-
 --- Shuts down the remote spy
 function shutdown()
     if schedulerconnect then
         schedulerconnect:Disconnect()
+    end
+    for _, connection in pairs(connections) do
+        coroutine.wrap(function()
+            connection:Disconnect()
+        end)()
     end
     setreadonly(gm, false)
     SimpleSpy2:Destroy()
@@ -1588,6 +1738,7 @@ end
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
+        ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
@@ -1604,6 +1755,8 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseEnter:Connect(onToggleButtonHover)
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
+        table.insert(connections, UserInputService.InputBegan:Connect(backgroundUserInput))
+        table.insert(connections, Mouse.Move:Connect(mouseMoved))
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
@@ -1611,8 +1764,8 @@ if not _G.SimpleSpyExecuted then
             onToggleButtonUnhover()
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
-        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) else warn("Unable to protect gui from recursive FindFirstChild, use Synapse for this features") end
-        SimpleSpy2.Parent = CoreGui
+        if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
+        SimpleSpy2.Parent = gethui and gethui() or CoreGui
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
@@ -1654,23 +1807,19 @@ end
 -- Copies the contents of the codebox
 newButton(
     "Copy Code",
-    "Click to copy code",
-    function(button)
-        local orText = "Click to copy code"
+    function() return "Click to copy code" end,
+    function()
         setclipboard(codebox:getString())
         TextLabel.Text = "Copied successfully!"
-        wait(2)
-        TextLabel.Text = orText
     end
 )
 
 --- Copies the source script (that fired the remote)
 newButton(
     "Copy Remote",
-    "Click to copy the path of the remote",
-    function(button)
+    function() return "Click to copy the path of the remote" end,
+    function()
         if selected then
-            local orText = "Click to copy the path of the remote"
             setclipboard(v2s(selected.Remote))
             TextLabel.Text = "Copied!"
         end
@@ -1680,35 +1829,26 @@ newButton(
 -- Executes the contents of the codebox through loadstring
 newButton(
     "Run Code",
-    "Click to execute code",
-    function(button)
+    function() return "Click to execute code" end,
+    function()
         local orText = "Click to execute code"
         TextLabel.Text = "Executing..."
-        local execute = {
-            pcall(
-                function()
-                    return loadstring(codebox:getString())()
-                end
-            )
-        }
-        if execute[1] then
+        local succeeded = pcall(function() return loadstring(codebox:getString())() end)
+        if succeeded then
             TextLabel.Text = "Executed successfully!"
         else
-            warn(execute[2], execute[3])
             TextLabel.Text = "Execution error!"
         end
-        wait(3)
-        TextLabel.Text = orText
     end
 )
 
 --- Gets the calling script (not super reliable but w/e)
 newButton(
     "Get Script",
-    "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find",
-    function(button)
+    function() return "Click to copy calling script to clipboard\nWARNING: Not super reliable, nil == could not find" end,
+    function()
         if selected then
-            setclipboard(tostring(selected.Source))
+            setclipboard(SimpleSpy:ValueToString(selected.Source))
             TextLabel.Text = "Done!"
         end
     end
@@ -1717,14 +1857,13 @@ newButton(
 --- Decompiles the script that fired the remote and puts it in the code box
 newButton(
     "Function Info",
-    "Click to view calling function information",
-    function(button)
+    function() return "Click to view calling function information" end,
+    function()
         if selected then
-            local orText = "Click to view calling function information"
             if selected.Function then
                 codebox:setRaw("-- Calling function info\n-- Generated by the SimpleSpy serializer\n\n" .. tostring(selected.Function))
             end
-            TextLabel.Text = "Done!"
+            TextLabel.Text = "Done! Function info generated by the SimpleSpy Serializer."
         end
     end
 )
@@ -1732,9 +1871,8 @@ newButton(
 --- Clears the Remote logs
 newButton(
     "Clr Logs",
-    "Click to clear logs",
-    function(button)
-        local orText = "Click to clear logs"
+    function() return "Click to clear logs" end,
+    function()
         TextLabel.Text = "Clearing..."
         logs = {}
         for _, v in pairs(LogList:GetChildren()) do
@@ -1751,10 +1889,9 @@ newButton(
 --- Excludes the selected.Log Remote from the RemoteSpy
 newButton(
     "Exclude (i)",
-    "Click to exclude this Remote",
-    function(button)
+    function() return "Click to exclude this Remote" end,
+    function()
         if selected then
-            local orText = "Click to exclude this Remote"
             blacklist[selected.Remote] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1764,10 +1901,9 @@ newButton(
 --- Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
 newButton(
     "Exclude (n)",
-    "Click to exclude all remotes with this name",
-    function(button)
+    function() return "Click to exclude all remotes with this name" end,
+    function()
         if selected then
-            local orText = "Click to exclude all remotes with this name"
             blacklist[selected.Name] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1777,9 +1913,8 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blacklist",
-    "Click to clear the blacklist",
-    function(button)
-        local orText = "Click to clear the blacklist"
+    function() return "Click to clear the blacklist" end,
+    function()
         blacklist = {}
         TextLabel.Text = "Blacklist cleared!"
     end
@@ -1788,10 +1923,9 @@ newButton(
 --- Prevents the selected.Log Remote from firing the server (still logged)
 newButton(
     "Block (i)",
-    "Click to stop this remote from firing",
-    function(button)
+    function() return "Click to stop this remote from firing" end,
+    function()
         if selected then
-            local orText = "Click to stop this remote from firing"
             blocklist[selected.Remote] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1801,10 +1935,9 @@ newButton(
 --- Prevents all remotes from firing that share the same name as the selected.Log remote from the RemoteSpy (still logged)
 newButton(
     "Block (n)",
-    "Click to stop remotes with this name from firing",
-    function(button)
+    function() return "Click to stop remotes with this name from firing" end,
+    function()
         if selected then
-            local orText = "Click to stop remotes with this name from firing"
             blocklist[selected.Name] = true
             TextLabel.Text = "Excluded!"
         end
@@ -1814,9 +1947,8 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blocklist",
-    "Click to stop blocking remotes",
-    function(button)
-        local orText = "Click to stop blocking remotes"
+    function() return "Click to stop blocking remotes" end,
+    function()
         blocklist = {}
         TextLabel.Text = "Blocklist cleared!"
     end
@@ -1825,11 +1957,11 @@ newButton(
 --- Attempts to decompile the source script
 newButton(
     "Decompile",
-    "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find",
-    function(button)
+    function() return "Attempts to decompile source script\nWARNING: Not super reliable, nil == could not find" end,
+    function()
         if selected then
-            if selected.SourceI then
-                codebox:setRaw(decompile(selected.SourceI))
+            if selected.Source then
+                codebox:setRaw(decompile(selected.Source))
                 TextLabel.Text = "Done!"
             else
                 TextLabel.Text = "Source not found!"
@@ -1840,19 +1972,19 @@ newButton(
 
 newButton(
     "Disable Info",
-    "Toggle function info (because it can cause lag in some games)",
+    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = "Toggle function info (because it can cause lag in some games) - " .. (funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
 newButton(
     "Autoblock",
-    "[BETA] Intelligently detects and excludes spammy remote calls from logs",
+    function() return string.format("[%s] [BETA] Intelligently detects and excludes spammy remote calls from logs", autoblock and "ENABLED" or "DISABLED") end,
     function()
         autoblock = not autoblock
-        TextLabel.Text = "[BETA] Intelligently detects and excludes spammy remote calls from logs - " .. (autoblock and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("[%s] [BETA] Intelligently detects and excludes spammy remote calls from logs", autoblock and "ENABLED" or "DISABLED")
         history = {}
         excluding = {}
     end
