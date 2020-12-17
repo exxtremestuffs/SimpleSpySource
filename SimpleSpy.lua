@@ -795,7 +795,7 @@ function mouseEntered()
     customCursor.Parent = SimpleSpy2
     UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.ForceHide
     RunService:BindToRenderStep("SIMPLESPY_CURSOR", 1, function()
-        if mouseInGui then
+        if mouseInGui and _G.SimpleSpyExecuted then
             local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
             customCursor.Position = UDim2.fromOffset(mouseLocation.X - customCursor.AbsoluteSize.X / 2, mouseLocation.Y - customCursor.AbsoluteSize.Y / 2)
             local inRange, type = isInResizeRange(mouseLocation)
