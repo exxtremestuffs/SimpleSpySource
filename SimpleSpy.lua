@@ -374,6 +374,9 @@ local mouseInGui = false
 -- handy array of RBXScriptConnections to disconnect on shutdown
 local connections = {}
 
+-- whether or not SimpleSpy uses 'getcallingscript()' to get the script (default is false because detection)
+local useGetCallingScript = false
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -1219,9 +1222,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
         else
             currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path) .. "]"
         end
-        -- rconsoleprint("[" .. v2s(k) .. "]" .. "=" .. v2s(v) .. "\n")
         s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables) .. ","
-        break
     end
     if #s > 1 then
         s = s:sub(1, #s - 1)
@@ -1584,6 +1585,9 @@ end
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, func, calling)
     if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+        if funcEnabled and not calling then
+            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        end
         coroutine.wrap(function()
             if remoteSignals[remote] then
                 remoteSignals[remote]:Fire(args)
@@ -1636,7 +1640,7 @@ function hookRemote(remoteType, remote, ...)
         local calling
         if funcEnabled then
             func = debug.getinfo(4).func
-            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+            calling = useGetCallingScript and getcallingscript() or nil
         end
         schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
         if (blocklist[remote] or blocklist[remote.Name]) then
@@ -1668,7 +1672,7 @@ local newnamecall = newcclosure(function(...)
         local calling
         if funcEnabled then
             func = debug.getinfo(3).func
-            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+            calling = useGetCallingScript and getcallingscript() or nil
         end
         coroutine.wrap(function()
             schedule(remoteHandler, false, methodName, remote, {unpack(args, 2)}, func, calling)
@@ -1987,5 +1991,14 @@ newButton(
         TextLabel.Text = string.format("[%s] [BETA] Intelligently detects and excludes spammy remote calls from logs", autoblock and "ENABLED" or "DISABLED")
         history = {}
         excluding = {}
+    end
+)
+
+newButton(
+    "CallingScript",
+    function() return string.format("[%s] [UNSAFE] Uses 'getcallingscript' to get calling script for Decompile and GetScript. Much more reliable, but opens up SimpleSpy to detection and/or instability.", useGetCallingScript and "ENABLED" or "DISABLED") end,
+    function()
+        useGetCallingScript = not useGetCallingScript
+        TextLabel.Text = string.format("[%s] [UNSAFE] Uses 'getcallingscript' to get calling script for Decompile and GetScript. Much more reliable, but opens up SimpleSpy to detection and/or instability.", useGetCallingScript and "ENABLED" or "DISABLED")
     end
 )
