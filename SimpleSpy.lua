@@ -1656,7 +1656,7 @@ function hookRemote(remoteType, remote, ...)
     end
 end
 
-local newnamecall = (function(...)
+local newnamecall = newcclosure(function(...)
     local args = {...}
     local methodName = getnamecallmethod()
     local remote = args[1]
