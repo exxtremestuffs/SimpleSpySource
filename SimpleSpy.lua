@@ -1770,6 +1770,7 @@ if not _G.SimpleSpyExecuted then
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
         SimpleSpy2.Parent = gethui and gethui() or CoreGui
+        if gethui then funcEnabled = false end
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
@@ -1976,10 +1977,10 @@ newButton(
 
 newButton(
     "Disable Info",
-    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
+    function() return string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL " or "", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL " or "", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
