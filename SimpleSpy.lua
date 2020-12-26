@@ -1103,7 +1103,12 @@ function genScript(remote, ...)
 end
 
 --- value-to-string: value, string (out), level (indentation), parent table, var name, is from tovar
-function v2s(v, l, p, n, vtv, i, pt, path, tables)
+function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
+    if not tI then
+        tI = {0}
+    else
+        tI[1] += 1
+    end
     if typeof(v) == "number" then
         if v == math.huge then
             return "math.huge"
@@ -1118,7 +1123,7 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables)
     elseif typeof(v) == "function" then
         return f2s(v)
     elseif typeof(v) == "table" then
-        return t2s(v, l, p, n, vtv, i, pt, path, tables)
+        return t2s(v, l, p, n, vtv, i, pt, path, tables, tI)
     elseif typeof(v) == "Instance" then
         return i2p(v)
     elseif typeof(v) == "userdata" then
@@ -1170,7 +1175,8 @@ end
 --- @param pt table
 --- @param path string
 --- @param tables table
-function t2s(t, l, p, n, vtv, i, pt, path, tables)
+--- @param tI table
+function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
     for k, x in pairs(getrenv()) do -- checks if table is actually just a global
         local isgucci, gpath
         if rawequal(x, t) then
@@ -1185,6 +1191,9 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
                 return "getrenv()[" .. v2s(k) .. "]" .. gpath
             end
         end
+    end
+    if not tI then
+        tI = {0}
     end
     if not path then -- sets path to empty string (so it doesn't have to manually provided every time)
         path = ""
@@ -1208,7 +1217,8 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
     l = l + indent -- set indentation level
     for k, v in pairs(t) do -- iterates over table
         size = size + 1 -- changes size for max limit
-        if size > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
+        if tI[1] > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
+            s = s .. "\n" .. string.rep(" ", l) .. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
             break
         end
         if rawequal(k, t) then -- checks if the table being iterated over is being used as an index within itself (yay, lua)
@@ -1220,10 +1230,10 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
         if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then -- cleanly handles table path generation (for the first half)
             currentPath = "." .. k
         else
-            currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path) .. "]"
+            currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path, nil, tI) .. "]"
         end
         -- actually serializes the member of the table
-        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables) .. ","
+        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
     end
     if #s > 1 then -- removes the last comma because it looks nicer (no way to tell if it's done 'till it's done so...)
         s = s:sub(1, #s - 1)
@@ -1479,54 +1489,61 @@ end
 
 --- format s: string, byte encrypt (for weird symbols)
 function formatstr(s)
-    return '"' .. handlespecials(s) .. '"'
+    local handled, reachedMax = handlespecials(s)
+    return '"' .. handled .. '"' .. (reachedMax and " --[[ MAXIMUM STRING SIZE REACHED, CHANGE '_G.SimpleSpyMaxStringSize' TO ADJUST MAXIMUM SIZE ]]" or "")
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
 function handlespecials(s)
     local i = 0
-    -- local coroutines = {}
-    -- local coroutineFunc = function(i, r)
-    --     s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
-    -- end
-    -- local function isFinished()
-    --     for _, v in pairs(coroutines) do
-    --         if coroutine.status(v) == "running" then
-    --             return false
-    --         end
-    --     end
-    --     return true
-    -- end
+    local coroutines = {}
+    local coroutineFunc = function(i, r)
+        s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
+    end
+    local function isFinished()
+        for _, v in pairs(coroutines) do
+            if coroutine.status(v) == "running" then
+                return false
+            end
+        end
+        return true
+    end
     repeat
         i = i + 1
         local char = s:sub(i, i)
         if string.byte(char) then
-            -- local c = coroutine.create(coroutineFunc)
-            -- table.insert(coroutines, c)
+            local c = coroutine.create(coroutineFunc)
+            table.insert(coroutines, c)
             if char == "\n" then
-                -- coroutine.resume(c, i, "\\n")
-                s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\n")
+                -- s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\t" then
-                -- coroutine.resume(c, i, "\\t")
-                s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\t")
+                -- s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\\" then
-                -- coroutine.resume(c, i, "\\\\")
-                s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\\\")
+                -- s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == '"' then
-                -- coroutine.resume(c, i, "\\\"")
-                s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\\"")
+                -- s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
                 i = i + 1
             elseif string.byte(char) > 126 or string.byte(char) < 32 then
-                -- coroutine.resume(c, i, "\\" .. string.byte(char))
-                s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\" .. string.byte(char))
+                -- s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
                 i = i + #tostring(string.byte(char))
             end
         end
-    until char == ""
-    return s
+    until char == "" or i > (_G.SimpleSpyMaxStringSize or 2000)
+    while not isFinished() do
+        RunService.Heartbeat:Wait()
+    end
+    if i > (_G.SimpleSpyMaxStringSize or 2000) then
+        return s, true
+    end
+    return s, false
 end
 
 --- finds script from 'src' from getinfo, returns nil if not found
