@@ -1217,7 +1217,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
     l = l + indent -- set indentation level
     for k, v in pairs(t) do -- iterates over table
         size = size + 1 -- changes size for max limit
-        if tI[1] > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
+        if tI[1] > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 5000) then
             s = s .. "\n" .. string.rep(" ", l) .. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
             break
         end
