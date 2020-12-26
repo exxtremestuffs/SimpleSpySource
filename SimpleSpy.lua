@@ -1525,8 +1525,6 @@ function handlespecials(s)
                 i = i + #tostring(string.byte(char))
             end
         end
-        wait(0)
-        rconsoleprint("\n" .. string.byte(char))
     until char == ""
     return s
 end
