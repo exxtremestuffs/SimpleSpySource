@@ -1484,27 +1484,48 @@ end
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
 function handlespecials(s)
     local i = 0
+    -- local coroutines = {}
+    -- local coroutineFunc = function(i, r)
+    --     s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
+    -- end
+    -- local function isFinished()
+    --     for _, v in pairs(coroutines) do
+    --         if coroutine.status(v) == "running" then
+    --             return false
+    --         end
+    --     end
+    --     return true
+    -- end
     repeat
         i = i + 1
         local char = s:sub(i, i)
         if string.byte(char) then
+            -- local c = coroutine.create(coroutineFunc)
+            -- table.insert(coroutines, c)
             if char == "\n" then
+                -- coroutine.resume(c, i, "\\n")
                 s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\t" then
+                -- coroutine.resume(c, i, "\\t")
                 s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\\" then
+                -- coroutine.resume(c, i, "\\\\")
                 s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == '"' then
+                -- coroutine.resume(c, i, "\\\"")
                 s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
                 i = i + 1
             elseif string.byte(char) > 126 or string.byte(char) < 32 then
+                -- coroutine.resume(c, i, "\\" .. string.byte(char))
                 s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
                 i = i + #tostring(string.byte(char))
             end
         end
+        wait(0)
+        rconsoleprint("\n" .. string.byte(char))
     until char == ""
     return s
 end
