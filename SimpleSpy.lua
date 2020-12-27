@@ -1277,7 +1277,7 @@ function f2s(f)
     -- if isgucci then
     --     return "getgc()" .. gpath
     -- end
-    if debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
+    if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
         return "function()end --[[" .. debug.getinfo(f).name .. "]]"
     end
     return "function()end --[[" .. tostring(f) .. "]]"
@@ -1782,6 +1782,7 @@ if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
+        if gethui then funcEnabled = false end
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
@@ -2015,10 +2016,10 @@ newButton(
 
 newButton(
     "Disable Info",
-    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
+    function() return string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
