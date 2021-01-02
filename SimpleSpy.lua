@@ -1242,7 +1242,7 @@ function f2s(f)
         elseif type(x) == "table" then
             isgucci, gpath = v2p(f, x)
         end
-        if isgucci then
+        if isgucci and not rawequal(k, f) then
             if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
                 return k .. gpath
             else
@@ -1250,22 +1250,6 @@ function f2s(f)
             end
         end
     end
-    -- uwu some cool stuff here once bork finishes up
-    -- if SimpleSpy.GetExternalLoader then
-    --     local ExternalLoader = SimpleSpy:GetExternalLoader()
-    --     local loaded, path = pcall(function() ExternalLoader:LoadAsset("Bork_Functions") end)
-    --     if loaded then
-    --         local functions = loadfile(path .. "functions.lua")
-    --         local out = functions[f]
-    --         if out then
-    --             return out
-    --         end
-    --     end
-    -- end
-    -- local isgucci, gpath = v2p(f, getgc())
-    -- if isgucci then
-    --     return "getgc()" .. gpath
-    -- end
     if debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
         return "function()end --[[" .. debug.getinfo(f).name .. "]]"
     end
