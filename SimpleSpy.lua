@@ -1103,7 +1103,12 @@ function genScript(remote, ...)
 end
 
 --- value-to-string: value, string (out), level (indentation), parent table, var name, is from tovar
-function v2s(v, l, p, n, vtv, i, pt, path, tables)
+function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
+    if not tI then
+        tI = {0}
+    else
+        tI[1] += 1
+    end
     if typeof(v) == "number" then
         if v == math.huge then
             return "math.huge"
@@ -1118,7 +1123,7 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables)
     elseif typeof(v) == "function" then
         return f2s(v)
     elseif typeof(v) == "table" then
-        return t2s(v, l, p, n, vtv, i, pt, path, tables)
+        return t2s(v, l, p, n, vtv, i, pt, path, tables, tI)
     elseif typeof(v) == "Instance" then
         return i2p(v)
     elseif typeof(v) == "userdata" then
@@ -1170,8 +1175,9 @@ end
 --- @param pt table
 --- @param path string
 --- @param tables table
-function t2s(t, l, p, n, vtv, i, pt, path, tables)
-    for k, x in pairs(getrenv()) do
+--- @param tI table
+function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
+    for k, x in pairs(getrenv()) do -- checks if table is actually just a global
         local isgucci, gpath
         if rawequal(x, t) then
             isgucci, gpath = true, ""
@@ -1186,48 +1192,53 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables)
             end
         end
     end
-    if not path then
+    if not tI then
+        tI = {0}
+    end
+    if not path then -- sets path to empty string (so it doesn't have to manually provided every time)
         path = ""
     end
-    if not l then
+    if not l then -- sets the level to 0 (for indentation) and tables for logging tables it already serialized
         l = 0
         tables = {}
     end
-    if not p then
+    if not p then -- p is the previous table but doesn't really matter if it's the first
         p = t
     end
-    for _, v in pairs(tables) do
+    for _, v in pairs(tables) do -- checks if the current table has been serialized before
         if n and rawequal(v, t) then
             bottomstr = bottomstr .. "\n" .. tostring(n) .. tostring(path) .. " = " .. tostring(n) .. tostring(({v2p(v, p)})[2])
             return "{} --[[DUPLICATE]]"
         end
     end
-    table.insert(tables, t)
-    local s =  "{"
+    table.insert(tables, t) -- logs table to past tables
+    local s =  "{" -- start of serialization
     local size = 0
-    l = l + indent
-    for k, v in pairs(t) do
-        size = size + 1
-        if size > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 1000) then
+    l = l + indent -- set indentation level
+    for k, v in pairs(t) do -- iterates over table
+        size = size + 1 -- changes size for max limit
+        if tI[1] > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 5000) then
+            s = s .. "\n" .. string.rep(" ", l) .. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
             break
         end
-        if rawequal(k, t) then
-            bottomstr = bottomstr .. "\n" .. tostring(n) .. tostring(path) .. "[" .. tostring(n) .. tostring(path) .. "]" .. " = " .. (v == k and tostring(n) .. tostring(path) or v2s(v, l, p, n, vtv, k, t, path .. "[" .. tostring(n) .. tostring(path) .. "]", tables))
+        if rawequal(k, t) then -- checks if the table being iterated over is being used as an index within itself (yay, lua)
+            bottomstr = bottomstr .. "\n" .. tostring(n) .. tostring(path) .. "[" .. tostring(n) .. tostring(path) .. "]" .. " = " .. (rawequal(v, k) and tostring(n) .. tostring(path) or v2s(v, l, p, n, vtv, k, t, path .. "[" .. tostring(n) .. tostring(path) .. "]", tables))
             size -= 1
             continue
         end
-        local currentPath = ""
-        if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
+        local currentPath = "" -- initializes the path of 'v' within 't'
+        if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then -- cleanly handles table path generation (for the first half)
             currentPath = "." .. k
         else
-            currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path) .. "]"
+            currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path, nil, tI) .. "]"
         end
-        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables) .. ","
+        -- actually serializes the member of the table
+        s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
     end
-    if #s > 1 then
+    if #s > 1 then -- removes the last comma because it looks nicer (no way to tell if it's done 'till it's done so...)
         s = s:sub(1, #s - 1)
     end
-    if size > 0 then
+    if size > 0 then -- cleanly indents the last curly bracket
         s = s .. "\n" .. string.rep(" ", l - indent)
     end
     return s .. "}"
@@ -1250,7 +1261,7 @@ function f2s(f)
             end
         end
     end
-    if debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
+    if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
         return "function()end --[[" .. debug.getinfo(f).name .. "]]"
     end
     return "function()end --[[" .. tostring(f) .. "]]"
@@ -1462,35 +1473,61 @@ end
 
 --- format s: string, byte encrypt (for weird symbols)
 function formatstr(s)
-    return '"' .. handlespecials(s) .. '"'
+    local handled, reachedMax = handlespecials(s)
+    return '"' .. handled .. '"' .. (reachedMax and " --[[ MAXIMUM STRING SIZE REACHED, CHANGE '_G.SimpleSpyMaxStringSize' TO ADJUST MAXIMUM SIZE ]]" or "")
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
 function handlespecials(s)
     local i = 0
+    local coroutines = {}
+    local coroutineFunc = function(i, r)
+        s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
+    end
+    local function isFinished()
+        for _, v in pairs(coroutines) do
+            if coroutine.status(v) == "running" then
+                return false
+            end
+        end
+        return true
+    end
     repeat
         i = i + 1
         local char = s:sub(i, i)
         if string.byte(char) then
+            local c = coroutine.create(coroutineFunc)
+            table.insert(coroutines, c)
             if char == "\n" then
-                s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\n")
+                -- s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\t" then
-                s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\t")
+                -- s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == "\\" then
-                s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\\\")
+                -- s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
                 i = i + 1
             elseif char == '"' then
-                s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\\"")
+                -- s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
                 i = i + 1
             elseif string.byte(char) > 126 or string.byte(char) < 32 then
-                s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
+                coroutine.resume(c, i, "\\" .. string.byte(char))
+                -- s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
                 i = i + #tostring(string.byte(char))
             end
         end
-    until char == ""
-    return s
+    until char == "" or i > (_G.SimpleSpyMaxStringSize or 2000)
+    while not isFinished() do
+        RunService.Heartbeat:Wait()
+    end
+    if i > (_G.SimpleSpyMaxStringSize or 2000) then
+        return s, true
+    end
+    return s, false
 end
 
 --- finds script from 'src' from getinfo, returns nil if not found
@@ -1729,6 +1766,7 @@ if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
+        if gethui then funcEnabled = false end
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
@@ -1962,10 +2000,10 @@ newButton(
 
 newButton(
     "Disable Info",
-    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
+    function() return string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
