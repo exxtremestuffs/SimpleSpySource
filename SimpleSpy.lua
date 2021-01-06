@@ -1253,7 +1253,7 @@ function f2s(f)
         elseif type(x) == "table" then
             isgucci, gpath = v2p(f, x)
         end
-        if isgucci and not rawequal(k, f) then
+        if isgucci and type(k) ~= "function" then
             if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
                 return k .. gpath
             else
