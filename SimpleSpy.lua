@@ -1520,11 +1520,11 @@ function handlespecials(s)
                 i = i + #tostring(string.byte(char))
             end
         end
-    until char == "" or i > (_G.SimpleSpyMaxStringSize or 2000)
+    until char == "" or i > (_G.SimpleSpyMaxStringSize or 1000)
     while not isFinished() do
         RunService.Heartbeat:Wait()
     end
-    if i > (_G.SimpleSpyMaxStringSize or 2000) then
+    if i > (_G.SimpleSpyMaxStringSize or 1000) then
         return s, true
     end
     return s, false
