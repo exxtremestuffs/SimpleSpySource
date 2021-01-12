@@ -89,7 +89,7 @@ RemoteTemplate.Size = UDim2.new(0, 117, 0, 27)
 
 ColorBar.Name = "ColorBar"
 ColorBar.Parent = RemoteTemplate
-ColorBar.BackgroundColor3 = Color3.new(1, 0.94902, 0)
+ColorBar.BackgroundColor3 = Color3.fromRGB(255, 242, 0)
 ColorBar.BorderSizePixel = 0
 ColorBar.Position = UDim2.new(0, 0, 0, 1)
 ColorBar.Size = UDim2.new(0, 7, 0, 18)
@@ -123,7 +123,7 @@ Button.TextSize = 14
 
 RightPanel.Name = "RightPanel"
 RightPanel.Parent = Background
-RightPanel.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+RightPanel.BackgroundColor3 = Color3.fromRGB(37, 36, 38)
 RightPanel.BorderSizePixel = 0
 RightPanel.Position = UDim2.new(0, 131, 0, 19)
 RightPanel.Size = UDim2.new(0, 319, 0, 249)
@@ -192,7 +192,7 @@ Button_2.TextSize = 14
 
 TopBar.Name = "TopBar"
 TopBar.Parent = Background
-TopBar.BackgroundColor3 = Color3.new(0.145098, 0.141176, 0.14902)
+TopBar.BackgroundColor3 = Color3.fromRGB(37, 35, 38)
 TopBar.BorderSizePixel = 0
 TopBar.Size = UDim2.new(0, 450, 0, 19)
 
@@ -1766,7 +1766,7 @@ if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
-        if gethui then funcEnabled = false end
+        -- if gethui then funcEnabled = false end
         onToggleButtonClick()
         RemoteTemplate.Parent = nil
         FunctionTemplate.Parent = nil
@@ -2000,10 +2000,10 @@ newButton(
 
 newButton(
     "Disable Info",
-    function() return string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED") end,
+    function() return string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED") end,
     function()
         funcEnabled = not funcEnabled
-        TextLabel.Text = string.format("%s[%s] Toggle function info (because it can cause lag in some games)", gethui and "NOT WORKING IN KRNL, DISABLED BY DEFAULT " or "", funcEnabled and "ENABLED" or "DISABLED")
+        TextLabel.Text = string.format("[%s] Toggle function info (because it can cause lag in some games)", funcEnabled and "ENABLED" or "DISABLED")
     end
 )
 
