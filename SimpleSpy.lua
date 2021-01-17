@@ -571,14 +571,20 @@ end
 
 --- Brings gui back if it gets lost offscreen (connected to the camera viewport changing)
 function bringBackOnResize()
+    validateSize()
+    if sideClosed then
+        minimizeSize()
+    else
+        maximizeSize()
+    end
     local currentX = Background.AbsolutePosition.X
     local currentY = Background.AbsolutePosition.Y
     local viewportSize = workspace.CurrentCamera.ViewportSize
-    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X))) then
+    if (currentX < 0) or (currentX > (viewportSize.X - (sideClosed and 131 or Background.AbsoluteSize.X))) then
         if currentX < 0 then
             currentX = 0
         else
-            currentX = viewportSize.X - (sideClosed and 131 or TopBar.AbsoluteSize.X)
+            currentX = viewportSize.X - (sideClosed and 131 or Background.AbsoluteSize.X)
         end
     end
     if (currentY < 0) or (currentY > (viewportSize.Y - (closed and 19 or Background.AbsoluteSize.Y) - 36)) then
@@ -592,6 +598,7 @@ function bringBackOnResize()
 end
 
 --- Drags gui (so long as mouse is held down)
+--- @param input InputObject
 function onBarInput(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         local lastPos = UserInputService.GetMouseLocation(UserInputService)
@@ -623,11 +630,16 @@ function onBarInput(input)
                     lastPos = newPos
                     TweenService.Create(TweenService, Background, TweenInfo.new(0.1), {Position = UDim2.new(0, currentPos.X, 0, currentPos.Y)}):Play()
                 end
-                if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-                    RunService.UnbindFromRenderStep(RunService, "drag")
-                end
+                -- if input.UserInputState ~= Enum.UserInputState.Begin then
+                --     RunService.UnbindFromRenderStep(RunService, "drag")
+                -- end
             end
         )
+        table.insert(connections, UserInputService.InputEnded:Connect(function(inputE)
+            if input == inputE then
+                RunService:UnbindFromRenderStep("drag")
+            end
+        end))
     end
 end
 
@@ -788,6 +800,16 @@ function isInResizeRange(p)
     return false
 end
 
+--- Checks if cursor is within dragging range
+--- @param p Vector2
+function isInDragRange(p)
+    local relativeP = p - Background.AbsolutePosition
+    if relativeP.X <= TopBar.AbsoluteSize.X - CloseButton.AbsoluteSize.X * 3 and relativeP.Y <= TopBar.AbsoluteSize.Y then
+        return true
+    end
+    return false
+end
+
 --- Called when mouse enters SimpleSpy
 function mouseEntered()
     local customCursor = Instance.new("ImageLabel")
@@ -858,11 +880,32 @@ function minimizeSize(speed)
     TweenService:Create(LogList, TweenInfo.new(speed), { Size = UDim2.fromOffset(LogList.AbsoluteSize.X, Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y - 18) }):Play()
 end
 
+--- Ensures size is within screensize limitations
+function validateSize()
+    local x, y = Background.AbsoluteSize.X, Background.AbsoluteSize.Y
+    local screenSize = workspace.CurrentCamera.ViewportSize
+    if x + Background.AbsolutePosition.X > screenSize.X then
+        if screenSize.X - Background.AbsolutePosition.X >= 450 then
+            x = screenSize.X - Background.AbsolutePosition.X
+        else
+            x = 450
+        end
+    elseif y + Background.AbsolutePosition.Y > screenSize.Y then
+        if screenSize.X - Background.AbsolutePosition.Y >= 268 then
+            y = screenSize.Y - Background.AbsolutePosition.Y
+        else
+            y = 268
+        end
+    end
+    Background.Size = UDim2.fromOffset(x, y)
+end
+
 --- Called on user input while mouse in 'Background' frame
 --- @param input InputObject
 function backgroundUserInput(input)
-    local inRange, type = isInResizeRange(UserInputService:GetMouseLocation() - Vector2.new(0, 36))
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and inRange then
+    local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+    local inResizeRange, type = isInResizeRange(mousePos)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and inResizeRange then
         local lastPos = UserInputService:GetMouseLocation()
         local offset = Background.AbsoluteSize - lastPos
         local currentPos = lastPos + offset
@@ -879,6 +922,7 @@ function backgroundUserInput(input)
                 end
                 currentPos = Vector2.new(currentX, currentY)
                 Background.Size = UDim2.fromOffset((not sideClosed and not closed and (type == "X" or type == "B")) and currentPos.X or Background.AbsoluteSize.X, (--[[(not sideClosed or currentPos.X <= LeftPanel.AbsolutePosition.X + LeftPanel.AbsoluteSize.X) and]] not closed and (type == "Y" or type == "B")) and currentPos.Y or Background.AbsoluteSize.Y)
+                validateSize()
                 if sideClosed then
                     minimizeSize()
                 else
@@ -892,6 +936,8 @@ function backgroundUserInput(input)
                 RunService:UnbindFromRenderStep("SIMPLESPY_RESIZE")
             end
         end))
+    elseif isInDragRange(mousePos) then
+        onBarInput(input)
     end
 end
 
@@ -1774,7 +1820,7 @@ if not _G.SimpleSpyExecuted then
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
         TextLabel:GetPropertyChangedSignal("Text"):Connect(scaleToolTip)
-        TopBar.InputBegan:Connect(onBarInput)
+        -- TopBar.InputBegan:Connect(onBarInput)
         MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
         MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
         Simple.MouseButton1Click:Connect(onToggleButtonClick)
