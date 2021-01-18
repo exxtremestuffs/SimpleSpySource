@@ -1223,20 +1223,9 @@ end
 --- @param tables table
 --- @param tI table
 function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
-    for k, x in pairs(getrenv()) do -- checks if table is actually just a global
-        local isgucci, gpath
-        if rawequal(x, t) then
-            isgucci, gpath = true, ""
-        elseif type(x) == "table" then
-            isgucci, gpath = v2p(t, x)
-        end
-        if isgucci then
-            if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
-                return k .. gpath
-            else
-                return "getrenv()[" .. v2s(k) .. "]" .. gpath
-            end
-        end
+    local globalIndex = table.find(getgenv(), t) -- checks if table is a global
+    if type(globalIndex) == "string" then
+        return globalIndex
     end
     if not tI then
         tI = {0}
