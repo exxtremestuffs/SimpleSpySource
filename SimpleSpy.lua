@@ -1789,6 +1789,7 @@ function shutdown()
         end)()
     end
     setreadonly(gm, false)
+    if gethui then SimpleSpy2.Parent = nil end
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
