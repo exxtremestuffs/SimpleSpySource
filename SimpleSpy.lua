@@ -1789,7 +1789,6 @@ function shutdown()
         end)()
     end
     setreadonly(gm, false)
-    if gethui then SimpleSpy2.Parent = nil end
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
@@ -1829,7 +1828,7 @@ if not _G.SimpleSpyExecuted then
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
-        SimpleSpy2.Parent = gethui and gethui() or CoreGui
+        SimpleSpy2.Parent = -[[gethui and gethui() or]] CoreGui
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
