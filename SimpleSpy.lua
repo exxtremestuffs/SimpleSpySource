@@ -1165,7 +1165,7 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
     elseif typeof(v) == "boolean" then
         return tostring(v)
     elseif typeof(v) == "string" then
-        return formatstr(v)
+        return formatstr(v, l)
     elseif typeof(v) == "function" then
         return f2s(v)
     elseif typeof(v) == "table" then
@@ -1507,13 +1507,13 @@ function v2p(x, t, path, prev)
 end
 
 --- format s: string, byte encrypt (for weird symbols)
-function formatstr(s)
-    local handled, reachedMax = handlespecials(s)
+function formatstr(s, indentation)
+    local handled, reachedMax = handlespecials(s, indentation)
     return '"' .. handled .. '"' .. (reachedMax and " --[[ MAXIMUM STRING SIZE REACHED, CHANGE '_G.SimpleSpyMaxStringSize' TO ADJUST MAXIMUM SIZE ]]" or "")
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
-function handlespecials(s)
+function handlespecials(s, indentation)
     local i = 0
     local coroutines = {}
     local coroutineFunc = function(i, r)
@@ -1553,6 +1553,11 @@ function handlespecials(s)
                 coroutine.resume(c, i, "\\" .. string.byte(char))
                 -- s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
                 i = i + #tostring(string.byte(char))
+            end
+            if i % 100 == 0 then
+                local extra = string.format('" ..\n%s"', string.rep(" ", indentation + indent))
+                s = s:sub(0, i) .. extra .. s:sub(i + 1, -1)
+                i += #extra
             end
         end
     until char == "" or i > (_G.SimpleSpyMaxStringSize or 1000)
