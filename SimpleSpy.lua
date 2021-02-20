@@ -1562,7 +1562,7 @@ function handlespecials(s, indentation)
         end
     until char == "" or i > (_G.SimpleSpyMaxStringSize or 1000)
     while not isFinished() do
-        RunService.Heartbeat:Wait()
+        RunService.PostSimulation:Wait()
     end
     if i > (_G.SimpleSpyMaxStringSize or 1000) then
         return s, true
@@ -1831,7 +1831,7 @@ if not _G.SimpleSpyExecuted then
             wait(1)
             onToggleButtonUnhover()
         end)()
-        schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
+        schedulerconnect = RunService.PostSimulation:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
         SimpleSpy2.Parent = --[[gethui and gethui() or]] CoreGui
     end)
