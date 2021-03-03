@@ -1728,7 +1728,7 @@ local newnamecall = newcclosure(function(remote, ...)
     local methodName = getnamecallmethod()
     if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and not (blacklist[remote] or blacklist[remote.Name]) then
         if remoteHooks[remote] then
-            args = remoteHooks[remote]({args})
+            args = remoteHooks[remote](args)
         end
         local func
         local calling
@@ -1737,7 +1737,7 @@ local newnamecall = newcclosure(function(remote, ...)
             calling = useGetCallingScript and getcallingscript() or nil
         end
         coroutine.wrap(function()
-            schedule(remoteHandler, false, methodName, remote, {args}, func, calling)
+            schedule(remoteHandler, false, methodName, remote, args, func, calling)
         end)()
     end
     if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
