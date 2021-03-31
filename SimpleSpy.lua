@@ -1968,7 +1968,7 @@ newButton(
 --- Excludes the selected.Log Remote from the RemoteSpy
 newButton(
     "Exclude (i)",
-    function() return "Click to exclude this Remote" end,
+    function() return "Click to exclude this Remote.\nExcluding a remote makes SimpleSpy ignore it, but it will continue to be usable." end,
     function()
         if selected then
             blacklist[selected.Remote] = true
@@ -1980,7 +1980,7 @@ newButton(
 --- Excludes all Remotes that share the same name as the selected.Log remote from the RemoteSpy
 newButton(
     "Exclude (n)",
-    function() return "Click to exclude all remotes with this name" end,
+    function() return "Click to exclude all remotes with this name.\nExcluding a remote makes SimpleSpy ignore it, but it will continue to be usable." end,
     function()
         if selected then
             blacklist[selected.Name] = true
@@ -1992,7 +1992,7 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blacklist",
-    function() return "Click to clear the blacklist" end,
+    function() return "Click to clear the blacklist.\nExcluding a remote makes SimpleSpy ignore it, but it will continue to be usable." end,
     function()
         blacklist = {}
         TextLabel.Text = "Blacklist cleared!"
@@ -2002,7 +2002,7 @@ newButton(
 --- Prevents the selected.Log Remote from firing the server (still logged)
 newButton(
     "Block (i)",
-    function() return "Click to stop this remote from firing" end,
+    function() return "Click to stop this remote from firing.\nBlocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server." end,
     function()
         if selected then
             blocklist[selected.Remote] = true
@@ -2014,7 +2014,7 @@ newButton(
 --- Prevents all remotes from firing that share the same name as the selected.Log remote from the RemoteSpy (still logged)
 newButton(
     "Block (n)",
-    function() return "Click to stop remotes with this name from firing" end,
+    function() return "Click to stop remotes with this name from firing.\nBlocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server." end,
     function()
         if selected then
             blocklist[selected.Name] = true
@@ -2026,7 +2026,7 @@ newButton(
 --- clears blacklist
 newButton(
     "Clr Blocklist",
-    function() return "Click to stop blocking remotes" end,
+    function() return "Click to stop blocking remotes.\nBlocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server." end,
     function()
         blocklist = {}
         TextLabel.Text = "Blocklist cleared!"
