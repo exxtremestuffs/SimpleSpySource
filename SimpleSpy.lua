@@ -804,7 +804,8 @@ end
 --- @param p Vector2
 function isInDragRange(p)
     local relativeP = p - Background.AbsolutePosition
-    if relativeP.X <= TopBar.AbsoluteSize.X - CloseButton.AbsoluteSize.X * 3 and relativeP.Y <= TopBar.AbsoluteSize.Y then
+    if relativeP.X <= TopBar.AbsoluteSize.X - CloseButton.AbsoluteSize.X * 3 and relativeP.X >= 0
+        and relativeP.Y <= TopBar.AbsoluteSize.Y and relativeP.Y >= 0 then
         return true
     end
     return false
