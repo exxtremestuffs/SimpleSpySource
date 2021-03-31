@@ -485,6 +485,17 @@ function newSignal()
                 end
             })
         end,
+        Wait = function(self)
+            local thread = coroutine.running()
+            local connection
+            connection = self:Connect(function()
+                connection:Disconnect()
+                if coroutine.status(thread) == "suspended" then
+                    coroutine.resume(thread)
+                end
+            end)
+            coroutine.yield()
+        end,
         Fire = function(self, ...)
             for _, f in pairs(connected) do
                 coroutine.wrap(f)(...)
