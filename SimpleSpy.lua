@@ -1089,10 +1089,9 @@ function newRemote(type, name, gen_script, remote, function_info, blocked, src)
 end
 
 --- Generates a script from the provided arguments (first has to be remote path)
-function genScript(remote, ...)
+function genScript(remote, args)
     prevTables = {}
     local gen = ""
-    local args = {...}
     if #args > 0 then
         if not pcall(function()
                 gen = v2v({args = args}) .. "\n"
@@ -1686,9 +1685,9 @@ function remoteHandler(hookfunction, methodName, remote, args, func, calling)
             pcall(function() if type(calling) == "userdata" then src = calling end end)
         end
         if methodName:lower() == "fireserver" then
-            newRemote("event", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
+            newRemote("event", remote.Name, genScript(remote, args), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         elseif methodName:lower() == "invokeserver" then
-            newRemote("function", remote.Name, genScript(remote, table.unpack(args)), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
+            newRemote("function", remote.Name, genScript(remote, args), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         end
     end
 end
