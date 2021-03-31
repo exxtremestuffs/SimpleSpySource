@@ -1812,6 +1812,7 @@ if not _G.SimpleSpyExecuted then
         codebox = Highlight.new(CodeBox)
         codebox:setRaw("")
         getgenv().SimpleSpy = SimpleSpy
+        getgenv().getNil = function(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end
         TextLabel:GetPropertyChangedSignal("Text"):Connect(scaleToolTip)
         -- TopBar.InputBegan:Connect(onBarInput)
         MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
