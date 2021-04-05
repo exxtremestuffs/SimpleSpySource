@@ -1457,7 +1457,7 @@ function u2s(u)
     elseif typeof(u) == "PathWaypoint" then
         return string.format("PathWaypoint.new(%s, %s)", v2s(u.Position), v2s(u.Action))
     else
-        return typeof(u) .. string.format("nil --[[%s]]", typeof(u))
+        return string.format("nil --[[%s]]", typeof(u))
     end
 end
 
