@@ -1733,7 +1733,7 @@ end
 local newnamecall = newcclosure(function(remote, ...)
     local args = {...}
     local methodName = getnamecallmethod()
-    if (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and not (blacklist[remote] or blacklist[remote.Name]) then
+    if (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and not (blacklist[remote] or blacklist[remote.Name]) then
         if remoteHooks[remote] then
             args = remoteHooks[remote](args)
         end
@@ -1747,9 +1747,9 @@ local newnamecall = newcclosure(function(remote, ...)
             schedule(remoteHandler, false, methodName, remote, args, func, calling)
         end)()
     end
-    if typeof(remote) == "Instance" and (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and (blocklist[remote] or blocklist[remote.Name]) then
+    if typeof(remote) == "Instance" and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and (blocklist[remote] or blocklist[remote.Name]) then
         return nil
-    elseif (methodName:lower() == "invokeserver" or methodName:lower() == "fireserver") and remoteHooks[remote] then
+    elseif (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and remoteHooks[remote] then
         return original(remote, unpack(args))
     else
         return original(remote, ...)
