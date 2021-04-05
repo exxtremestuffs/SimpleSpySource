@@ -1454,14 +1454,10 @@ function u2s(u)
         return string.format("CFrame.new(%s, %s)", v2s(u.Position), v2s(u.LookVector))
     elseif typeof(u) == "DockWidgetPluginGuiInfo" then
         return string.format("DockWidgetPluginGuiInfo(%s, %s, %s, %s, %s, %s, %s)", "Enum.InitialDockState.Right", v2s(u.InitialEnabled), v2s(u.InitialEnabledShouldOverrideRestore), v2s(u.FloatingXSize), v2s(u.FloatingYSize), v2s(u.MinWidth), v2s(u.MinHeight))
-    elseif typeof(u) == "RBXScriptConnection" then
-        return "nil --[[RBXScriptConnection " .. tostring(u) .. "]]"
-    elseif typeof(u) == "RaycastResult" then
-        return "nil --[[RaycastResult " .. tostring(u) .. "]]"
     elseif typeof(u) == "PathWaypoint" then
         return string.format("PathWaypoint.new(%s, %s)", v2s(u.Position), v2s(u.Action))
     else
-        return typeof(u) .. ".new(" .. tostring(u) .. ")"
+        return typeof(u) .. string.format("nil --[[%s]]", typeof(u))
     end
 end
 
