@@ -59,7 +59,7 @@ local functions = {"[^%w_]([%a_][%a%d_]*)%s*%(", "^([%a_][%a%d_]*)%s*%(", "[:%.%
 local numbers = {"[^%w_](%d+[eE]?%d*)", "[^%w_](%.%d+[eE]?%d*)", "[^%w_](%d+%.%d+[eE]?%d*)", "^(%d+[eE]?%d*)", "^(%.%d+[eE]?%d*)", "^(%d+%.%d+[eE]?%d*)"}
 local booleans = {"[^%w_](true)", "^(true)", "[^%w_](false)", "^(false)", "[^%w_](nil)", "^(nil)"}
 local objects = {"[^%w_:]([%a_][%a%d_]*):", "^([%a_][%a%d_]*):"}
-local other = {"[^_%s%w=>~<%-%+%*]", ">", "~", "<", "%-", "%+", "=", "%*"}
+local other = {"[^_%s%w=>~<%-%+%*]", "&gt;", "~", "&lt;", "%-", "%+", "=", "%*"}
 local offLimits = {}
 
 --- Determines if index is in a string
@@ -166,11 +166,30 @@ end
 --- Automatically replaces reserved chars with escape chars
 --- @param s string
 function autoEscape(s)
-    s:gsub("<", "&lt;")
-    s:gsub(">", "&gt;")
-    s:gsub('"', "&quot;")
-    s:gsub("'", "&apos;")
-    s:gsub("&", "&amp;")
+    for i = 0, #s do
+        local char = string.sub(s, i, i)
+        if char == "<" then
+            s = string.format("%s%s%s", string.sub(s, 0, i - 1), "&lt;", string.sub(s, i + 1, -1))
+            i += 3
+        elseif char == ">" then
+            s = string.format("%s%s%s", string.sub(s, 0, i - 1), "&gt;", string.sub(s, i + 1, -1))
+            i += 3
+        elseif char == '"' then
+            s = string.format("%s%s%s", string.sub(s, 0, i - 1), "&quot;", string.sub(s, i + 1, -1))
+            i += 5
+        elseif char == "'" then
+            s = string.format("%s%s%s", string.sub(s, 0, i - 1), "&apos;", string.sub(s, i + 1, -1))
+            i += 5
+        elseif char == "&" then
+            s = string.format("%s%s%s", string.sub(s, 0, i - 1), "&amp;", string.sub(s, i + 1, -1))
+            i += 4
+        end
+    end
+    -- s:gsub("<", "&lt;")
+    -- s:gsub(">", "&gt;")
+    -- s:gsub('"', "&quot;")
+    -- s:gsub("'", "&apos;")
+    -- s:gsub("&", "&amp;")
     return s
 end
 
