@@ -1114,20 +1114,20 @@ function genScript(remote, args)
                     function()
                         for i, v in pairs(args) do
                             if type(i) ~= "Instance" and type(i) ~= "userdata" then
-                                gen = gen .. "\n    [" .. tostring(i) .. "] = "
+                                gen = gen .. "\n    [object] = "
                             elseif type(i) == "string" then
-                                gen = gen .. '\n    ["' .. tostring(i) .. '"] = '
+                                gen = gen .. '\n    ["' .. i .. '"] = '
                             elseif type(i) == "userdata" and typeof(i) ~= "Instance" then
-                                gen = gen .. "\n    [" .. typeof(i) .. ".new(" .. tostring(i) .. ")] = "
+                                gen = gen .. "\n    [" .. string.format("nil --[[%s]]", typeof(v)) .. ")] = "
                             elseif type(i) == "userdata" then
                                 gen = gen .. "\n    [game." .. i:GetFullName() .. ")] = "
                             end
                             if type(v) ~= "Instance" and type(v) ~= "userdata" then
-                                gen = gen .. tostring(v)
+                                gen = gen .. "object"
                             elseif type(v) == "string" then
-                                gen = gen .. '"' .. tostring(v) .. '"'
+                                gen = gen .. '"' .. v .. '"'
                             elseif type(v) == "userdata" and typeof(v) ~= "Instance" then
-                                gen = gen .. typeof(v) .. ".new(" .. tostring(v) .. ")"
+                                gen = gen .. string.format("nil --[[%s]]", typeof(v))
                             elseif type(v) == "userdata" then
                                 gen = gen .. "game." .. v:GetFullName()
                             end
