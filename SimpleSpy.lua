@@ -1572,11 +1572,12 @@ function handlespecials(s, indentation)
                 n += 1
             end
         end
-    until char == "" or i > (_G.SimpleSpyMaxStringSize or 1000)
+    until char == "" or i > (_G.SimpleSpyMaxStringSize or 10000)
     while not isFinished() do
         RunService.Heartbeat:Wait()
     end
-    if i > (_G.SimpleSpyMaxStringSize or 1000) then
+    if i > (_G.SimpleSpyMaxStringSize or 10000) then
+        s = string.sub(s, 0, _G.SimpleSpyMaxStringSize or 10000)
         return s, true
     end
     return s, false
