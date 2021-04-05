@@ -1515,6 +1515,9 @@ end
 
 --- format s: string, byte encrypt (for weird symbols)
 function formatstr(s, indentation)
+    if not indentation then
+        indentation = 0
+    end
     local handled, reachedMax = handlespecials(s, indentation)
     return '"' .. handled .. '"' .. (reachedMax and " --[[ MAXIMUM STRING SIZE REACHED, CHANGE '_G.SimpleSpyMaxStringSize' TO ADJUST MAXIMUM SIZE ]]" or "")
 end
@@ -1522,6 +1525,7 @@ end
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
 function handlespecials(s, indentation)
     local i = 0
+    local n = 1
     local coroutines = {}
     local coroutineFunc = function(i, r)
         s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
@@ -1561,10 +1565,11 @@ function handlespecials(s, indentation)
                 -- s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
                 i = i + #tostring(string.byte(char))
             end
-            if i % 100 == 0 then
+            if i >= n * 100 then
                 local extra = string.format('" ..\n%s"', string.rep(" ", indentation + indent))
                 s = s:sub(0, i) .. extra .. s:sub(i + 1, -1)
                 i += #extra
+                n += 1
             end
         end
     until char == "" or i > (_G.SimpleSpyMaxStringSize or 1000)
