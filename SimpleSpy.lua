@@ -1456,6 +1456,12 @@ function u2s(u)
         return string.format("DockWidgetPluginGuiInfo(%s, %s, %s, %s, %s, %s, %s)", "Enum.InitialDockState.Right", v2s(u.InitialEnabled), v2s(u.InitialEnabledShouldOverrideRestore), v2s(u.FloatingXSize), v2s(u.FloatingYSize), v2s(u.MinWidth), v2s(u.MinHeight))
     elseif typeof(u) == "PathWaypoint" then
         return string.format("PathWaypoint.new(%s, %s)", v2s(u.Position), v2s(u.Action))
+    elseif typeof(u) == "UDim" then
+        return string.format("UDim.new(%s, %s)", v2s(u.Scale), v2s(u.Offset))
+    elseif typeof(u) == "UDim2" then
+        return string.format("UDim2.new(%s, %s, %s, %s)", v2s(u.X.Scale), v2s(u.X.Offset), v2s(u.Y.Scale), v2s(u.Y.Offset))
+    elseif typeof(u) == "Rect" then
+        return string.format("Rect.new(%s, %s)", v2s(u.Min), v2s(u.Max))
     else
         return string.format("nil --[[%s]]", typeof(u))
     end
