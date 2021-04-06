@@ -1846,6 +1846,7 @@ if not _G.SimpleSpyExecuted then
         end)()
         schedulerconnect = RunService.Heartbeat:Connect(taskscheduler)
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
+        bringBackOnResize()
         SimpleSpy2.Parent = --[[gethui and gethui() or]] CoreGui
     end)
     if succeeded then
