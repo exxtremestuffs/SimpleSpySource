@@ -1331,7 +1331,7 @@ function i2p(i)
                 end
             else
                 if parent.Name:match("[%a_]+[%w+]*") ~= parent.Name then
-                    out = '[' .. formatstr(parent.Name) .. ']' .. out
+                    out = ':FindFirstChild(' .. formatstr(parent.Name) .. ')' .. out
                 else
                     out = "." .. parent.Name .. out
                 end
@@ -1351,7 +1351,7 @@ function i2p(i)
                     if parent.Name:match("[%a_]+[%w_]*") then
                         return "game." .. parent.Name .. out
                     else
-                        return 'game[' .. formatstr(parent.Name) .. ']' .. out
+                        return 'game:FindFirstChild(' .. formatstr(parent.Name) .. ')' .. out
                     end
                 end
             elseif parent.Parent == nil then
@@ -1361,7 +1361,7 @@ function i2p(i)
                 out = ".LocalPlayer" .. out
             else
                 if parent.Name:match("[%a_]+[%w_]*") ~= parent.Name then
-                    out = '[' .. formatstr(parent.Name) .. ']' .. out
+                    out = ':FindFirstChild(' .. formatstr(parent.Name) .. ')' .. out
                 else
                     out = "." .. parent.Name .. out
                 end
