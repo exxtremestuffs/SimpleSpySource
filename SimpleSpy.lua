@@ -1080,7 +1080,7 @@ function newRemote(type, name, args, remote, function_info, blocked, src)
         Log = remoteFrame,
         Blocked = blocked,
         Source = src,
-        GenScript = "-- Generating, please wait..."
+        GenScript = "-- Generating, please wait... (click to reload)\n-- (If this message persists, the remote args are likely extremely long)"
     }
     logs[#logs + 1] = log
     schedule(function()
@@ -1267,7 +1267,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
     l = l + indent -- set indentation level
     for k, v in pairs(t) do -- iterates over table
         size = size + 1 -- changes size for max limit
-        if tI[1] > (_G.SimpleSpyMaxTableSize or 1000) then
+        if size > (_G.SimpleSpyMaxTableSize or 1000) then
             s = s .. "\n" .. string.rep(" ", l) .. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
             break
         end
