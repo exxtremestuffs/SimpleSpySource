@@ -1061,11 +1061,11 @@ end
 --- Adds new Remote to logs
 --- @param name string The name of the remote being logged
 --- @param type string The type of the remote being logged (either 'function' or 'event')
---- @param gen_script any
+--- @param args any
 --- @param remote any
 --- @param function_info string
 --- @param blocked any
-function newRemote(type, name, gen_script, remote, function_info, blocked, src)
+function newRemote(type, name, args, remote, function_info, blocked, src)
     local remoteFrame = RemoteTemplate:Clone()
     remoteFrame.Text.Text = name
     remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
@@ -1073,18 +1073,22 @@ function newRemote(type, name, gen_script, remote, function_info, blocked, src)
     id.Name = "ID"
     id.Value = #logs + 1
     id.Parent = remoteFrame
-    logs[#logs + 1] = {
+    local log = {
         Name = name,
-        GenScript = gen_script,
         Function = function_info,
         Remote = remote,
         Log = remoteFrame,
         Blocked = blocked,
-        Source = src
+        Source = src,
+        GenScript = "-- Generating, please wait..."
     }
-    if blocked then
-        logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
-    end
+    logs[#logs + 1] = log
+    schedule(function()
+        log.GenScript = genScript(remote, args)
+        if blocked then
+            logs[#logs].GenScript = "-- THIS REMOTE WAS PREVENTED FROM FIRING THE SERVER BY SIMPLESPY\n\n" .. logs[#logs].GenScript
+        end
+    end)
     local connect = remoteFrame.Button.MouseButton1Click:Connect(function()
         eventSelect(remoteFrame)
     end)
@@ -1263,7 +1267,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
     l = l + indent -- set indentation level
     for k, v in pairs(t) do -- iterates over table
         size = size + 1 -- changes size for max limit
-        if tI[1] > (_G.SimpleSpyMaxTableSize and _G.SimpleSpyMaxTableSize or 5000) then
+        if tI[1] > (_G.SimpleSpyMaxTableSize or 1000) then
             s = s .. "\n" .. string.rep(" ", l) .. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
             break
         end
@@ -1277,6 +1281,9 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
             currentPath = "." .. k
         else
             currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path, nil, tI) .. "]"
+        end
+        if size % 100 == 0 then
+            scheduleWait()
         end
         -- actually serializes the member of the table
         s = s .. "\n" .. string.rep(" ", l) .. "[" .. v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
@@ -1576,6 +1583,7 @@ function handlespecials(s, indentation)
                 s = s:sub(0, i) .. extra .. s:sub(i + 1, -1)
                 i += #extra
                 n += 1
+                scheduleWait()
             end
         end
     until char == "" or i > (_G.SimpleSpyMaxStringSize or 10000)
@@ -1646,6 +1654,15 @@ function schedule(f, ...)
     table.insert(scheduled, {f, ...})
 end
 
+--- yields the current thread until the scheduler gives the ok
+function scheduleWait()
+    local thread = coroutine.running()
+    schedule(function()
+        coroutine.resume(thread)
+    end)
+    coroutine.yield()
+end
+
 --- the big (well tbh small now) boi task scheduler himself, handles p much anything as quicc as possible
 function taskscheduler()
     if not toggle then
@@ -1704,9 +1721,9 @@ function remoteHandler(hookfunction, methodName, remote, args, func, calling)
             pcall(function() if type(calling) == "userdata" then src = calling end end)
         end
         if methodName:lower() == "fireserver" then
-            newRemote("event", remote.Name, genScript(remote, args), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
+            newRemote("event", remote.Name, args, remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         elseif methodName:lower() == "invokeserver" then
-            newRemote("function", remote.Name, genScript(remote, args), remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
+            newRemote("function", remote.Name, args, remote, functionInfoStr, (blocklist[remote] or blocklist[remote.Name]), src)
         end
     end
 end
