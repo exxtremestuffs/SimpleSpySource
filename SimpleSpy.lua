@@ -1280,13 +1280,13 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
         if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then -- cleanly handles table path generation (for the first half)
             currentPath = "." .. k
         else
-            currentPath = "[" .. v2s(k, nil, p, n, vtv, i, pt, path, nil, tI) .. "]"
+            currentPath = "[" .. (type(k) == "function" and string.format('"<Function> (%s)"', tostring(k)) or v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI)) .. "]"
         end
         if size % 100 == 0 then
             scheduleWait()
         end
         -- actually serializes the member of the table
-        s = s .. "\n" .. string.rep(" ", l) .. "[" .. (type(k) == "function" and string.format("<Function> (%s)", tostring(k)) or v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI)) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
+        s = s .. "\n" .. string.rep(" ", l) .. "[" .. (type(k) == "function" and string.format('"<Function> (%s)"', tostring(k)) or v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI)) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
     end
     if #s > 1 then -- removes the last comma because it looks nicer (no way to tell if it's done 'till it's done so...)
         s = s:sub(1, #s - 1)
