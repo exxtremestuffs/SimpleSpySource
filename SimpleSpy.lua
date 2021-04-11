@@ -377,6 +377,9 @@ local connections = {}
 -- whether or not SimpleSpy uses 'getcallingscript()' to get the script (default is false because detection)
 local useGetCallingScript = false
 
+--- used to enable/disable SimpleSpy's keyToString for remotes
+local keyToString = false
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
@@ -1299,15 +1302,16 @@ end
 
 --- key-to-string
 function k2s(v, ...)
-    if typeof(v) == "userdata" then
-        return string.format('"<void> (%s)" --[[Potentially hidden data (tostring in SimpleSpy:HookRemote/GetRemoteFiredSignal at your own risk)]]', safetostring(v))
-    elseif type(v) == "userdata" then
-        return string.format('"<%s> (%s)"', typeof(v), tostring(v))
-    elseif type(v) == "function" then
-        return string.format('"<Function> (%s)"', tostring(v))
-    else
-        return v2s(v, ...)
+    if keyToString then
+        if typeof(v) == "userdata" then
+            return string.format('"<void> (%s)" --[[Potentially hidden data (tostring in SimpleSpy:HookRemote/GetRemoteFiredSignal at your own risk)]]', safetostring(v))
+        elseif type(v) == "userdata" and typeof(v) ~= "Instance" then
+            return string.format('"<%s> (%s)"', typeof(v), tostring(v))
+        elseif type(v) == "function" then
+            return string.format('"<Function> (%s)"', tostring(v))
+        end
     end
+    return v2s(v, ...)
 end
 
 --- function-to-string
@@ -2130,5 +2134,14 @@ newButton(
     function()
         useGetCallingScript = not useGetCallingScript
         TextLabel.Text = string.format("[%s] [UNSAFE] Uses 'getcallingscript' to get calling script for Decompile and GetScript. Much more reliable, but opens up SimpleSpy to detection and/or instability.", useGetCallingScript and "ENABLED" or "DISABLED")
+    end
+)
+
+newButton(
+    "KeyToString",
+    function() return string.format("[%s] [BETA] Uses an experimental new function to replicate Roblox's behavior when a non-primitive type is used as a key in a table. Still in development and may not properly reflect tostringed (empty) userdata.", keyToString and "ENABLED" or "DISABLED") end,
+    function()
+        keyToString = not keyToString
+        TextLabel.Text = string.format("[%s] [BETA] Uses an experimental new function to replicate Roblox's behavior when a non-primitive type is used as a key in a table. Still in development and may not properly reflect tostringed (empty) userdata.", keyToString and "ENABLED" or "DISABLED")
     end
 )
