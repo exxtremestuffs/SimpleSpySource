@@ -1280,13 +1280,13 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
         if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then -- cleanly handles table path generation (for the first half)
             currentPath = "." .. k
         else
-            currentPath = "[" .. (type(k) == "function" and string.format('"<Function> (%s)"', tostring(k)) or v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI)) .. "]"
+            currentPath = "[" .. k2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "]"
         end
         if size % 100 == 0 then
             scheduleWait()
         end
         -- actually serializes the member of the table
-        s = s .. "\n" .. string.rep(" ", l) .. "[" .. (type(k) == "function" and string.format('"<Function> (%s)"', tostring(k)) or v2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI)) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
+        s = s .. "\n" .. string.rep(" ", l) .. "[" .. k2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "] = " .. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. ","
     end
     if #s > 1 then -- removes the last comma because it looks nicer (no way to tell if it's done 'till it's done so...)
         s = s:sub(1, #s - 1)
@@ -1295,6 +1295,19 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
         s = s .. "\n" .. string.rep(" ", l - indent)
     end
     return s .. "}"
+end
+
+--- key-to-string
+function k2s(v, ...)
+    if typeof(v) == "userdata" then
+        return string.format('"<void> (%s)" --[[Potentially hidden data (tostring in SimpleSpy:HookRemote/GetRemoteFiredSignal at your own risk)]]', safetostring(v))
+    elseif type(v) == "userdata" then
+        return string.format('"<%s> (%s)"', typeof(v), tostring(v))
+    elseif type(v) == "function" then
+        return string.format('"<Function> (%s)"', tostring(v))
+    else
+        return v2s(v, ...)
+    end
 end
 
 --- function-to-string
@@ -1595,6 +1608,22 @@ function handlespecials(s, indentation)
         return s, true
     end
     return s, false
+end
+
+-- safe (ish) tostring
+function safetostring(v: any)
+    if typeof(v) == "userdata" or type(v) == "table" then
+        local mt = getrawmetatable(v)
+        local badtostring = rawget(mt, "__tostring")
+        if mt and badtostring then
+            rawset(mt, "__tostring", nil)
+            local out = tostring(v)
+            rawset(mt, "__tostring", badtostring)
+            return out
+        end
+    else
+        return tostring(v)
+    end
 end
 
 --- finds script from 'src' from getinfo, returns nil if not found
