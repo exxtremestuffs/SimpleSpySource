@@ -226,9 +226,6 @@ function render()
     line = 1
 
     for i = 1, #tableContents + 1 do
-        if i % 10 == 0 then
-            RunService.Heartbeat:Wait()
-        end
         local char = tableContents[i]
         if i == #tableContents + 1 or char.Char == "\n" then
             lineStr = lineStr .. (lastColor and "</font>" or "")
@@ -270,6 +267,9 @@ function render()
             line += 1
             updateZIndex()
             updateCanvasSize()
+            if line % 5 == 0 then
+                RunService.Heartbeat:Wait()
+            end
         elseif char.Char == " " then
             lineStr = lineStr .. char.Char
             rawStr = rawStr .. char.Char
