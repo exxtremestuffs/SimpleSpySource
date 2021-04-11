@@ -89,8 +89,13 @@ end
 --- Finds and highlights comments with `commentColor`
 function renderComments()
     local str = Highlight:getRaw()
+    local step = 1
     for _, pattern in pairs(comments) do
         for commentStart, commentEnd in gfind(str, pattern) do
+            if step % 1000 == 0 then
+                RunService.Heartbeat:Wait()
+            end
+            step += 1
             if not isOffLimits(commentStart) then
                 for i = commentStart, commentEnd do
                     table.insert(offLimits, {commentStart, commentEnd})
@@ -150,8 +155,13 @@ end
 ---@param color userdata
 function highlightPattern(patternArray, color)
     local str = Highlight:getRaw()
+    local step = 1
     for _, pattern in pairs(patternArray) do
         for findStart, findEnd in gfind(str, pattern) do
+            if step % 1000 == 0 then
+                RunService.Heartbeat:Wait()
+            end
+            step += 1
             if not isOffLimits(findStart) and not isOffLimits(findEnd) then
                 for i = findStart, findEnd do
                     if tableContents[i] then
@@ -216,6 +226,9 @@ function render()
     line = 1
 
     for i = 1, #tableContents + 1 do
+        if i % 10 == 0 then
+            RunService.Heartbeat:Wait()
+        end
         local char = tableContents[i]
         if i == #tableContents + 1 or char.Char == "\n" then
             lineStr = lineStr .. (lastColor and "</font>" or "")
@@ -257,7 +270,6 @@ function render()
             line += 1
             updateZIndex()
             updateCanvasSize()
-            RunService.Heartbeat:Wait()
         elseif char.Char == " " then
             lineStr = lineStr .. char.Char
             rawStr = rawStr .. char.Char
@@ -389,6 +401,9 @@ function Highlight:setRaw(raw)
             Color = defaultColor,
             -- Line = line
         })
+        if i % 1000 == 0 then
+            RunService.Heartbeat:Wait()
+        end
         -- if raw:sub(i, i) == "\n" then
         --     line = line + 1
         -- end
