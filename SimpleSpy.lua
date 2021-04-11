@@ -293,7 +293,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local ContentProvider = game:GetService("ContentProvider")
 local TextService = game:GetService("TextService")
-local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
+local Mouse
 
 local selectedColor = Color3.new(0.321569, 0.333333, 1)
 local deselectedColor = Color3.new(0.8, 0.8, 0.8)
@@ -366,7 +366,7 @@ local remoteSignals = {}
 local remoteHooks = {}
 
 -- original mouse icon
-local oldIcon = Mouse.Icon
+local oldIcon
 
 -- if mouse inside gui
 local mouseInGui = false
@@ -1873,6 +1873,9 @@ end
 -- main
 if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
+        if not RunService:IsClient() then
+            error("SimpleSpy cannot run on the server!")
+        end
         _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
         -- if gethui then funcEnabled = false end
@@ -1894,7 +1897,6 @@ if not _G.SimpleSpyExecuted then
         Simple.MouseLeave:Connect(onToggleButtonUnhover)
         CloseButton.MouseButton1Click:Connect(shutdown)
         table.insert(connections, UserInputService.InputBegan:Connect(backgroundUserInput))
-        table.insert(connections, Mouse.Move:Connect(mouseMoved))
         connectResize()
         SimpleSpy2.Enabled = true
         coroutine.wrap(function()
@@ -1905,6 +1907,12 @@ if not _G.SimpleSpyExecuted then
         if syn and syn.protect_gui then pcall(syn.protect_gui, SimpleSpy2) end
         bringBackOnResize()
         SimpleSpy2.Parent = --[[gethui and gethui() or]] CoreGui
+        if not Players.LocalPlayer then
+            Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+        end
+        Mouse = Players.LocalPlayer:GetMouse()
+        oldIcon = Mouse.Icon
+        table.insert(connections, Mouse.Move:Connect(mouseMoved))
     end)
     if succeeded then
         _G.SimpleSpyExecuted = true
