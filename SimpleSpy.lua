@@ -1303,8 +1303,10 @@ end
 --- key-to-string
 function k2s(v, ...)
     if keyToString then
-        if typeof(v) == "userdata" then
+        if typeof(v) == "userdata" and getrawmetatable(v) then
             return string.format('"<void> (%s)" --[[Potentially hidden data (tostring in SimpleSpy:HookRemote/GetRemoteFiredSignal at your own risk)]]', safetostring(v))
+        elseif typeof(v) == "userdata" then
+            return string.format('"<void> (%s)"', safetostring(v))
         elseif type(v) == "userdata" and typeof(v) ~= "Instance" then
             return string.format('"<%s> (%s)"', typeof(v), tostring(v))
         elseif type(v) == "function" then
@@ -1618,16 +1620,15 @@ end
 function safetostring(v: any)
     if typeof(v) == "userdata" or type(v) == "table" then
         local mt = getrawmetatable(v)
-        local badtostring = rawget(mt, "__tostring")
+        local badtostring = mt and rawget(mt, "__tostring")
         if mt and badtostring then
             rawset(mt, "__tostring", nil)
             local out = tostring(v)
             rawset(mt, "__tostring", badtostring)
             return out
         end
-    else
-        return tostring(v)
     end
+    return tostring(v)
 end
 
 --- finds script from 'src' from getinfo, returns nil if not found
