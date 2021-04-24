@@ -1194,6 +1194,8 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
         return "newproxy(true)"
     elseif type(v) == "userdata" then
         return u2s(v)
+    elseif type(v) == "vector" then
+        return string.format("Vector3.new(%s, %s, %s)", v2s(v.X), v2s(v.Y), v2s(v.Z))
     else
         return "nil --[[" .. typeof(v) .. "]]"
     end
