@@ -967,7 +967,7 @@ end
 
 --- Runs on MouseButton1Click of an event frame
 function eventSelect(frame)
-    if selected and selected.Log  then
+    if selected and selected.Log and selected.Log.Button then
         TweenService:Create(selected.Log.Button, TweenInfo.new(0.5), {BackgroundColor3 = Color3.fromRGB(0, 0, 0)}):Play()
         selected = nil
     end
