@@ -1773,7 +1773,10 @@ function hookRemote(remoteType, remote, ...)
     if remoteHooks[remote] then
         args = remoteHooks[remote](args)
     end
-    if typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remote.Name]) then
+    local validInstance, remoteName = pcall(function()
+        return remote.Name
+    end)
+    if validInstance and typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remoteName]) then
         local func
         local calling
         if funcEnabled then
@@ -1781,7 +1784,7 @@ function hookRemote(remoteType, remote, ...)
             calling = useGetCallingScript and getcallingscript() or nil
         end
         schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
-        if (blocklist[remote] or blocklist[remote.Name]) then
+        if (blocklist[remote] or blocklist[remoteName]) then
             return
         end
     end
@@ -1801,7 +1804,10 @@ end
 local newnamecall = newcclosure(function(remote, ...)
     local args = {...}
     local methodName = getnamecallmethod()
-    if (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and not (blacklist[remote] or blacklist[remote.Name]) then
+    local validInstance, remoteName = pcall(function()
+        return remote.Name
+    end)
+    if validInstance and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and not (blacklist[remote] or blacklist[remoteName]) then
         if remoteHooks[remote] then
             args = remoteHooks[remote](args)
         end
@@ -1815,9 +1821,9 @@ local newnamecall = newcclosure(function(remote, ...)
             schedule(remoteHandler, false, methodName, remote, args, func, calling)
         end)()
     end
-    if typeof(remote) == "Instance" and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and (blocklist[remote] or blocklist[remote.Name]) then
+    if validInstance and typeof(remote) == "Instance" and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and (blocklist[remote] or blocklist[remoteName]) then
         return nil
-    elseif (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and remoteHooks[remote] then
+    elseif validInstance and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and remoteHooks[remote] then
         return original(remote, unpack(args))
     else
         return original(remote, ...)
