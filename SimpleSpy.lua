@@ -1719,7 +1719,10 @@ end
 
 --- Handles remote logs
 function remoteHandler(hookfunction, methodName, remote, args, func, calling)
-    if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+    local validInstance, validClass = pcall(function()
+        return remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction")
+    end)
+    if validInstance and validClass then
         if funcEnabled and not calling then
             _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
         end
