@@ -1560,65 +1560,34 @@ function formatstr(s, indentation)
 end
 
 --- Adds \'s to the text as a replacement to whitespace chars and other things because string.format can't yayeet
-function handlespecials(s, indentation)
-    local i = 0
-    local n = 1
-    local coroutines = {}
-    local coroutineFunc = function(i, r)
-        s = s:sub(0, i - 1) .. r .. s:sub(i + 1, -1)
-    end
-    local function isFinished()
-        for _, v in pairs(coroutines) do
-            if coroutine.status(v) == "running" then
-                return false
-            end
+function handlespecials(value, indentation)
+    local buildStr = {}
+    local i = 1
+    local char = string.sub(value, i, i)
+    local indentStr
+    while char ~= "" do
+        if char == '"' then
+            buildStr[i] = '\\"'
+        elseif char == "\\" then
+            buildStr[i] = "\\\\"
+        elseif char == "\n" then
+            buildStr[i] = "\\n"
+        elseif char == "\t" then
+            buildStr[i] = "\\t"
+        elseif string.byte(char) > 126 or string.byte(char) < 32 then
+            buildStr[i] = string.format("\\%d", string.byte(char))
+        else
+            buildStr[i] = char
         end
-        return true
-    end
-    repeat
         i = i + 1
-        local char = s:sub(i, i)
-        if string.byte(char) then
-            local c = coroutine.create(coroutineFunc)
-            table.insert(coroutines, c)
-            if char == "\n" then
-                coroutine.resume(c, i, "\\n")
-                -- s = s:sub(0, i - 1) .. "\\n" .. s:sub(i + 1, -1)
-                i = i + 1
-            elseif char == "\t" then
-                coroutine.resume(c, i, "\\t")
-                -- s = s:sub(0, i - 1) .. "\\t" .. s:sub(i + 1, -1)
-                i = i + 1
-            elseif char == "\\" then
-                coroutine.resume(c, i, "\\\\")
-                -- s = s:sub(0, i - 1) .. "\\\\" .. s:sub(i + 1, -1)
-                i = i + 1
-            elseif char == '"' then
-                coroutine.resume(c, i, "\\\"")
-                -- s = s:sub(0, i - 1) .. '\\"' .. s:sub(i + 1, -1)
-                i = i + 1
-            elseif string.byte(char) > 126 or string.byte(char) < 32 then
-                coroutine.resume(c, i, "\\" .. string.byte(char))
-                -- s = s:sub(0, i - 1) .. "\\" .. string.byte(char) .. s:sub(i + 1, -1)
-                i = i + #tostring(string.byte(char))
-            end
-            if i >= n * 100 then
-                local extra = string.format('" ..\n%s"', string.rep(" ", indentation + indent))
-                s = s:sub(0, i) .. extra .. s:sub(i + 1, -1)
-                i += #extra
-                n += 1
-                scheduleWait()
-            end
+        char = string.sub(value, i, i)
+        if i % 200 == 0 then
+            indentStr = indentStr or string.rep(" ", indentation + indent)
+            table.move({'"\n', indentStr, '... "'}, 1, 3, i, buildStr)
+            i += 3
         end
-    until char == "" or i > (_G.SimpleSpyMaxStringSize or 10000)
-    while not isFinished() do
-        RunService.Heartbeat:Wait()
     end
-    if i > (_G.SimpleSpyMaxStringSize or 10000) then
-        s = string.sub(s, 0, _G.SimpleSpyMaxStringSize or 10000)
-        return s, true
-    end
-    return s, false
+    return table.concat(buildStr)
 end
 
 -- safe (ish) tostring
