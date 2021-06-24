@@ -423,8 +423,10 @@ end
 --- @return string
 function SimpleSpy:GetFunctionInfo(func)
     assert(typeof(func) == "function", "Instance expected, got " .. typeof(func))
+    warn("Function info currently unavailable due to crashing in Synapse X")
     return v2v{functionInfo = {
-        info = debug.getinfo(func),
+        -- Disabled until debug.getinfo(<function>) fixed
+        info = {},--debug.getinfo(func),
         constants = debug.getconstants(func)
     }}
 end
@@ -1335,9 +1337,10 @@ function f2s(f)
             end
         end
     end
-    if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
-        return "function()end --[[" .. debug.getinfo(f).name .. "]]"
-    end
+    -- Disabled until debug.getinfo(<function>) fixed
+    -- if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
+    --     return "function()end --[[" .. debug.getinfo(f).name .. "]]"
+    -- end
     return "function()end --[[" .. tostring(f) .. "]]"
 end
 
@@ -1718,13 +1721,14 @@ function taskscheduler()
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, func, calling)
+function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling)
     local validInstance, validClass = pcall(function()
         return remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction")
     end)
     if validInstance and validClass then
-        if funcEnabled and not calling then
-            _, calling = pcall(getScriptFromSrc, debug.getinfo(func).source)
+        local func = funcInfo.func
+        if not calling then
+            _, calling = pcall(getScriptFromSrc, funcInfo.source)
         end
         coroutine.wrap(function()
             if remoteSignals[remote] then
@@ -1754,7 +1758,7 @@ function remoteHandler(hookfunction, methodName, remote, args, func, calling)
         local src
         if func and islclosure(func) then
             local functionInfo = {}
-            pcall(function() functionInfo.info = debug.getinfo(func) end)
+            functionInfo.info = funcInfo
             pcall(function() functionInfo.constants = debug.getconstants(func) end)
             pcall(function() functionInfoStr = v2v{functionInfo = functionInfo} end)
             pcall(function() if type(calling) == "userdata" then src = calling end end)
@@ -1777,13 +1781,13 @@ function hookRemote(remoteType, remote, ...)
         return remote.Name
     end)
     if validInstance and typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remoteName]) then
-        local func
+        local funcInfo = {}
         local calling
         if funcEnabled then
-            func = debug.getinfo(4).func
+            funcInfo = debug.getinfo(4) or funcInfo
             calling = useGetCallingScript and getcallingscript() or nil
         end
-        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, func, calling)
+        schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, funcInfo, calling)
         if (blocklist[remote] or blocklist[remoteName]) then
             return
         end
@@ -1811,14 +1815,14 @@ local newnamecall = newcclosure(function(remote, ...)
         if remoteHooks[remote] then
             args = remoteHooks[remote](args)
         end
-        local func
+        local funcInfo = {}
         local calling
         if funcEnabled then
-            func = debug.getinfo(3).func
+            funcInfo = debug.getinfo(3) or funcInfo
             calling = useGetCallingScript and getcallingscript() or nil
         end
         coroutine.wrap(function()
-            schedule(remoteHandler, false, methodName, remote, args, func, calling)
+            schedule(remoteHandler, false, methodName, remote, args, funcInfo, calling)
         end)()
     end
     if validInstance and typeof(remote) == "Instance" and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and (blocklist[remote] or blocklist[remoteName]) then
