@@ -425,8 +425,7 @@ function SimpleSpy:GetFunctionInfo(func)
     assert(typeof(func) == "function", "Instance expected, got " .. typeof(func))
     warn("Function info currently unavailable due to crashing in Synapse X")
     return v2v{functionInfo = {
-        -- Disabled until debug.getinfo(<function>) fixed
-        info = {},--debug.getinfo(func),
+        info = debug.getinfo(func),
         constants = debug.getconstants(func)
     }}
 end
@@ -1337,10 +1336,9 @@ function f2s(f)
             end
         end
     end
-    -- Disabled until debug.getinfo(<function>) fixed
-    -- if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
-    --     return "function()end --[[" .. debug.getinfo(f).name .. "]]"
-    -- end
+    if funcEnabled and debug.getinfo(f).name:match("^[%a_]+[%w_]*$") then
+        return "function()end --[[" .. debug.getinfo(f).name .. "]]"
+    end
     return "function()end --[[" .. tostring(f) .. "]]"
 end
 
