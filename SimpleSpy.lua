@@ -1849,11 +1849,18 @@ function shutdown()
             connection:Disconnect()
         end)()
     end
-    setreadonly(gm, false)
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
-    gm.__namecall = original
+    if hookmetamethod then
+        if original then
+            hookmetamethod(game, "__namecall", original)
+        end
+    else
+        setreadonly(gm, false)
+        gm.__namecall = original
+        setreadonly(gm, true)
+    end
     _G.SimpleSpyExecuted = false
 end
 
@@ -1908,7 +1915,15 @@ if not _G.SimpleSpyExecuted then
         SimpleSpy2:Destroy()
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
-        gm.__namecall = original
+        if hookmetamethod then
+            if original then
+                hookmetamethod(game, "__namecall", original)
+            end
+        else
+            setreadonly(gm, false)
+            gm.__namecall = original
+            setreadonly(gm, true)
+        end
         return
     end
 else
