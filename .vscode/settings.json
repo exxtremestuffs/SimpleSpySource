@@ -52,7 +52,8 @@
         "writefile",
         "rconsolename",
         "islclosure",
-        "gethui"
+        "gethui",
+        "hookmetamethod"
     ],
     "Lua.runtime.version": "Luau",
     "Lua.diagnostics.disable": [

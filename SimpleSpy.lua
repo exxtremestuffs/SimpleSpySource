@@ -323,9 +323,8 @@ local getNil = false
 local connectedRemotes = {}
 --- True = hookfunction, false = namecall
 local toggle = false
-local gm = getrawmetatable(game)
-local original = gm.__namecall
-setreadonly(gm, false)
+local gm
+local original
 --- used to prevent recursives
 local prevTables = {}
 --- holds logs (for deletion)
@@ -1741,9 +1740,6 @@ end
 --- Used for hookfunction
 function hookRemote(remoteType, remote, ...)
     local args = {...}
-    if remoteHooks[remote] then
-        args = remoteHooks[remote](args)
-    end
     local validInstance, remoteName = pcall(function()
         return remote.Name
     end)
@@ -1761,12 +1757,12 @@ function hookRemote(remoteType, remote, ...)
     end
     if remoteType == "RemoteEvent" then
         if remoteHooks[remote] then
-            return originalEvent(remote, unpack(args))
+            return originalEvent(remote, remoteHooks[remote](...))
         end
         return originalEvent(remote, ...)
     else
         if remoteHooks[remote] then
-            return originalFunction(remote, unpack(args))
+            return originalFunction(remote, remoteHooks[remote](...))
         end
         return originalFunction(remote, ...)
     end
@@ -1779,9 +1775,6 @@ local newnamecall = newcclosure(function(remote, ...)
         return remote.Name
     end)
     if validInstance and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and not (blacklist[remote] or blacklist[remoteName]) then
-        if remoteHooks[remote] then
-            args = remoteHooks[remote](args)
-        end
         local funcInfo = {}
         local calling
         if funcEnabled then
@@ -1795,7 +1788,7 @@ local newnamecall = newcclosure(function(remote, ...)
     if validInstance and typeof(remote) == "Instance" and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and (blocklist[remote] or blocklist[remoteName]) then
         return nil
     elseif validInstance and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and remoteHooks[remote] then
-        return original(remote, unpack(args))
+        return original(remote, remoteHooks[remote](...))
     else
         return original(remote, ...)
     end
@@ -1808,21 +1801,34 @@ local newInvokeServer = newcclosure(function(...) return hookRemote("RemoteFunct
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
-        setreadonly(gm, false)
-        if not original then
-            original = gm.__namecall
+        if hookmetamethod then
+            local oldNamecall = hookmetamethod(game, "__namecall", newnamecall)
+            original = original or oldNamecall
+        else
+            gm = gm or getrawmetatable(game)
+            original = original or gm.__namecall
+            setreadonly(gm, false)
             if not original then
-                warn("SimpleSpy: namecall method not found!\n")
-                onToggleButtonClick()
-                return
+                original = gm.__namecall
+                if not original then
+                    warn("SimpleSpy: namecall method not found!\n")
+                    onToggleButtonClick()
+                    return
+                end
             end
+            gm.__namecall = newnamecall
         end
-        gm.__namecall = newnamecall
         originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
         originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
     else
-        setreadonly(gm, false)
-        gm.__namecall = original
+        if hookmetamethod then
+            if original then
+                hookmetamethod(game, "__namecall", original)
+            end
+        else
+            setreadonly(gm, false)
+            gm.__namecall = original
+        end
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
     end
