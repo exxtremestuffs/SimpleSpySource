@@ -1809,14 +1809,12 @@ function toggleSpy()
             original = original or gm.__namecall
             setreadonly(gm, false)
             if not original then
-                original = gm.__namecall
-                if not original then
-                    warn("SimpleSpy: namecall method not found!\n")
-                    onToggleButtonClick()
-                    return
-                end
+                warn("SimpleSpy: namecall method not found!")
+                onToggleButtonClick()
+                return
             end
             gm.__namecall = newnamecall
+            setreadonly(gm, true)
         end
         originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
         originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
@@ -1828,6 +1826,7 @@ function toggleSpy()
         else
             setreadonly(gm, false)
             gm.__namecall = original
+            setreadonly(gm, true)
         end
         hookfunction(remoteEvent.FireServer, originalEvent)
         hookfunction(remoteFunction.InvokeServer, originalFunction)
