@@ -788,12 +788,12 @@ function toggleMaximize()
             end
             TweenService:Create(CodeBox, TweenInfo.new(0.5), {Size = prevSize, Position = prevPos}):Play()
             TweenService:Create(disable, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+            maximized = false
             wait(0.5)
             disable:Destroy()
             CodeBox.Size = UDim2.new(1, 0, 0.5, 0)
             CodeBox.Position = UDim2.new(0, 0, 0, 0)
             CodeBox.ZIndex = 0
-            maximized = false
         end)
     end
 end
