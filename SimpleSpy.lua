@@ -1819,7 +1819,7 @@ function toggleSpy()
         originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
         originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
     else
-        if hookmetamethod then
+        if syn then
             if original then
                 hookmetamethod(game, "__namecall", original)
             end
@@ -1852,7 +1852,7 @@ function shutdown()
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
-    if hookmetamethod then
+    if syn then
         if original then
             hookmetamethod(game, "__namecall", original)
         end
