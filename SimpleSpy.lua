@@ -1801,7 +1801,7 @@ local newInvokeServer = newcclosure(function(...) return hookRemote("RemoteFunct
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
-        if hookmetamethod then
+        if syn then
             local oldNamecall = hookmetamethod(game, "__namecall", newnamecall)
             original = original or oldNamecall
         else
