@@ -1801,7 +1801,7 @@ local newInvokeServer = newcclosure(function(...) return hookRemote("RemoteFunct
 --- Toggles on and off the remote spy
 function toggleSpy()
     if not toggle then
-        if syn then
+        if hookmetamethod then
             local oldNamecall = hookmetamethod(game, "__namecall", newnamecall)
             original = original or oldNamecall
         else
@@ -1819,11 +1819,12 @@ function toggleSpy()
         originalEvent = hookfunction(remoteEvent.FireServer, newFireServer)
         originalFunction = hookfunction(remoteFunction.InvokeServer, newInvokeServer)
     else
-        if syn then
+        if hookmetamethod then
             if original then
                 hookmetamethod(game, "__namecall", original)
             end
         else
+            gm = gm or getrawmetatable(game)
             setreadonly(gm, false)
             gm.__namecall = original
             setreadonly(gm, true)
@@ -1852,11 +1853,12 @@ function shutdown()
     SimpleSpy2:Destroy()
     hookfunction(remoteEvent.FireServer, originalEvent)
     hookfunction(remoteFunction.InvokeServer, originalFunction)
-    if syn then
+    if hookmetamethod then
         if original then
             hookmetamethod(game, "__namecall", original)
         end
     else
+        gm = gm or getrawmetatable(game)
         setreadonly(gm, false)
         gm.__namecall = original
         setreadonly(gm, true)
@@ -1869,6 +1871,10 @@ if not _G.SimpleSpyExecuted then
     local succeeded, err = pcall(function()
         if not RunService:IsClient() then
             error("SimpleSpy cannot run on the server!")
+        end
+        if not hookfunction or not getrawmetatable or getrawmetatable and not getrawmetatable(game).__namecall or not setreadonly then
+            shutdown()
+            error("This environment does not support method hooks!\n(Your exploit is not capable of running SimpleSpy)")
         end
         _G.SimpleSpyShutdown = shutdown
         ContentProvider:PreloadAsync({"rbxassetid://6065821980", "rbxassetid://6065774948", "rbxassetid://6065821086", "rbxassetid://6065821596", ImageLabel, ImageLabel_2, ImageLabel_3})
