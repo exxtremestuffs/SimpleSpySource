@@ -1,6 +1,8 @@
 --[[
     SimpleSpy v2.2 SOURCE
 
+    SimpleSpy is a lightweight penetration testing tool that logs remote calls.
+
     Credits:
         exx - basically everything
         Frosty - GUI to Lua
