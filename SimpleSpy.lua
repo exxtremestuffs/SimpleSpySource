@@ -1743,7 +1743,7 @@ end
 function hookRemote(remoteType, remote, ...)
     local args = {...}
     local validInstance, remoteName = pcall(function()
-        return remote.Name
+        return typeof(remote) == "Instance" and remote.Name
     end)
     if validInstance and typeof(remote) == "Instance" and not (blacklist[remote] or blacklist[remoteName]) then
         local funcInfo = {}
@@ -1774,7 +1774,7 @@ local newnamecall = newcclosure(function(remote, ...)
     local args = {...}
     local methodName = getnamecallmethod()
     local validInstance, remoteName = pcall(function()
-        return typeof(remote) == "Instance" and remote.Name
+        return remote.Name
     end)
     if validInstance and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer") and not (blacklist[remote] or blacklist[remoteName]) then
         local funcInfo = {}
