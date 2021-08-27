@@ -1371,7 +1371,7 @@ function i2p(i)
     elseif parent ~= game then
         while true do
             if parent and parent.Parent == game then
-                if pcall(game.GetService, game, parent.ClassName) then
+                if game:GetService(parent.ClassName) then
                     if parent.ClassName == "Workspace" then
                         return "workspace" .. out
                     else
@@ -1750,7 +1750,7 @@ function hookRemote(remoteType, remote, ...)
             local funcInfo = {}
             local calling
             if funcEnabled then
-                funcInfo = ({pcall(debug.getinfo, 4)})[2] or funcInfo
+                funcInfo = debug.getinfo(4) or funcInfo
                 calling = useGetCallingScript and getcallingscript() or nil
             end
             schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, funcInfo, calling)
@@ -1783,7 +1783,7 @@ local newnamecall = newcclosure(function(remote, ...)
             local funcInfo = {}
             local calling
             if funcEnabled then
-                funcInfo = ({pcall(debug.getinfo, 3)})[2] or funcInfo
+                funcInfo = debug.getinfo(3) or funcInfo
                 calling = useGetCallingScript and getcallingscript() or nil
             end
             coroutine.wrap(function()
