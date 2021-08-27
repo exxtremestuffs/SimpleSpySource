@@ -1750,7 +1750,7 @@ function hookRemote(remoteType, remote, ...)
             local funcInfo = {}
             local calling
             if funcEnabled then
-                funcInfo = ({pcall(function() return debug.getinfo(4) end)})[2] or funcInfo
+                funcInfo = ({pcall(debug.getinfo, 4)})[2] or funcInfo
                 calling = useGetCallingScript and getcallingscript() or nil
             end
             schedule(remoteHandler, true, remoteType == "RemoteEvent" and "fireserver" or "invokeserver", remote, args, funcInfo, calling)
@@ -1783,7 +1783,7 @@ local newnamecall = newcclosure(function(remote, ...)
             local funcInfo = {}
             local calling
             if funcEnabled then
-                funcInfo = ({pcall(function() return debug.getinfo(3) end)})[2] or funcInfo
+                funcInfo = ({pcall(debug.getinfo, 3)})[2] or funcInfo
                 calling = useGetCallingScript and getcallingscript() or nil
             end
             coroutine.wrap(function()
