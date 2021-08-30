@@ -1371,11 +1371,12 @@ function i2p(i)
     elseif parent ~= game then
         while true do
             if parent and parent.Parent == game then
-                if game:GetService(parent.ClassName) then
+                local validService, service = pcall(game.GetService, game, parent.ClassName)
+                if validService and typeof(service) == "Instance" then
                     if parent.ClassName == "Workspace" then
                         return "workspace" .. out
                     else
-                        return 'game:GetService("' .. parent.ClassName .. '")' .. out
+                        return 'game:GetService("' .. service.ClassName .. '")' .. out
                     end
                 else
                     if parent.Name:match("[%a_]+[%w_]*") then
