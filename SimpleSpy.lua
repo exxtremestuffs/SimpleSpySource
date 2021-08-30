@@ -1074,7 +1074,7 @@ end
 --- @param blocked any
 function newRemote(type, name, args, remote, function_info, blocked, src)
     local remoteFrame = RemoteTemplate:Clone()
-    remoteFrame.Text.Text = name
+    remoteFrame.Text.Text = string.sub(name, 1, 50)
     remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
     local id = Instance.new("IntValue")
     id.Name = "ID"
