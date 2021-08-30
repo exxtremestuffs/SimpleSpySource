@@ -109,6 +109,7 @@ Text.Text = "TEXT"
 Text.TextColor3 = Color3.new(1, 1, 1)
 Text.TextSize = 14
 Text.TextXAlignment = Enum.TextXAlignment.Left
+Text.TextWrapped = true
 
 Button.Name = "Button"
 Button.Parent = RemoteTemplate
@@ -178,6 +179,7 @@ Text_2.TextColor3 = Color3.new(1, 1, 1)
 Text_2.TextSize = 14
 Text_2.TextStrokeColor3 = Color3.new(0.145098, 0.141176, 0.14902)
 Text_2.TextXAlignment = Enum.TextXAlignment.Left
+Text_2.TextWrapped = true
 
 Button_2.Name = "Button"
 Button_2.Parent = FunctionTemplate
@@ -1072,7 +1074,7 @@ end
 --- @param blocked any
 function newRemote(type, name, args, remote, function_info, blocked, src)
     local remoteFrame = RemoteTemplate:Clone()
-    remoteFrame.Text.Text = handlespecials(name:sub(1, 11))
+    remoteFrame.Text.Text = name
     remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
     local id = Instance.new("IntValue")
     id.Name = "ID"
