@@ -1373,7 +1373,8 @@ function i2p(i)
     elseif parent ~= game then
         while true do
             if parent and parent.Parent == game then
-                if game:FindService(parent.ClassName) then
+                local service = game:FindService(parent.ClassName)
+                if service then
                     if parent.ClassName == "Workspace" then
                         return "workspace" .. out
                     else
