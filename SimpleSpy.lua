@@ -1373,8 +1373,7 @@ function i2p(i)
     elseif parent ~= game then
         while true do
             if parent and parent.Parent == game then
-                local validService, service = pcall(game.GetService, game, parent.ClassName)
-                if validService and typeof(service) == "Instance" then
+                if game:FindService(parent.ClassName) then
                     if parent.ClassName == "Workspace" then
                         return "workspace" .. out
                     else
