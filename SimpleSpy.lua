@@ -474,7 +474,7 @@ function newSignal()
         Connect = function(self, f)
             assert(connected, "Signal is closed")
             connected[tostring(f)] = f
-            return setmetatable({
+            return {
                 Connected = true,
                 Disconnect = function(self)
                     if not connected then
@@ -483,14 +483,7 @@ function newSignal()
                     self.Connected = false
                     connected[tostring(f)] = nil
                 end
-            },
-            {
-                __index = function(self, i)
-                    if i == "Connected" then
-                        return not not connected[tostring(f)]
-                    end
-                end
-            })
+            }
         end,
         Wait = function(self)
             local thread = coroutine.running()
