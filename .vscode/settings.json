@@ -62,5 +62,8 @@
     ],
     "Lua.diagnostics.ignore": [
         "HttpGet"
+    ],
+    "robloxLsp.diagnostics.disable": [
+        "undefined-global"
     ]
 }
