@@ -96,7 +96,7 @@ function gfind(str, pattern)
                 start = findEnd + 1
                 coroutine.yield(findStart, findEnd)
             else
-                return nil
+                return
             end
         end
     end)
