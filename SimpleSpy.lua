@@ -10,7 +10,7 @@
 
 -- shuts down the previous instance of SimpleSpy
 if _G.SimpleSpyExecuted and type(_G.SimpleSpyShutdown) == "function" then
-    pcall(_G.SimpleSpyShutdown)
+    print(pcall(_G.SimpleSpyShutdown))
 end
 
 local Players = game:GetService("Players")
@@ -1813,10 +1813,11 @@ function toggleSpy()
     if not toggle then
         if hookmetamethod then
             local oldNamecall = hookmetamethod(game, "__namecall", newnamecall)
-            original = original or oldNamecall
+            original = original or function(...) return oldNamecall(...) end
+            _G.OriginalNamecall = original
         else
             gm = gm or getrawmetatable(game)
-            original = original or gm.__namecall
+            original = original or function(...) return gm.__namecall(...) end
             setreadonly(gm, false)
             if not original then
                 warn("SimpleSpy: namecall method not found!")
