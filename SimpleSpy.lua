@@ -10,7 +10,7 @@
 
 -- shuts down the previous instance of SimpleSpy
 if _G.SimpleSpyExecuted and type(_G.SimpleSpyShutdown) == "function" then
-    _G.SimpleSpyShutdown()
+    pcall(_G.SimpleSpyShutdown)
 end
 
 local Players = game:GetService("Players")
