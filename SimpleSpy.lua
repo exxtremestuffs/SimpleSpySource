@@ -385,7 +385,7 @@ local keyToString = false
 
 -- functions
 
---- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote:FireServer`)
+--- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote.remote:FireServer`)
 --- @param method string
 --- @param args any[]
 --- @return string
@@ -474,7 +474,7 @@ function newSignal()
         Connect = function(self, f)
             assert(connected, "Signal is closed")
             connected[tostring(f)] = f
-            return setmetatable({
+            return {
                 Connected = true,
                 Disconnect = function(self)
                     if not connected then
@@ -483,14 +483,7 @@ function newSignal()
                     self.Connected = false
                     connected[tostring(f)] = nil
                 end
-            },
-            {
-                __index = function(self, i)
-                    if i == "Connected" then
-                        return not not connected[tostring(f)]
-                    end
-                end
-            })
+            }
         end,
         Wait = function(self)
             local thread = coroutine.running()
@@ -1080,10 +1073,11 @@ function newRemote(type, name, args, remote, function_info, blocked, src)
     id.Name = "ID"
     id.Value = #logs + 1
     id.Parent = remoteFrame
+    local weakRemoteTable = setmetatable({remote = remote}, {__mode = "v"})
     local log = {
         Name = name,
         Function = function_info,
-        Remote = remote,
+        Remote = weakRemoteTable,
         Log = remoteFrame,
         Blocked = blocked,
         Source = src,
@@ -1985,7 +1979,7 @@ newButton(
     function() return "Click to copy the path of the remote" end,
     function()
         if selected then
-            setclipboard(v2s(selected.Remote))
+            setclipboard(v2s(selected.Remote.remote))
             TextLabel.Text = "Copied!"
         end
     end
@@ -2057,7 +2051,7 @@ newButton(
     function() return "Click to exclude this Remote.\nExcluding a remote makes SimpleSpy ignore it, but it will continue to be usable." end,
     function()
         if selected then
-            blacklist[selected.Remote] = true
+            blacklist[selected.Remote.remote] = true
             TextLabel.Text = "Excluded!"
         end
     end
@@ -2091,7 +2085,7 @@ newButton(
     function() return "Click to stop this remote from firing.\nBlocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server." end,
     function()
         if selected then
-            blocklist[selected.Remote] = true
+            blocklist[selected.Remote.remote] = true
             TextLabel.Text = "Excluded!"
         end
     end

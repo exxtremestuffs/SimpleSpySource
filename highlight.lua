@@ -73,17 +73,33 @@ function isOffLimits(index)
 end
 
 --- Find iterator
+-- function gfind(str, pattern)
+--     local start = 0
+--     return function()
+--         local findStart, findEnd = str:find(pattern, start)
+--         if findStart and findEnd ~= #str then
+--             start = findEnd + 1
+--             return findStart, findEnd
+--         else
+--             return nil
+--         end
+--     end
+-- end
+
+--- Find iterator
 function gfind(str, pattern)
-    local start = 0
-    return function()
-        local findStart, findEnd = str:find(pattern, start)
-        if findStart and findEnd ~= #str then
-            start = findEnd + 1
-            return findStart, findEnd
-        else
-            return nil
+    return coroutine.wrap(function()
+        local start = 0
+        while true do
+            local findStart, findEnd = str:find(pattern, start)
+            if findStart and findEnd ~= #str then
+                start = findEnd + 1
+                coroutine.yield(findStart, findEnd)
+            else
+                return
+            end
         end
-    end
+    end)
 end
 
 --- Finds and highlights comments with `commentColor`
