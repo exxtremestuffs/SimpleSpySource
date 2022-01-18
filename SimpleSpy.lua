@@ -949,16 +949,12 @@ function maximizeSize(speed)
 		)
 		:Play()
 	TweenService
-		:Create(
-			RightPanel,
-			TweenInfo.new(speed),
-			{
-				Size = UDim2.fromOffset(
-					Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X,
-					Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y
-				),
-			}
-		)
+		:Create(RightPanel, TweenInfo.new(speed), {
+			Size = UDim2.fromOffset(
+				Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X,
+				Background.AbsoluteSize.Y - TopBar.AbsoluteSize.Y
+			),
+		})
 		:Play()
 	TweenService
 		:Create(
@@ -968,26 +964,18 @@ function maximizeSize(speed)
 		)
 		:Play()
 	TweenService
-		:Create(
-			ScrollingFrame,
-			TweenInfo.new(speed),
-			{
-				Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 110),
-				Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y),
-			}
-		)
+		:Create(ScrollingFrame, TweenInfo.new(speed), {
+			Size = UDim2.fromOffset(Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X, 110),
+			Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y),
+		})
 		:Play()
 	TweenService
-		:Create(
-			CodeBox,
-			TweenInfo.new(speed),
-			{
-				Size = UDim2.fromOffset(
-					Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X,
-					Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y
-				),
-			}
-		)
+		:Create(CodeBox, TweenInfo.new(speed), {
+			Size = UDim2.fromOffset(
+				Background.AbsoluteSize.X - LeftPanel.AbsoluteSize.X,
+				Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y
+			),
+		})
 		:Play()
 	TweenService
 		:Create(
@@ -1025,14 +1013,10 @@ function minimizeSize(speed)
 		)
 		:Play()
 	TweenService
-		:Create(
-			ScrollingFrame,
-			TweenInfo.new(speed),
-			{
-				Size = UDim2.fromOffset(0, 119),
-				Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y),
-			}
-		)
+		:Create(ScrollingFrame, TweenInfo.new(speed), {
+			Size = UDim2.fromOffset(0, 119),
+			Position = UDim2.fromOffset(0, Background.AbsoluteSize.Y - 119 - TopBar.AbsoluteSize.Y),
+		})
 		:Play()
 	TweenService
 		:Create(
@@ -2399,8 +2383,12 @@ newButton("Block (i)", function()
 	return "Click to stop this remote from firing.\nBlocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server."
 end, function()
 	if selected then
-		blocklist[selected.Remote.remote] = true
-		TextLabel.Text = "Excluded!"
+		if selected.Remote.remote then
+			blocklist[selected.Remote.remote] = true
+			TextLabel.Text = "Excluded!"
+		else
+			TextLabel.Text = "Error! Instance may no longer exist, try using Block (n)."
+		end
 	end
 end)
 
