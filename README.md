@@ -5,6 +5,8 @@ SimpleSpy is a penetration testing tool designed to intercept [remote calls](htt
 
 SimpleSpy is designed to be the "default" remote spy and built with minimal bloat, performance, and reliability in mind. You can find SimpleSpy in places such as [Infinite Yield](https://github.com/EdgeIY/infiniteyield), [CMD X](https://github.com/CMD-X/CMD-X), and more.
 ## Features
+![GIF of SimpleSpy in action](assets/example-2.gif)
+
 - Simple user interface
 - Continuous support
 - Included Remote-to-Script for arguments
