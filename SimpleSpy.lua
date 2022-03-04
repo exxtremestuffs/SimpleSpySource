@@ -1691,7 +1691,16 @@ function u2s(u)
 	elseif typeof(u) == "Vector3" then
 		return string.format("Vector3.new(%s, %s, %s)", v2s(u.X), v2s(u.Y), v2s(u.Z))
 	elseif typeof(u) == "CFrame" then
-		return string.format("CFrame.new(%s, %s)", v2s(u.Position), v2s(u.LookVector))
+		local xAngle, yAngle, zAngle = u:ToEulerAnglesXYZ()
+		return string.format(
+			"CFrame.new(%s, %s, %s) * CFrame.Angles(%s, %s, %s)",
+			v2s(u.X),
+			v2s(u.Y),
+			v2s(u.Z),
+			v2s(xAngle),
+			v2s(yAngle),
+			v2s(zAngle)
+		)
 	elseif typeof(u) == "DockWidgetPluginGuiInfo" then
 		return string.format(
 			"DockWidgetPluginGuiInfo(%s, %s, %s, %s, %s, %s, %s)",
