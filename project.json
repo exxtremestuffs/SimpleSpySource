@@ -2,5 +2,6 @@
     "name": "SimpleSpySource",
     "author": "exxtremestuffs",
     "src": "",
-    "init": "SimpleSpy.lua"
+    "init": "SimpleSpy.lua",
+    "branch": "package-manager"
 }
