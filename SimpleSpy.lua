@@ -1301,7 +1301,7 @@ function genScript(remote, args)
 			end
 		end
 		if not remote:IsDescendantOf(game) and not getnilrequired then
-			gen = "function getNil(name,class) for _,v in pairs(getnilinstances())do if v.ClassName==class and v.Name==name then return v;end end end\n\n"
+			gen = "function getNil(name,class) for _,v in pairs(getnilinstances()) do if v.ClassName==class and v.Name==name then return v end end end\n\n"
 				.. gen
 		end
 		if remote:IsA("RemoteEvent") then
