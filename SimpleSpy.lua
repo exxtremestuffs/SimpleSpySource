@@ -15,10 +15,12 @@ end
 
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-local Highlight =
-	loadstring(
-		game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/highlight.lua")
-	)()
+local SP =
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/SimplePackageManager/master/init.lua"))():setCurrentProject(
+		"exxtremestuffs/SimpleSpySource"
+	)
+
+local Highlight = SP:require("highlight")
 
 ---- GENERATED (kinda sorta mostly) BY GUI to LUA ----
 
