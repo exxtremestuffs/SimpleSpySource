@@ -2104,7 +2104,7 @@ local newnamecall = newcclosure(function(remote, ...)
 					local returnValue
 					if remoteHooks[remote] then
 						args = { remoteHooks[remote](unpack(args)) }
-						returnValue = { original(remote, args) }
+						returnValue = { original(remote, unpack(args)) }
 					else
 						returnValue = { original(remote, unpack(args)) }
 					end
