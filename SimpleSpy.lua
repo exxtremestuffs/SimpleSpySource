@@ -888,7 +888,13 @@ end
 
 --- Called when mouse enters SimpleSpy
 function mouseEntered()
+	local existingCursor = SimpleSpy2:FindFirstChild("Cursor")
+	while existingCursor do
+		existingCursor:Destroy()
+		existingCursor = SimpleSpy2:FindFirstChild("Cursor")
+	end
 	local customCursor = Instance.new("ImageLabel")
+	customCursor.Name = "Cursor"
 	customCursor.Size = UDim2.fromOffset(200, 200)
 	customCursor.ZIndex = 1e5
 	customCursor.BackgroundTransparency = 1
@@ -2304,6 +2310,7 @@ if not _G.SimpleSpyExecuted then
 		bringBackOnResize()
 		SimpleSpy2.Parent = --[[gethui and gethui() or]]
 			CoreGui
+		_G.SimpleSpyExecuted = true
 		if not Players.LocalPlayer then
 			Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 		end
@@ -2311,9 +2318,7 @@ if not _G.SimpleSpyExecuted then
 		oldIcon = Mouse.Icon
 		table.insert(connections, Mouse.Move:Connect(mouseMoved))
 	end)
-	if succeeded then
-		_G.SimpleSpyExecuted = true
-	else
+	if not succeeded then
 		warn(
 			"A fatal error has occured, SimpleSpy was unable to launch properly.\nPlease DM this error message to @exx#9394:\n\n"
 				.. tostring(err)
