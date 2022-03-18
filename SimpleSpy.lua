@@ -885,7 +885,13 @@ end
 
 --- Called when mouse enters SimpleSpy
 function mouseEntered()
+	local existingCursor = SimpleSpy2:FindFirstChild("Cursor")
+	while existingCursor do
+		existingCursor:Destroy()
+		existingCursor = SimpleSpy2:FindFirstChild("Cursor")
+	end
 	local customCursor = Instance.new("ImageLabel")
+	customCursor.Name = "Cursor"
 	customCursor.Size = UDim2.fromOffset(200, 200)
 	customCursor.ZIndex = 1e5
 	customCursor.BackgroundTransparency = 1
