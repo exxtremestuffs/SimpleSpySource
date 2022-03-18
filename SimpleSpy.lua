@@ -387,7 +387,7 @@ local useGetCallingScript = false
 local keyToString = false
 
 -- determines whether return values are recorded
-local recordReturnValues = false
+local recordReturnValues = true
 
 -- functions
 
@@ -2102,7 +2102,7 @@ local newnamecall = newcclosure(function(remote, ...)
 				local args = { ... }
 				task.defer(function()
 					local returnValue
-					if args then
+					if remoteHooks[remote] then
 						args = { remoteHooks[remote](unpack(args)) }
 						returnValue = { original(remote, args) }
 					else
@@ -2560,7 +2560,7 @@ end)
 
 newButton("ToggleReturnValues", function()
 	return string.format(
-		"[$s] [EXPERIMENTAL] Enables recording of return values for 'GetReturnValue'\n\nUse this method at your own risk, as it could be detectable.",
+		"[%s] [EXPERIMENTAL] Enables recording of return values for 'GetReturnValue'\n\nUse this method at your own risk, as it could be detectable.",
 		recordReturnValues and "ENABLED" or "DISABLED"
 	)
 end, function()
