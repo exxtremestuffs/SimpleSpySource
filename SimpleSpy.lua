@@ -2102,6 +2102,7 @@ local newnamecall = newcclosure(function(remote, ...)
 				local args = { ... }
 				task.defer(function()
 					local returnValue
+					setnamecallmethod(methodName)
 					if remoteHooks[remote] then
 						args = { remoteHooks[remote](unpack(args)) }
 						returnValue = { original(remote, unpack(args)) }
