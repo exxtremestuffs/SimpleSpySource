@@ -387,7 +387,7 @@ local useGetCallingScript = false
 local keyToString = false
 
 -- determines whether return values are recorded
-local recordReturnValues = true
+local recordReturnValues = false
 
 -- functions
 
