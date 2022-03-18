@@ -2108,10 +2108,10 @@ local newnamecall = newcclosure(function(remote, ...)
 					else
 						returnValue = { original(remote, unpack(args)) }
 					end
+					coroutine.resume(namecallThread, unpack(returnValue))
 					coroutine.wrap(function()
 						schedule(remoteHandler, false, methodName, remote, args, funcInfo, calling, returnValue)
 					end)()
-					coroutine.resume(namecallThread, unpack(returnValue))
 				end)
 			else
 				coroutine.wrap(function()
