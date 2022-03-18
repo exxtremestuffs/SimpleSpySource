@@ -1223,7 +1223,7 @@ end
 --- @param remote any
 --- @param function_info string
 --- @param blocked any
-function newRemote(type, name, args, remote, function_info, blocked, src)
+function newRemote(type, name, args, remote, function_info, blocked, src, returnValue)
 	local remoteFrame = RemoteTemplate:Clone()
 	remoteFrame.Text.Text = string.sub(name, 1, 50)
 	remoteFrame.ColorBar.BackgroundColor3 = type == "event" and Color3.new(255, 242, 0) or Color3.fromRGB(99, 86, 245)
@@ -1240,6 +1240,7 @@ function newRemote(type, name, args, remote, function_info, blocked, src)
 		Blocked = blocked,
 		Source = src,
 		GenScript = "-- Generating, please wait... (click to reload)\n-- (If this message persists, the remote args are likely extremely long)",
+		ReturnValue = returnValue,
 	}
 	logs[#logs + 1] = log
 	schedule(function()
@@ -1933,7 +1934,7 @@ function taskscheduler()
 end
 
 --- Handles remote logs
-function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling)
+function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling, returnValue)
 	local validInstance, validClass = pcall(function()
 		return remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction")
 	end)
@@ -2001,7 +2002,8 @@ function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling
 				remote,
 				functionInfoStr,
 				(blocklist[remote] or blocklist[remote.Name]),
-				src
+				src,
+				returnValue
 			)
 		end
 	end
