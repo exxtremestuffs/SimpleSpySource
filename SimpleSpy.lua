@@ -2179,8 +2179,24 @@ if not _G.SimpleSpyExecuted then
 			or getrawmetatable and not getrawmetatable(game).__namecall
 			or not setreadonly
 		then
+			local missing = {}
+			if not hookfunction then
+				table.insert(missing, "hookfunction")
+			end
+			if not getrawmetatable then
+				table.insert(missing, "getrawmetatable")
+			end
+			if getrawmetatable and not getrawmetatable(game).__namecall then
+				table.insert(missing, "getrawmetatable(game).__namecall")
+			end
+			if not setreadonly then
+				table.insert(missing, "setreadonly")
+			end
 			shutdown()
-			error("This environment does not support method hooks!\n(Your exploit is not capable of running SimpleSpy)")
+			error(
+				"This environment does not support method hooks!\n(Your exploit is not capable of running SimpleSpy)\nMissing: "
+					.. table.concat(missing, ", ")
+			)
 		end
 		_G.SimpleSpyShutdown = shutdown
 		ContentProvider:PreloadAsync({
