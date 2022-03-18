@@ -386,6 +386,9 @@ local useGetCallingScript = false
 --- used to enable/disable SimpleSpy's keyToString for remotes
 local keyToString = false
 
+-- determines whether return values are recorded
+local recordReturnValues = false
+
 -- functions
 
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote.remote:FireServer`)
@@ -2018,21 +2021,52 @@ function hookRemote(remoteType, remote, ...)
 				funcInfo = debug.getinfo(4) or funcInfo
 				calling = useGetCallingScript and getcallingscript() or nil
 			end
-			schedule(
-				remoteHandler,
-				true,
-				remoteType == "RemoteEvent" and "fireserver" or "invokeserver",
-				remote,
-				args,
-				funcInfo,
-				calling
-			)
-			if blocklist[remote] or blocklist[remoteName] then
-				return
+			if recordReturnValues and remoteType == "RemoteFunction" then
+				local thread = coroutine.running()
+				local args = { ... }
+				task.defer(function()
+					local returnValue
+					if remoteHooks[remote] then
+						args = { remoteHooks[remote](unpack(args)) }
+						returnValue = originalFunction(remote, unpack(args))
+					else
+						returnValue = originalFunction(remote, unpack(args))
+					end
+					schedule(
+						remoteHandler,
+						true,
+						remoteType == "RemoteEvent" and "fireserver" or "invokeserver",
+						remote,
+						args,
+						funcInfo,
+						calling,
+						returnValue
+					)
+					if blocklist[remote] or blocklist[remoteName] then
+						coroutine.resume(thread)
+					else
+						coroutine.resume(thread, unpack(returnValue))
+					end
+				end)
+			else
+				schedule(
+					remoteHandler,
+					true,
+					remoteType == "RemoteEvent" and "fireserver" or "invokeserver",
+					remote,
+					args,
+					funcInfo,
+					calling
+				)
+				if blocklist[remote] or blocklist[remoteName] then
+					return
+				end
 			end
 		end
 	end
-	if remoteType == "RemoteEvent" then
+	if recordReturnValues and remoteType == "RemoteFunction" then
+		return coroutine.yield()
+	elseif remoteType == "RemoteEvent" then
 		if remoteHooks[remote] then
 			return originalEvent(remote, remoteHooks[remote](...))
 		end
@@ -2063,18 +2097,39 @@ local newnamecall = newcclosure(function(remote, ...)
 				funcInfo = debug.getinfo(3) or funcInfo
 				calling = useGetCallingScript and getcallingscript() or nil
 			end
-			coroutine.wrap(function()
-				schedule(remoteHandler, false, methodName, remote, args, funcInfo, calling)
-			end)()
+			if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer") then
+				local namecallThread = coroutine.running()
+				local args = { ... }
+				task.defer(function()
+					local returnValue
+					if args then
+						args = { remoteHooks[remote](unpack(args)) }
+						returnValue = { original(remote, args) }
+					else
+						returnValue = { original(remote, unpack(args)) }
+					end
+					coroutine.wrap(function()
+						schedule(remoteHandler, false, methodName, remote, args, funcInfo, calling, returnValue)
+					end)()
+					coroutine.resume(namecallThread, unpack(returnValue))
+				end)
+			else
+				coroutine.wrap(function()
+					schedule(remoteHandler, false, methodName, remote, args, funcInfo, calling)
+				end)()
+			end
 		end
-		if
+		if recordReturnValues and (methodName == "InvokeServer" or methodName == "invokeServer") then
+			return coroutine.yield()
+		elseif
 			validInstance
 			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer")
 			and (blocklist[remote] or blocklist[remoteName])
 		then
 			return nil
 		elseif
-			validInstance
+			(not recordReturnValues or methodName ~= "InvokeServer" or methodName ~= "invokeServer")
+			and validInstance
 			and (methodName == "FireServer" or methodName == "fireServer" or methodName == "InvokeServer" or methodName == "invokeServer")
 			and remoteHooks[remote]
 		then
@@ -2501,4 +2556,25 @@ end, function()
 		"[%s] [BETA] Uses an experimental new function to replicate Roblox's behavior when a non-primitive type is used as a key in a table. Still in development and may not properly reflect tostringed (empty) userdata.",
 		keyToString and "ENABLED" or "DISABLED"
 	)
+end)
+
+newButton("ToggleReturnValues", function()
+	return string.format(
+		"[$s] [EXPERIMENTAL] Enables recording of return values for 'GetReturnValue'\n\nUse this method at your own risk, as it could be detectable.",
+		recordReturnValues and "ENABLED" or "DISABLED"
+	)
+end, function()
+	recordReturnValues = not recordReturnValues
+	TextLabel.Text = string.format(
+		"[%s] [EXPERIMENTAL] Enables recording of return values for 'GetReturnValue'\n\nUse this method at your own risk, as it could be detectable.",
+		recordReturnValues and "ENABLED" or "DISABLED"
+	)
+end)
+
+newButton("GetReturnValue", function()
+	return "[Experimental] If 'ReturnValues' is enabled, this will show the recorded return value for the RemoteFunction (if available)."
+end, function()
+	if selected then
+		codebox:setRaw(SimpleSpy:ValueToVar(selected.ReturnValue, "returnValue"))
+	end
 end)
