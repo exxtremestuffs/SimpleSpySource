@@ -10,4 +10,10 @@ A maintained fork of SimpleSpy.
 
 ## Contact
 
+Quick copy Discord ID:
+
+```
+1007085490182307880
+```
+
 ![Paygammy on Discord](https://discord-readme-badge.vercel.app/api?id=1007085490182307880)
