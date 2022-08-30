@@ -1,7 +1,6 @@
 --- # SimpleSpy.lua <br/>
---- An experimental, lightweight testing tool that logs Roblox RemoteEvent & RemoteFunction calls.<br/>
---- Undergoing full rewrite at the moment.
---- @author paygammy
+--- An experimental, lightweight testing tool that logs Roblox RemoteEvent & RemoteFunction calls.
+--- @author exxtremestuffs
 --- @version paygammy-2.3
 
 local environment
@@ -2361,14 +2360,14 @@ function handlespecials(value, indentation)
 		if i % 200 == 0 then
 			indentStr = indentStr or string.rep(" ", indentation + indent)
 			table.move({ '"\n', indentStr, '... "' }, 1, 3, i, buildStr)
-			i += 3
+			i = i + 3
 		end
 	end
 	return table.concat(buildStr), false
 end
 
 -- safe (ish) tostring
-function safetostring(v: any)
+function safetostring(v)
 	if typeof(v) == "userdata" or type(v) == "table" then
 		local mt = getrawmetatable(v)
 		local badtostring = mt and rawget(mt, "__tostring")
@@ -2407,7 +2406,7 @@ function getScriptFromSrc(src)
 		e = src:sub(s, -1):find("%.")
 		local i = 0
 		repeat
-			i += 1
+			i = i + 1
 			if not e then
 				runningTest = src:sub(s, -1)
 				local test = realPath.FindFirstChild(realPath, runningTest)
@@ -2489,7 +2488,7 @@ function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling
 				history[remote] = { badOccurances = 0, lastCall = tick() }
 			end
 			if tick() - history[remote].lastCall < 1 then
-				history[remote].badOccurances += 1
+				history[remote].badOccurances = history[remote].badOccurances + 1
 				return
 			else
 				history[remote].badOccurances = 0
