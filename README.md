@@ -16,4 +16,6 @@ Quick copy Discord ID:
 1007085490182307880
 ```
 
+My activity at the moment:
+
 ![Paygammy on Discord](https://discord-readme-badge.vercel.app/api?id=1007085490182307880)
