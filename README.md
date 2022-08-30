@@ -7,3 +7,7 @@
 A maintained fork of SimpleSpy.
 
 <sub>(Includes LuaDoc references!)</sub>
+
+## Contact
+
+![Paygammy on Discord](https://discord-readme-badge.vercel.app/api?id=1007085490182307880)
