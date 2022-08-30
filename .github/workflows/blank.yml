@@ -28,7 +28,7 @@ jobs:
       uses: p3lim/lua-doc-parser@v2
       with:
         # Output path for generated documentation files
-        output: READMD.md
+        # output: 
         # Markup to use as a separator between documentation blocks
         separator: ___
         # Size of headers for each block
