@@ -1,7 +1,7 @@
 --- # SimpleSpy.lua <br/>
 --- An experimental, lightweight testing tool that logs Roblox RemoteEvent & RemoteFunction calls.
 --- @author exxtremestuffs
---- @version 2.2
+--- @version paygammy-2.3
 
 local environment
 if type(getgenv) == "function" then
