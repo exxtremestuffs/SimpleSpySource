@@ -1,6 +1,7 @@
 --- # SimpleSpy.lua <br/>
---- An experimental, lightweight testing tool that logs Roblox RemoteEvent & RemoteFunction calls.
---- @author exxtremestuffs
+--- An experimental, lightweight testing tool that logs Roblox RemoteEvent & RemoteFunction calls.<br/>
+--- Undergoing full rewrite at the moment.
+--- @author paygammy
 --- @version paygammy-2.3
 
 local environment
