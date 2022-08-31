@@ -1,4 +1,4 @@
-MIT License
+<div style="font-size: 200%">MIT License</div></br>
 
 Copyright (c) 2022 Paygammy
 
