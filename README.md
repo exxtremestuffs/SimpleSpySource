@@ -12,7 +12,7 @@ A maintained fork of SimpleSpy.
 
 ## Documentation
 
-You can view the documentation [here](./DOCUMENTATION.md).
+You can view the documentation [here](https://github.com/paygammy/simplespy/wiki/Documentation).
 
 ## License
 
