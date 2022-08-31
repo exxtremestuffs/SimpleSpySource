@@ -1,29 +1,13 @@
-name: Generate documentation
-on: push
+name: luadoc
+on: [push]
 
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone project
-        uses: actions/checkout@v2
-
-      - name: Clone wiki
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ github.repository }}.wiki
-          path: .wiki
-
-      - name: Parse and generate documentation
-        uses: p3lim/lua-doc-parser@v2
-        with:
-          output: .wiki
-
-      - name: Push wiki changes
-        working-directory: .wiki
-        run: |
-          git config user.name CI
-          git config user.email "<>"
-          git add .
-          git diff --quiet HEAD || git commit -m "$GITHUB_SHA"
-          git push
+    - name: Generate Lua docs
+      uses: finale-lua/lua-docs-generator@1.3.1
+      with:
+        input: .
+        repositoryUrl: https://github.com/paygammy/simple-spy-paygammy/
+        output: ./docs
