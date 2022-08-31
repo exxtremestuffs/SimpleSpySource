@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: luadoc
 
 # Controls when the workflow will run
 on:
@@ -28,7 +28,7 @@ jobs:
       uses: p3lim/lua-doc-parser@v2
       with:
         # Output path for generated documentation files
-        # output: 
+        output: docs/
         # Markup to use as a separator between documentation blocks
         separator: ___
         # Size of headers for each block
