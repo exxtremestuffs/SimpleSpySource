@@ -3,13 +3,13 @@ on: [push]
 
 jobs:
   docs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Generate lua docs
       # uses: finale-lua/lua-docs-generator@b21dfa1a896b67a312bae1463c0a4d4c04398418
       uses: finale-lua/lua-docs-generator@1.3.1
       with:
-        input: ./scripts/
-        # repositoryUrl:
-        output: ./docs/
+        input: './scripts'
+        repositoryUrl: https://github.com/paygammy/simple-spy-paygammy/tree/root/scripts/
+        output: './docs'
