@@ -946,6 +946,17 @@ local useGetCallingScript = false
 local keyToString = false
 local recordReturnValues = environment.SimpleSpy.RecordReturnValues
 
+--[[
+% SimpleSpy:ArgsToString
+
+Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote.remote:FireServer`)
+
+@method (string) Method to be used.
+@args (any[]) The arguments to convert.
+
+: (string) Converted result.
+--]]
+
 --- Converts arguments to a string and generates code that calls the specified method with them, recommended to be used in conjunction with ValueToString (method must be a string, e.g. `game:GetService("ReplicatedStorage").Remote.remote:FireServer`)
 --- @param method string
 --- @param args any[]
