@@ -20,7 +20,7 @@ jobs:
               with:
                   persist-credentials: false
                   fetch-depth: 0
-                  repository: paygammy/simple-spy-paygammy
+                  repository: paygammy/SimpleSpy
                   path: './website'
                   token: ${{ secrets.NICK_PERSONAL_TOKEN }}
             - name: build scripts
@@ -37,7 +37,7 @@ jobs:
               uses: finale-lua/lua-docs-generator@1.3.1
               with:
                   input: './lua/src/mixin'
-                  repositoryUrl: 'https://github.com/paygammy/simple-spy-paygammy/tree/root/scripts'
+                  repositoryUrl: 'https://github.com/paygammy/SimpleSpy/tree/root/scripts'
                   output: './lua/docs/mixin'
             - run: 'rm -rf website/docs'
             - run: 'cp -R lua/docs website/docs'
@@ -47,7 +47,7 @@ jobs:
                   github_token: ${{ secrets.NICK_PERSONAL_TOKEN }}
                   directory: website
                   branch: main
-                  repository: paygammy/simple-spy-paygammy
+                  repository: paygammy/SimpleSpy
             - name: Commit & Push docs to this repo
               uses: actions-js/push@v1.3
               with:
