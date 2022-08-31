@@ -20,7 +20,7 @@ jobs:
               with:
                   persist-credentials: false
                   fetch-depth: 0
-                  repository: finale-lua/jw-lua-scripts-docs
+                  repository: paygammy/simple-spy-paygammy
                   path: './website'
                   token: ${{ secrets.NICK_PERSONAL_TOKEN }}
             - name: build scripts
@@ -47,7 +47,7 @@ jobs:
                   github_token: ${{ secrets.NICK_PERSONAL_TOKEN }}
                   directory: website
                   branch: main
-                  repository: finale-lua/jw-lua-scripts-docs
+                  repository: paygammy/simple-spy-paygammy
             - name: Commit & Push docs to this repo
               uses: actions-js/push@v1.3
               with:
