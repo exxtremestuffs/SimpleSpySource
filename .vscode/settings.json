@@ -1,9 +1,0 @@
-{
-    "Lua.diagnostics.disable": [
-        "undefined-global",
-        "deprecated"
-    ],
-    "editor.tabSize": 4,
-    "editor.insertSpaces": false,
-    "editor.detectIndentation": false,
-}
